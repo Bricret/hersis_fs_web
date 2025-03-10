@@ -4,6 +4,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --color-main-background-color: #deddbb;
+  --color-secondary-background-color: #d3d3d3;
+  --color-tertiary-background-color: #f0ffff;
+  --color-border-main: #a9a9a9;
+  --color-border-strong: #033b4a;
+  --color-content-strong: #082f49;
+  --color-content-disable: #c0c0c0;
+  --color-content-subtle: #a9a9a9;
+  --color-content-normal: #333333;
+  --color-content-muted: #6b6b6b;
+  --color-accent-succes-bg: #dff7e6;
+  --color-accent-succes-content: #67b684;
+  --color-accent-error-bg: #f6e6e6;
+  --color-accent-error-content: #d7535f;
+  --color-accent-alert-bg: #faeed9;
+  --color-accent-alert-content: #e17e2f;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
