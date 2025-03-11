@@ -21,11 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} font-inter-tight antialiased bg-secondary-background-color`}
-      >
+      <body className={`${geistSans.variable} font-inter-tight antialiased`}>
         <SidebarProvider>
-          <div className="flex h-screen bg-muted/40">
+          <div className="flex h-screen">
             <MainSidebar />
             {children}
           </div>
