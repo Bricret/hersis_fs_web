@@ -1,16 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import {
   BarChart3,
   Bell,
   Box,
+  ChevronRight,
   ClipboardList,
   CreditCard,
   Home,
   Package,
-  PanelLeft,
   Settings,
   ShoppingCart,
   Store,
@@ -19,9 +18,11 @@ import {
 
 import { Button } from "@/presentation/components/ui/button";
 import { ScrollArea } from "@/presentation/components/ui/scroll-area";
+import { useSidebar } from "./sidebar-context";
+import { SidebarTrigger } from "./sidebar-trigger";
 
 export function MainSidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed } = useSidebar();
 
   return (
     <div
@@ -34,17 +35,8 @@ export function MainSidebar() {
           {!collapsed && <span>PharmaSys</span>}
           <Package className="h-6 w-6" />
         </Link>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="ml-auto"
-          onClick={() => setCollapsed(!collapsed)}
-        >
-          <PanelLeft className="h-4 w-4" />
-          <span className="sr-only">Toggle Sidebar</span>
-        </Button>
       </div>
-      <ScrollArea className="h-[calc(100vh-3.5rem)]">
+      <ScrollArea className="flex-1">
         <div className="px-3 py-2">
           <div className="space-y-1">
             <h2

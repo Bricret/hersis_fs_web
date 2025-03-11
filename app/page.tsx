@@ -28,8 +28,8 @@ import {
   TabsTrigger,
 } from "@/presentation/components/ui/tabs";
 
-import { MainSidebar } from "@/presentation/components/ui/main-sidebar";
 import { DashboardContent } from "@/presentation/components/dashboard/dashboard-content";
+import { SidebarTrigger } from "@/presentation/components/ui/sidebar-trigger";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -42,14 +42,17 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       <header className="flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">
-        <div className="w-full flex-1">
+        <div className="w-full flex-1 flex flex-row items-center gap-4">
+          <div className="border-t p-2">
+            <SidebarTrigger />
+          </div>
           <form>
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Buscar productos, ventas, usuarios..."
-                className="w-full appearance-none bg-background pl-8 md:w-2/3 lg:w-1/3"
+                className="w-full appearance-none bg-background pl-8 md:w-full lg:w-full"
               />
             </div>
           </form>
