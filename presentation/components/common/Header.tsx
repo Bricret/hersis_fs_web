@@ -19,25 +19,39 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import NotificationPopover from "./NotificationPopover";
+import { cn } from "@/infraestructure/lib/utils";
 
-export const Header = () => {
+export const Header = ({
+  className,
+  children,
+  title,
+  subTitle,
+  ...props
+}: {
+  className?: string;
+  children?: React.ReactNode;
+  props?: React.ComponentProps<"div">;
+  title: string;
+  subTitle: string;
+}) => {
   return (
-    <header className="flex h-14 items-center gap-4 border-b border-b-border-main bg-muted px-4 lg:px-6">
-      <div className="w-full flex-1 flex flex-row items-center gap-4">
-        <div className="border-t p-2">
+    <header
+      className={cn(
+        "flex items-center justify-between py-3 pl-3 pr-6 border-b border-b-border-main container",
+        className
+      )}
+      {...props}
+    >
+      <div className="flex items-center gap-4 mr-3">
+        <div className="p-2">
           <SidebarTrigger />
         </div>
-        <form>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Buscar productos, ventas, usuarios..."
-              className="w-full appearance-none bg-background pl-8 md:w-full lg:w-full"
-            />
-          </div>
-        </form>
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+          <p className="text-muted-foreground text-sm">{subTitle}</p>
+        </div>
       </div>
+      {children}
       <div className="flex items-center gap-4">
         <NotificationPopover />
         <DropdownMenu>

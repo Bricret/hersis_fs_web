@@ -26,8 +26,10 @@ export function DashboardContent() {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Ventas Totales</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-base font-medium">
+            Ventas Totales
+          </CardTitle>
+          <DollarSign className="h-w-5 w-5 text-black/60" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">$15,231.89</div>
@@ -42,10 +44,10 @@ export function DashboardContent() {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
+          <CardTitle className="text-base font-medium">
             Productos Vendidos
           </CardTitle>
-          <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+          <ShoppingCart className="h-w-5 w-5 text-black/60" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">+573</div>
@@ -60,8 +62,10 @@ export function DashboardContent() {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Inventario Bajo</CardTitle>
-          <Package className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-base font-medium">
+            Inventario Bajo
+          </CardTitle>
+          <Package className="h-w-5 w-5 text-black/60" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">12</div>
@@ -76,10 +80,10 @@ export function DashboardContent() {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
+          <CardTitle className="text-base font-medium">
             Clientes Activos
           </CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
+          <Users className="h-w-5 w-5 text-black/60" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">+2350</div>

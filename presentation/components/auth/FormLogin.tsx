@@ -3,7 +3,6 @@ import { Button } from "@/presentation/components/ui/button";
 import { Card, CardContent } from "@/presentation/components/ui/card";
 import { Input } from "@/presentation/components/ui/input";
 import { Label } from "@/presentation/components/ui/label";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
