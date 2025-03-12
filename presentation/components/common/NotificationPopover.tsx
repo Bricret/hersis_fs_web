@@ -8,6 +8,7 @@ import {
   PopoverTrigger,
 } from "@/presentation/components/ui/popover";
 import { BellIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const initialNotifications = [
@@ -18,22 +19,31 @@ const initialNotifications = [
     target: "paracetamol 500mg esta bajo de stock",
     timestamp: "15 minutes ago",
     unread: true,
+    data: {
+      route: "/products/1",
+    },
   },
   {
     id: 2,
-    user: "Emma Davis",
-    action: "shared",
-    target: "New component library",
+    user: "Administrador",
+    action: "Verifica que",
+    target: "Inventario esta bajo de stock",
     timestamp: "45 minutes ago",
     unread: true,
+    data: {
+      route: "/inventory",
+    },
   },
   {
     id: 3,
-    user: "James Wilson",
-    action: "assigned you to",
-    target: "API integration task",
+    user: "Administrador",
+    action: "Venta realizada por",
+    target: "juan_Regente en la sucursal 1",
     timestamp: "4 hours ago",
     unread: false,
+    data: {
+      route: "/transactions/1",
+    },
   },
 ];
 
@@ -54,6 +64,8 @@ function Dot({ className }: { className?: string }) {
 }
 
 export default function NotificationPopover() {
+  const route = useRouter();
+
   const [notifications, setNotifications] = useState(initialNotifications);
   const unreadCount = notifications.filter((n) => n.unread).length;
 
@@ -66,7 +78,7 @@ export default function NotificationPopover() {
     );
   };
 
-  const handleNotificationClick = (id: number) => {
+  const handleNotificationClick = (id: number, data: { route: string }) => {
     setNotifications(
       notifications.map((notification) =>
         notification.id === id
@@ -74,6 +86,7 @@ export default function NotificationPopover() {
           : notification
       )
     );
+    route.push(data.route);
   };
 
   return (
@@ -119,7 +132,9 @@ export default function NotificationPopover() {
               <div className="flex-1 space-y-1">
                 <button
                   className="text-foreground/80 text-left after:absolute after:inset-0"
-                  onClick={() => handleNotificationClick(notification.id)}
+                  onClick={() =>
+                    handleNotificationClick(notification.id, notification.data)
+                  }
                 >
                   <span className="text-foreground font-medium hover:underline">
                     {notification.user}

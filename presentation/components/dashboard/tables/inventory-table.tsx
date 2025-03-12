@@ -75,7 +75,7 @@ export function InventoryTable() {
               {item.stock} {item.unit}
             </TableCell>
             <TableCell>
-              <Badge variant={item.stock < 10 ? "destructive" : "secondary"}>
+              <Badge variant={item.stock < 10 ? "destructive" : "alert"}>
                 {item.stock < 10 ? "Crítico" : "Bajo"}
               </Badge>
             </TableCell>

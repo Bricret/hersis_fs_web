@@ -119,7 +119,7 @@ export function RecentSalesTable() {
             </TableCell>
             <TableCell>
               <Badge
-                variant={sale.status === "Completada" ? "default" : "secondary"}
+                variant={sale.status === "Completada" ? "success" : "outline"}
               >
                 {sale.status}
               </Badge>

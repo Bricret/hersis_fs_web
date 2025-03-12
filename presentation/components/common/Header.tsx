@@ -22,7 +22,7 @@ import NotificationPopover from "./NotificationPopover";
 
 export const Header = () => {
   return (
-    <header className="flex h-14 items-center gap-4 border-b border-b-border-main bg-main-background-color px-4 lg:px-6">
+    <header className="flex h-14 items-center gap-4 border-b border-b-border-main bg-muted px-4 lg:px-6">
       <div className="w-full flex-1 flex flex-row items-center gap-4">
         <div className="border-t p-2">
           <SidebarTrigger />

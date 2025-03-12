@@ -3,7 +3,7 @@ import { Button } from "@/presentation/components/ui/button";
 import { Card, CardContent } from "@/presentation/components/ui/card";
 import { Input } from "@/presentation/components/ui/input";
 import { Label } from "@/presentation/components/ui/label";
-import { Package } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -35,7 +35,11 @@ export function LoginForm({
           <form className="p-6 md:p-8" action={handleSubmitLogin}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <Package size={55} className="text-primary mb-2" />
+                <img
+                  src="/large_logo_without_bg.png"
+                  alt="Image"
+                  className="object-cover dark:brightness-[0.2] dark:grayscale w-52 h-auto mb-4"
+                />
                 <h1 className="text-2xl font-bold">Bienvenido de vuelta!</h1>
                 <p className="text-balance text-muted-foreground">
                   Incia sesion para continuar.
