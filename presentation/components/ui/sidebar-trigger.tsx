@@ -1,7 +1,6 @@
-// sidebar-trigger.tsx
 "use client";
 
-import { ChevronLeft, ChevronRight, PanelLeft, PanelRight } from "lucide-react";
+import { PanelLeft, PanelRight } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { useSidebar } from "./sidebar-context";
 

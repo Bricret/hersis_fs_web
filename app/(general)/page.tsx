@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Store } from "lucide-react";
+import {
+  ChartNoAxesCombined,
+  ChevronDown,
+  LayoutDashboard,
+  NotepadText,
+  Store,
+} from "lucide-react";
 
 import { Button } from "@/presentation/components/ui/button";
 import {
@@ -26,16 +32,47 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden bg-muted">
-      <Header />
+      <Header
+        title="Dashboard"
+        subTitle="Bienvenido al sistema de gestión de farmacia"
+      ></Header>
       <main className="flex-1 overflow-y-auto p-4 md:p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Bienvenido al sistema de gestión de farmacia
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
+        <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+          <div className="flex justify-between items-center mb-2">
+            <TabsList className="bg-secondary-background-color border border-border-main overflow-hidden shadow-sm gap-2">
+              <TabsTrigger value="overview">
+                <LayoutDashboard
+                  className="-ms-0.5 me-1.5 opacity-60"
+                  size={16}
+                  aria-hidden="true"
+                />
+                Resumen
+              </TabsTrigger>
+              <TabsTrigger value="analytics">
+                <ChartNoAxesCombined
+                  className="-ms-0.5 me-1.5 opacity-60"
+                  size={16}
+                  aria-hidden="true"
+                />
+                Análisis
+              </TabsTrigger>
+              <TabsTrigger value="reports">
+                <NotepadText
+                  className="-ms-0.5 me-1.5 opacity-60"
+                  size={16}
+                  aria-hidden="true"
+                />
+                Reportes
+              </TabsTrigger>
+              <TabsTrigger value="notifications">
+                <NotepadText
+                  className="-ms-0.5 me-1.5 opacity-60"
+                  size={16}
+                  aria-hidden="true"
+                />
+                Notificaciones
+              </TabsTrigger>
+            </TabsList>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">
@@ -52,18 +89,7 @@ export default function DashboardPage() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
-        <Tabs
-          defaultValue={activeTab}
-          className="mt-6"
-          onValueChange={setActiveTab}
-        >
-          <TabsList className="bg-secondary-background-color">
-            <TabsTrigger value="overview">Resumen</TabsTrigger>
-            <TabsTrigger value="analytics">Análisis</TabsTrigger>
-            <TabsTrigger value="reports">Reportes</TabsTrigger>
-            <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
-          </TabsList>
+
           <TabsContent value="overview" className="space-y-4">
             <DashboardContent />
           </TabsContent>

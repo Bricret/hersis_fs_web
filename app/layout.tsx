@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
 import "./globals.css";
-import { MainSidebar } from "@/presentation/components/ui/main-sidebar";
-import { SidebarProvider } from "@/presentation/components/ui/sidebar-context";
-
+import { Toaster } from "@/presentation/components/ui/sonner";
 const geistSans = Inter_Tight({
   variable: "--font-inter-tight",
   subsets: ["latin"],
@@ -23,6 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} font-inter-tight antialiased`}>
         {children}
+        <Toaster />
       </body>
     </html>
   );
