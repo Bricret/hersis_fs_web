@@ -13,9 +13,9 @@ import { useState } from "react";
 const initialNotifications = [
   {
     id: 1,
-    user: "Chris Tompson",
-    action: "requested review on",
-    target: "PR #42: Feature implementation",
+    user: "Administrador",
+    action: "Verifica que",
+    target: "paracetamol 500mg esta bajo de stock",
     timestamp: "15 minutes ago",
     unread: true,
   },
@@ -33,30 +33,6 @@ const initialNotifications = [
     action: "assigned you to",
     target: "API integration task",
     timestamp: "4 hours ago",
-    unread: false,
-  },
-  {
-    id: 4,
-    user: "Alex Morgan",
-    action: "replied to your comment in",
-    target: "Authentication flow",
-    timestamp: "12 hours ago",
-    unread: false,
-  },
-  {
-    id: 5,
-    user: "Sarah Chen",
-    action: "commented on",
-    target: "Dashboard redesign",
-    timestamp: "2 days ago",
-    unread: false,
-  },
-  {
-    id: 6,
-    user: "Miky Derya",
-    action: "mentioned you in",
-    target: "Origin UI open graph image",
-    timestamp: "2 weeks ago",
     unread: false,
   },
 ];

@@ -21,7 +21,7 @@ import {
 import { DashboardContent } from "@/presentation/components/dashboard/dashboard-content";
 import { Header } from "@/presentation/components/common/Header";
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("overview");
 
   return (

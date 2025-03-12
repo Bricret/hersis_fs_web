@@ -143,7 +143,7 @@ export function MainSidebar() {
               className={`w-full justify-start ${collapsed ? "px-2" : ""}`}
               asChild
             >
-              <Link href="/ventas">
+              <Link href="/shop">
                 <ShoppingCart className="mr-2 h-4 w-4" />
                 {!collapsed && <span>Ventas</span>}
               </Link>
@@ -153,7 +153,7 @@ export function MainSidebar() {
               className={`w-full justify-start ${collapsed ? "px-2" : ""}`}
               asChild
             >
-              <Link href="/inventario">
+              <Link href="/inventory">
                 <Box className="mr-2 h-4 w-4" />
                 {!collapsed && <span>Inventario</span>}
               </Link>
@@ -172,7 +172,7 @@ export function MainSidebar() {
               className={`w-full justify-start ${collapsed ? "px-2" : ""}`}
               asChild
             >
-              <Link href="/usuarios">
+              <Link href="/users">
                 <Users className="mr-2 h-4 w-4" />
                 {!collapsed && <span>Usuarios</span>}
               </Link>
@@ -182,7 +182,7 @@ export function MainSidebar() {
               className={`w-full justify-start ${collapsed ? "px-2" : ""}`}
               asChild
             >
-              <Link href="/reportes">
+              <Link href="/reports">
                 <ClipboardList className="mr-2 h-4 w-4" />
                 {!collapsed && <span>Reportes</span>}
               </Link>
@@ -192,7 +192,7 @@ export function MainSidebar() {
               className={`w-full justify-start ${collapsed ? "px-2" : ""}`}
               asChild
             >
-              <Link href="/transacciones">
+              <Link href="/transactions">
                 <CreditCard className="mr-2 h-4 w-4" />
                 {!collapsed && <span>Transacciones</span>}
               </Link>
@@ -211,7 +211,7 @@ export function MainSidebar() {
               className={`w-full justify-start ${collapsed ? "px-2" : ""}`}
               asChild
             >
-              <Link href="/estadisticas">
+              <Link href="/statistics">
                 <BarChart3 className="mr-2 h-4 w-4" />
                 {!collapsed && <span>Estadísticas</span>}
               </Link>
@@ -221,7 +221,7 @@ export function MainSidebar() {
               className={`w-full justify-start ${collapsed ? "px-2" : ""}`}
               asChild
             >
-              <Link href="/notificaciones">
+              <Link href="/notifications">
                 <Bell className="mr-2 h-4 w-4" />
                 {!collapsed && <span>Notificaciones</span>}
               </Link>
@@ -250,7 +250,7 @@ export function MainSidebar() {
               className={`w-full justify-start ${collapsed ? "px-2" : ""}`}
               asChild
             >
-              <Link href="/configuracion">
+              <Link href="/settings">
                 <Settings className="mr-2 h-4 w-4" />
                 {!collapsed && <span>Configuración</span>}
               </Link>
