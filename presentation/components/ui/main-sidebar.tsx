@@ -19,14 +19,12 @@ import {
 import { Button } from "@/presentation/components/ui/button";
 import { ScrollArea } from "@/presentation/components/ui/scroll-area";
 import { useSidebar } from "./sidebar-context";
-import { SidebarTrigger } from "./sidebar-trigger";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 import { useState } from "react";
@@ -34,17 +32,17 @@ import { useState } from "react";
 const teams = [
   {
     name: "HersisFS",
-    logo: Package,
+    logo: "./onlylogo.jpg",
     plan: "Principal",
   },
   {
     name: "HersisFS 2",
-    logo: Package,
+    logo: "./onlylogo.jpg",
     plan: "Sucursal Norte",
   },
   {
     name: "HersisFS 3",
-    logo: Package,
+    logo: "./onlylogo.jpg",
     plan: "Sucursal Sur",
   },
 ];
@@ -60,7 +58,7 @@ export function MainSidebar() {
         collapsed ? "w-16" : "w-64"
       }`}
     >
-      <div className="flex h-14 items-center border-b border-b-border-main px-4 w-full">
+      <div className="flex h-[77px] items-center border-b border-b-border-main px-4 w-full">
         <div className="flex items-center gap-2 w-full">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -68,7 +66,7 @@ export function MainSidebar() {
                 size="lg"
                 className="bg-transparent w-full text-black hover:bg-secondary-background-color shadow-none"
               >
-                {<activeTeam.logo className="size-6 shrink-0" />}
+                <img src="./onlylogo.png" className="w-14 h-12" />
                 {!collapsed && (
                   <>
                     <div className="grid flex-1 text-left text-sm leading-tight">
@@ -100,7 +98,7 @@ export function MainSidebar() {
                   className="gap-2 p-2"
                 >
                   <div className="flex size-6 items-center justify-center rounded-sm border">
-                    <team.logo className="size-4 shrink-0" />
+                    <Package className="size-4 shrink-0" />
                   </div>
                   {team.name}
                 </DropdownMenuItem>
