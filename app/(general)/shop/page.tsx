@@ -14,6 +14,11 @@ import {
   Clock,
   Star,
   X,
+  PanelsTopLeftIcon,
+  HouseIcon,
+  BoxIcon,
+  Grid,
+  List,
 } from "lucide-react";
 
 import { Badge } from "@/presentation/components/ui/badge";
@@ -26,7 +31,10 @@ import {
   CardTitle,
 } from "@/presentation/components/ui/card";
 import { Input } from "@/presentation/components/ui/input";
-import { ScrollArea } from "@/presentation/components/ui/scroll-area";
+import {
+  ScrollArea,
+  ScrollBar,
+} from "@/presentation/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -68,6 +76,8 @@ import {
   ProductType,
   recentSales,
 } from "@/core/data/sales/DataSales";
+import TabFavoriteProducts from "@/presentation/components/store/TabFavoriteProducts";
+import { TabAllProducts } from "@/presentation/components/store/TabAllProducts";
 
 export default function VentasPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,42 +93,6 @@ export default function VentasPage() {
   const [recentSalesDialogOpen, setRecentSalesDialogOpen] = useState(false);
   const [barcodeMode, setBarcodeMode] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  // Filtrar productos por categoría y término de búsqueda
-  const filteredProducts = productsData.filter((product) => {
-    const matchesCategory =
-      selectedCategory === "all" ||
-      product.category.toLowerCase() === selectedCategory.toLowerCase();
-
-    const matchesSearch =
-      searchTerm === "" ||
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase());
-
-    return matchesCategory && matchesSearch;
-  });
-
-  // Productos populares
-  const popularProducts = productsData.filter((product) => product.popular);
-
-  // Actualizar sugerencias de búsqueda
-  useEffect(() => {
-    if (searchTerm.length > 1) {
-      const suggestions = productsData
-        .filter(
-          (product) =>
-            product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.code.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        .slice(0, 5);
-
-      setSearchSuggestions(suggestions);
-      setShowSuggestions(suggestions.length > 0);
-    } else {
-      setShowSuggestions(false);
-    }
-  }, [searchTerm]);
 
   // Manejar teclas para navegación y atajos
   useEffect(() => {
@@ -192,7 +166,7 @@ export default function VentasPage() {
   };
 
   // Función para mostrar diálogo de selección de producto
-  const showProductDialog = (product: (typeof productsData)[0]) => {
+  const showProductDialog = (product: ProductType) => {
     setSelectedProduct(product);
     setProductDialogOpen(true);
   };
@@ -437,161 +411,43 @@ export default function VentasPage() {
               </div>
 
               {!barcodeMode && (
-                <>
-                  {/* Categorías como botones rápidos */}
-                  <div className="flex flex-wrap gap-2">
-                    {categories.slice(1).map((category) => (
-                      <Button
-                        key={category.id}
-                        variant={
-                          selectedCategory === category.id
-                            ? "default"
-                            : "outline"
-                        }
-                        onClick={() => setSelectedCategory(category.id)}
-                        className="h-auto py-1.5"
-                      >
-                        {category.name}
-                      </Button>
-                    ))}
-                  </div>
-
-                  {/* Productos populares */}
-                  <div className="space-y-4">
-                    <div className="flex items-center">
-                      <h2 className="text-lg font-medium">
-                        Productos populares
-                      </h2>
-                      <Star className="ml-2 h-4 w-4 text-yellow-500" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4">
-                      {popularProducts.map((product) => (
-                        <Card
-                          key={product.id}
-                          className="overflow-hidden cursor-pointer hover:border-primary transition-colors"
-                          onClick={() => showProductDialog(product)}
-                        >
-                          <CardHeader className="p-4 pb-2">
-                            <CardTitle className="line-clamp-1 text-base">
-                              {product.name}
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="p-4 pt-0">
-                            <div className="flex flex-col gap-2">
-                              <Badge variant="outline">
-                                {product.category}
-                              </Badge>
-                              <div className="flex items-center justify-between">
-                                <span className="font-medium">
-                                  ${product.price.toFixed(2)}
-                                </span>
-                                <span className="text-sm text-muted-foreground">
-                                  Stock: {product.stock}
-                                </span>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Lista de productos */}
-                  <div className="space-y-4">
-                    <h2 className="text-lg font-medium">Todos los productos</h2>
-                    <Tabs defaultValue="grid">
-                      <div className="flex justify-between">
-                        <TabsList>
-                          <TabsTrigger value="grid">Cuadrícula</TabsTrigger>
-                          <TabsTrigger value="list">Lista</TabsTrigger>
-                        </TabsList>
-                      </div>
-                      <TabsContent value="grid" className="mt-4">
-                        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
-                          {filteredProducts.map((product) => (
-                            <Card
-                              key={product.id}
-                              className="overflow-hidden cursor-pointer hover:border-primary transition-colors"
-                              onClick={() => showProductDialog(product)}
-                            >
-                              <CardHeader className="p-4 pb-2">
-                                <CardTitle className="line-clamp-1 text-base">
-                                  {product.name}
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="p-4 pt-0">
-                                <div className="flex flex-col gap-2">
-                                  <Badge variant="outline">
-                                    {product.category}
-                                  </Badge>
-                                  <div className="flex items-center justify-between">
-                                    <span className="font-medium">
-                                      ${product.price.toFixed(2)}
-                                    </span>
-                                    <span className="text-sm text-muted-foreground">
-                                      Stock: {product.stock} {product.unit}
-                                    </span>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="list" className="mt-4">
-                        <Card>
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Código</TableHead>
-                                <TableHead>Producto</TableHead>
-                                <TableHead>Categoría</TableHead>
-                                <TableHead>Precio</TableHead>
-                                <TableHead>Stock</TableHead>
-                                <TableHead className="text-right">
-                                  Acción
-                                </TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {filteredProducts.map((product) => (
-                                <TableRow key={product.id}>
-                                  <TableCell className="font-medium">
-                                    {product.code}
-                                  </TableCell>
-                                  <TableCell>{product.name}</TableCell>
-                                  <TableCell>
-                                    <Badge variant="outline">
-                                      {product.category}
-                                    </Badge>
-                                  </TableCell>
-                                  <TableCell>
-                                    ${product.price.toFixed(2)}
-                                  </TableCell>
-                                  <TableCell>
-                                    {product.stock} {product.unit}
-                                  </TableCell>
-                                  <TableCell className="text-right">
-                                    <Button
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        showProductDialog(product);
-                                      }}
-                                    >
-                                      <Plus className="mr-1 h-4 w-4" />
-                                      Agregar
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </Card>
-                      </TabsContent>
-                    </Tabs>
-                  </div>
-                </>
+                <Tabs defaultValue="tabSection-1">
+                  <TabsList className="before:bg-border relative mb-3 h-auto w-full gap-0.5 bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px">
+                    <TabsTrigger
+                      value="tabSection-1"
+                      className="bg-main-background-color/75 border border-main-background-color overflow-hidden rounded-b-none border-x border-t py-2 data-[state=active]:z-10 data-[state=active]:shadow-none flex items-center"
+                    >
+                      <Star className="ml-2 h-4 w-4 text-yellow-500 mr-1" />
+                      Productos populares
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="tabSection-2"
+                      className="bg-main-background-color/75 border border-main-background-color overflow-hidden rounded-b-none border-x border-t py-2 data-[state=active]:z-10 data-[state=active]:shadow-none"
+                    >
+                      <BoxIcon
+                        className="-ms-0.5 me-1.5"
+                        size={16}
+                        aria-hidden="true"
+                      />
+                      Todos los productos
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="tabSection-1">
+                    <TabFavoriteProducts
+                      searchTerm={searchTerm}
+                      setSearchSuggestions={setSearchSuggestions}
+                      setShowSuggestions={setShowSuggestions}
+                      showProductDialog={showProductDialog}
+                    />
+                  </TabsContent>
+                  <TabsContent value="tabSection-2">
+                    <TabAllProducts
+                      searchTerm={searchTerm}
+                      selectedCategory={selectedCategory}
+                      showProductDialog={showProductDialog}
+                    />
+                  </TabsContent>
+                </Tabs>
               )}
             </div>
 

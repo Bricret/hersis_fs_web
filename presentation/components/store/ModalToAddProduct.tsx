@@ -1,6 +1,5 @@
 "use client";
 
-import { ProductType } from "@/app/(general)/shop/page";
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -15,6 +14,8 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import PlusMinusInput from "../common/PlusMinusInput";
 import { Button } from "../ui/button";
 import { ShoppingCart } from "lucide-react";
+import { ProductType } from "@/core/data/sales/DataSales";
+import { Separator } from "../ui/separator";
 
 interface ProductSelectionDialogProps {
   product: ProductType | null;
@@ -59,9 +60,9 @@ export default function ModalToAddProduct({
         </DialogHeader>
         <div className="flex items-start gap-4 py-4">
           <img
-            src={product.image || "/placeholder.svg"}
+            src={"/pill.webp"}
             alt={product.name}
-            className="h-20 w-20 rounded-md object-cover"
+            className="h-20 w-20 rounded-md object-fill"
           />
           <div className="flex-1">
             <h3 className="font-medium">{product.name}</h3>
@@ -78,26 +79,59 @@ export default function ModalToAddProduct({
         </div>
 
         <div className="space-y-4">
+          <Separator className="bg-border-main" />
           <div className="space-y-2">
             <Label>Presentación</Label>
             <RadioGroup
+              className="gap-4 flex"
               defaultValue="box"
-              value={sellByUnit ? "unit" : "box"}
               onValueChange={(value) => setSellByUnit(value === "unit")}
-              className="flex gap-4"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="box" id="box" />
-                <Label htmlFor="box" className="cursor-pointer">
-                  Caja ({product.unitsPerBox} unidades) - $
-                  {product.price.toFixed(2)}
-                </Label>
+              {/* Radio card #1 */}
+              <div className="border-input has-data-[state=checked]:border-ring relative flex w-full items-start gap-2 rounded-md border p-4 shadow-xs outline-none">
+                <RadioGroupItem
+                  value="box"
+                  id="box"
+                  className="order-1 after:absolute after:inset-0"
+                />
+                <div className="grid grow gap-2">
+                  <Label htmlFor="box">
+                    Caja{" "}
+                    <span className="text-muted-foreground text-xs leading-[inherit] font-normal">
+                      Presentación
+                    </span>
+                  </Label>
+                  <p
+                    id={`box-description`}
+                    className="text-muted-foreground text-xs"
+                  >
+                    ({product.unitsPerBox} unidades) - $
+                    {product.price.toFixed(2)}
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="unit" id="unit" />
-                <Label htmlFor="unit" className="cursor-pointer">
-                  Unidad - ${product.pricePerUnit.toFixed(2)}
-                </Label>
+              {/* Radio card #2 */}
+              <div className="border-input has-data-[state=checked]:border-ring relative flex w-full items-start gap-2 rounded-md border p-4 shadow-xs outline-none">
+                <RadioGroupItem
+                  value="unit"
+                  id="unit"
+                  aria-describedby={`unit-description`}
+                  className="order-1 after:absolute after:inset-0"
+                />
+                <div className="grid grow gap-2">
+                  <Label htmlFor="unit">
+                    Unidad{" "}
+                    <span className="text-muted-foreground text-xs leading-[inherit] font-normal">
+                      Presentación
+                    </span>
+                  </Label>
+                  <p
+                    id={`unit-description`}
+                    className="text-muted-foreground text-xs"
+                  >
+                    Unidad - ${product.pricePerUnit.toFixed(2)}
+                  </p>
+                </div>
               </div>
             </RadioGroup>
           </div>
@@ -107,7 +141,7 @@ export default function ModalToAddProduct({
             <PlusMinusInput quantity={quantity} setQuantity={setQuantity} />
           </div>
 
-          <div className="rounded-lg bg-muted p-3">
+          <div className="rounded-lg bg-main-background-color p-3 shadow-md">
             <div className="flex items-center justify-between">
               <span className="font-medium">Subtotal:</span>
               <span className="font-bold">
@@ -116,7 +150,7 @@ export default function ModalToAddProduct({
             </div>
           </div>
         </div>
-
+        <Separator className="bg-border-main" />
         <DialogFooter className="sm:justify-between">
           <Button variant="outline" onClick={onClose}>
             Cancelar
