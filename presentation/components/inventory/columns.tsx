@@ -224,24 +224,15 @@ export const columns: ColumnDef<Products>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => {
-                navigator.clipboard.writeText(payment.id);
-                toast("Payment ID copied to clipboard", {
-                  position: "top-right",
-                  duration: 3000,
-                });
-                // toast({
-                //   description: "Payment ID copied to clipboard",
-                // });
-              }}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
+            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+            <DropdownMenuItem>Ver mas</DropdownMenuItem>
+            <DropdownMenuItem>Reabastecer</DropdownMenuItem>
+            <DropdownMenuItem>Cambiar Precio</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>Editar</DropdownMenuItem>
+            <DropdownMenuItem>
+              <p className="text-destructive">Borrar</p>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

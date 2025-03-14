@@ -52,7 +52,7 @@ export function MainSidebar() {
   return (
     <div
       className={`border-r border-r-border-main bg-secondary-background-color transition-all duration-300 ${
-        collapsed ? "w-16" : "w-64"
+        collapsed ? "w-16" : "w-56"
       }`}
     >
       <div className="flex h-[77px] items-center border-b border-b-border-main w-full">

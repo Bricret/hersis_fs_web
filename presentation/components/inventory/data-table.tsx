@@ -50,7 +50,12 @@ import {
   PaginationEllipsis,
   PaginationItem,
 } from "../ui/pagination";
-import { ChevronLeftIcon, ChevronRightIcon, Filter } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Columns2,
+  Filter,
+} from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -170,6 +175,7 @@ export function DataTable<TData, TValue>({
                 variant="outline"
                 className="ml-auto bg-main-background-color border border-stone-300"
               >
+                <Columns2 size={16} />
                 Columns
               </Button>
             </DropdownMenuTrigger>
@@ -210,7 +216,9 @@ export function DataTable<TData, TValue>({
             </Button>
           )}
         </article>
-        <Button>Agregar producto</Button>
+        <Button className="bg-main-background-color hover:bg-main-background-color/90 shadow-md text-black font-medium">
+          Agregar producto
+        </Button>
       </section>
 
       <div className="rounded-md border">
@@ -283,6 +291,7 @@ export function DataTable<TData, TValue>({
                     variant="outline"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
+                    className="bg-main-background-color border border-stone-300"
                   >
                     <ChevronLeftIcon size={16} />
                   </Button>
@@ -300,6 +309,7 @@ export function DataTable<TData, TValue>({
                           typeof page === "number" &&
                           table.setPageIndex(page - 1)
                         }
+                        className="bg-main-background-color border border-stone-300"
                       >
                         {page}
                       </Button>
@@ -313,6 +323,7 @@ export function DataTable<TData, TValue>({
                     variant="outline"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
+                    className="bg-main-background-color border border-stone-300"
                   >
                     <ChevronRightIcon size={16} />
                   </Button>
@@ -327,7 +338,7 @@ export function DataTable<TData, TValue>({
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => table.setPageSize(Number(value))}
             >
-              <SelectTrigger className="w-[135px]">
+              <SelectTrigger className="w-[135px] bg-main-background-color border border-stone-300">
                 <SelectValue placeholder="Resultados por página" />
               </SelectTrigger>
               <SelectContent>

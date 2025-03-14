@@ -257,7 +257,7 @@ export default function VentasPage() {
   };
 
   return (
-    <div className="flex h-full w-full bg-muted">
+    <div className="flex flex-col flex-1 overflow-hidden bg-muted">
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header
           title="Ventas"
