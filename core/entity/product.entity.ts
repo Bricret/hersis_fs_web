@@ -10,7 +10,7 @@ export interface Products {
 }
 
 export enum ProductState {
-  BAJO = "BAJO",
+  ALTO = "ALTO",
   MEDIO = "MEDIO",
   CRITICO = "CRITICO",
 }

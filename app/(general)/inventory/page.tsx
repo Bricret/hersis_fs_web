@@ -1,5 +1,7 @@
+import { DataProducts } from "@/core/data/DataProducts";
 import { Header } from "@/presentation/components/common/Header";
-import ProductTable from "@/presentation/components/inventory/ProductTable";
+import { columns } from "@/presentation/components/inventory/columns";
+import { DataTable } from "@/presentation/components/inventory/data-table";
 
 export default function InventoryPage() {
   return (
@@ -10,7 +12,7 @@ export default function InventoryPage() {
       Aquí podrás ver y gestionar todos los productos que tienes en tu inventario."
       />
       <div className="container mx-auto px-6 pt-4">
-        <ProductTable />
+        <DataTable columns={columns} data={DataProducts} />
       </div>
     </main>
   );
