@@ -37,7 +37,7 @@ export const Header = ({
   return (
     <header
       className={cn(
-        "flex items-center justify-between py-3 pl-3 pr-6 border-b border-b-border-main container",
+        "flex items-center justify-between py-3 pl-3 pr-6 border-b border-b-border-main",
         className
       )}
       {...props}

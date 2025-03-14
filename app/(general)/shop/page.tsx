@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import {
   CreditCard,
   Package,
-  Plus,
   Search,
   ShoppingCart,
   Trash2,
@@ -14,11 +13,7 @@ import {
   Clock,
   Star,
   X,
-  PanelsTopLeftIcon,
-  HouseIcon,
   BoxIcon,
-  Grid,
-  List,
 } from "lucide-react";
 
 import { Badge } from "@/presentation/components/ui/badge";
@@ -31,10 +26,7 @@ import {
   CardTitle,
 } from "@/presentation/components/ui/card";
 import { Input } from "@/presentation/components/ui/input";
-import {
-  ScrollArea,
-  ScrollBar,
-} from "@/presentation/components/ui/scroll-area";
+import { ScrollArea } from "@/presentation/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -43,14 +35,6 @@ import {
   SelectValue,
 } from "@/presentation/components/ui/select";
 import { Separator } from "@/presentation/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/presentation/components/ui/table";
 import {
   Tabs,
   TabsContent,

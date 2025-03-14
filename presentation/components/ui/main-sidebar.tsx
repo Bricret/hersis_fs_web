@@ -32,17 +32,14 @@ import { useState } from "react";
 const teams = [
   {
     name: "HersisFS",
-    logo: "./onlylogo.jpg",
     plan: "Principal",
   },
   {
     name: "HersisFS 2",
-    logo: "./onlylogo.jpg",
     plan: "Sucursal Norte",
   },
   {
     name: "HersisFS 3",
-    logo: "./onlylogo.jpg",
     plan: "Sucursal Sur",
   },
 ];
@@ -58,7 +55,7 @@ export function MainSidebar() {
         collapsed ? "w-16" : "w-64"
       }`}
     >
-      <div className="flex h-[77px] items-center border-b border-b-border-main px-4 w-full">
+      <div className="flex h-[77px] items-center border-b border-b-border-main w-full">
         <div className="flex items-center gap-2 w-full">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -66,7 +63,12 @@ export function MainSidebar() {
                 size="lg"
                 className="bg-transparent w-full text-black hover:bg-secondary-background-color shadow-none"
               >
-                <img src="./onlylogo.png" className="w-14 h-12" />
+                <img
+                  src="./onlylogo.png"
+                  className={`${
+                    collapsed ? "w-12= h-12=" : "w-14 h-12"
+                  } object-contain mx-auto`}
+                />
                 {!collapsed && (
                   <>
                     <div className="grid flex-1 text-left text-sm leading-tight">
