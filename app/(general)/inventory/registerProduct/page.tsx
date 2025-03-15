@@ -945,38 +945,7 @@ export default function RegisterProductPage() {
         subTitle="Aquí podrás registrar un nuevo producto en tu inventario."
       />
       <div className="flex-1 overflow-y-auto p-4 md:p-6">
-        <Tabs defaultValue="multiple" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="individual">Registro Individual</TabsTrigger>
-            <TabsTrigger value="multiple">Registro Múltiple</TabsTrigger>
-          </TabsList>
-          <TabsContent value="individual" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Nuevo Medicamento</CardTitle>
-                <CardDescription>
-                  Complete el formulario para registrar un nuevo medicamento
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <FormularioMedicamento
-                  medicamento={medicamentoVacio}
-                  onChange={() => {}}
-                  onSave={() => {
-                    toast("Medicamento guardado", {
-                      description:
-                        "El medicamento ha sido registrado correctamente",
-                      duration: 3000,
-                    });
-                  }}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="multiple">
-            <FormularioMultiple />
-          </TabsContent>
-        </Tabs>
+        <FormularioMultiple />
       </div>
     </main>
   );
