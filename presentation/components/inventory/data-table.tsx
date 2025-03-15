@@ -56,6 +56,7 @@ import {
   Columns2,
   Filter,
 } from "lucide-react";
+import Link from "next/link";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -216,9 +217,11 @@ export function DataTable<TData, TValue>({
             </Button>
           )}
         </article>
-        <Button className="bg-main-background-color hover:bg-main-background-color/90 shadow-md text-black font-medium">
-          Agregar producto
-        </Button>
+        <Link href="/inventory/registerProduct" passHref>
+          <Button className="bg-main-background-color hover:bg-main-background-color/90 shadow-md text-black font-medium">
+            Agregar producto
+          </Button>
+        </Link>
       </section>
 
       <div className="rounded-md border">
@@ -309,7 +312,7 @@ export function DataTable<TData, TValue>({
                           typeof page === "number" &&
                           table.setPageIndex(page - 1)
                         }
-                        className="bg-main-background-color border border-stone-300"
+                        className="bg-main-background-color border border-stone-300 active:bg-main-background-color/90"
                       >
                         {page}
                       </Button>
