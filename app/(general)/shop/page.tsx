@@ -54,11 +54,14 @@ import ModalToAddProduct from "@/presentation/components/store/ModalToAddProduct
 import ModalPayment from "@/presentation/components/store/ModalPayment";
 import ModalToRecentSales from "@/presentation/components/store/ModalToRecentSales";
 import {
-  CartItem,
   categories,
   productsData,
-  ProductType,
   recentSales,
+} from "@/core/data/sales/DataSales";
+import type {
+  CartItem,
+  ItemsProps,
+  ProductType,
 } from "@/core/data/sales/DataSales";
 import TabFavoriteProducts from "@/presentation/components/store/TabFavoriteProducts";
 import { TabAllProducts } from "@/presentation/components/store/TabAllProducts";
@@ -228,10 +231,10 @@ export default function VentasPage() {
   };
 
   // Repetir venta desde historial
-  const repeatSale = (items: any[]) => {
+  const repeatSale = (items: ItemsProps[]) => {
     const newCart: CartItem[] = [];
 
-    items.forEach((item) => {
+    for (const item of items) {
       const product = productsData.find((p) => p.id === item.id);
       if (product) {
         newCart.push({
@@ -245,7 +248,7 @@ export default function VentasPage() {
           sellByUnit: false,
         });
       }
-    });
+    }
 
     setCart(newCart);
 
@@ -364,7 +367,7 @@ export default function VentasPage() {
 
                 {/* Sugerencias de búsqueda */}
                 {showSuggestions && (
-                  <div className="absolute z-10 mt-1 w-full rounded-md border bg-background shadow-lg">
+                  <div className="absolute z-20 mt-1 w-full rounded-md border bg-background shadow-lg">
                     {searchSuggestions.map((product) => (
                       <div
                         key={product.id}
@@ -372,6 +375,12 @@ export default function VentasPage() {
                         onClick={() => {
                           showProductDialog(product);
                           setShowSuggestions(false);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            showProductDialog(product);
+                            setShowSuggestions(false);
+                          }
                         }}
                       >
                         <div className="flex-1">

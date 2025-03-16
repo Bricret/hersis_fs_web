@@ -35,7 +35,7 @@ export default function DashboardPage() {
       <Header
         title="Dashboard"
         subTitle="Bienvenido al sistema de gestión de farmacia"
-      ></Header>
+      />
       <main className="flex-1 overflow-y-auto p-4 md:p-6">
         <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
           <div className="flex justify-between items-center mb-2">

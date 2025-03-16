@@ -187,9 +187,16 @@ export const categories = [
 export interface RecentSalesProps {
   id: string;
   date: Date;
-  items: any[];
+  items: ItemsProps[];
   total: number;
   paymentMethod: string;
+}
+
+export interface ItemsProps {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
 }
 // Historial de ventas recientes
 export const recentSales: RecentSalesProps[] = [

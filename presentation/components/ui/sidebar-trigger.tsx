@@ -2,10 +2,10 @@
 
 import { PanelLeft, PanelRight } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
-import { useSidebar } from "./sidebar-context";
+import { useSidebar } from "./sidebar";
 
 export function SidebarTrigger() {
-  const { collapsed, toggleSidebar } = useSidebar();
+  const { isMobile, toggleSidebar } = useSidebar();
 
   return (
     <Button
@@ -15,7 +15,7 @@ export function SidebarTrigger() {
       onClick={toggleSidebar}
       aria-label="Toggle Sidebar"
     >
-      {collapsed ? (
+      {isMobile ? (
         <PanelRight className="h-8 w-8" />
       ) : (
         <PanelLeft className="h-8 w-8" />
