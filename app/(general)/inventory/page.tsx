@@ -5,7 +5,7 @@ import { DataTable } from "@/presentation/components/inventory/data-table";
 
 export default function InventoryPage() {
   return (
-    <main className="flex flex-col flex-1 overflow-hidden bg-muted">
+    <main className="flex flex-col flex-1 overflow-hidden bg-white">
       <Header
         title="Inventario"
         subTitle="

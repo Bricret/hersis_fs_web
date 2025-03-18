@@ -3,12 +3,8 @@
 import {
   AudioWaveform,
   Bell,
-  BookOpen,
-  Bot,
   Command,
   CreditCard,
-  CreditCardIcon,
-  Frame,
   GalleryVerticalEnd,
   Home,
   NotepadText,
@@ -30,6 +26,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/presentation/components/ui/sidebar";
+import { useIsMobile } from "@/presentation/hooks/use-mobile";
 
 // This is sample data.
 const data = {
@@ -72,8 +69,6 @@ const data = {
       url: "/inventory",
       icon: Package,
     },
-  ],
-  navAdmin: [
     {
       title: "Usuarios",
       url: "/users",
@@ -90,8 +85,6 @@ const data = {
       url: "/transactions",
       icon: CreditCard,
     },
-  ],
-  navAnalist: [
     {
       title: "Estadísticas",
       url: "/stats",
@@ -122,17 +115,19 @@ const data = {
 export function MainSideBar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const isMobile = useIsMobile();
+
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="bg-main-content">
+      <SidebarHeader className="bg-quaternary-background-color">
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
-      <SidebarContent className="bg-main-content">
-        <NavMain items={data.navMain} title="General" />
-        <NavMain items={data.navAdmin} title="Administracion" />
-        <NavMain items={data.navAnalist} title="Analisis" />
-        <NavMain items={data.navManage} title="Sistema" />
+      <SidebarContent className="bg-quaternary-background-color">
+        <NavMain items={data.navMain} />
       </SidebarContent>
+      <SidebarFooter className="bg-quaternary-background-color">
+        <NavMain items={data.navManage} />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

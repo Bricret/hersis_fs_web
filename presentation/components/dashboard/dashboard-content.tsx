@@ -20,82 +20,91 @@ import {
 import { InventoryTable } from "./tables/inventory-table";
 import { RecentSalesTable } from "./tables/recent-sales-table";
 import { SalesChart } from "./tables/sales-chart";
+import { CardShine } from "../ui/card-shine";
 
 export function DashboardContent() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-base font-medium">
-            Ventas Totales
-          </CardTitle>
-          <DollarSign className="h-w-5 w-5 text-black/60" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">$15,231.89</div>
-          <p className="text-xs text-muted-foreground">
-            <span className="text-emerald-500 flex items-center">
-              <ArrowUp className="mr-1 h-4 w-4" />
-              +20.1%
-            </span>{" "}
-            desde el mes pasado
-          </p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-base font-medium">
-            Productos Vendidos
-          </CardTitle>
-          <ShoppingCart className="h-w-5 w-5 text-black/60" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">+573</div>
-          <p className="text-xs text-muted-foreground">
-            <span className="text-emerald-500 flex items-center">
-              <ArrowUp className="mr-1 h-4 w-4" />
-              +12.5%
-            </span>{" "}
-            desde el mes pasado
-          </p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-base font-medium">
-            Inventario Bajo
-          </CardTitle>
-          <Package className="h-w-5 w-5 text-black/60" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">12</div>
-          <p className="text-xs text-muted-foreground">
-            <span className="text-rose-500 flex items-center">
-              <ArrowDown className="mr-1 h-4 w-4" />
-              -2
-            </span>{" "}
-            desde ayer
-          </p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-base font-medium">
-            Clientes Activos
-          </CardTitle>
-          <Users className="h-w-5 w-5 text-black/60" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">+2350</div>
-          <p className="text-xs text-muted-foreground">
-            <span className="text-emerald-500 flex items-center">
-              <ArrowUp className="mr-1 h-4 w-4" />
-              +10.1%
-            </span>{" "}
-            desde el mes pasado
-          </p>
-        </CardContent>
-      </Card>
+      <CardShine>
+        <div className="text-card-foreground flex flex-col gap-6">
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div className="text-base font-medium">Ventas Totales</div>
+            <div className="bg-white rounded-full">
+              <DollarSign className="h-w-5 w-5 text-black/60" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold">$15,231.89</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-emerald-500 flex items-center">
+                <ArrowUp className="mr-1 h-4 w-4" />
+                +20.1%
+              </span>{" "}
+              desde el mes pasado
+            </p>
+          </div>
+        </div>
+      </CardShine>
+      <CardShine>
+        <div className="text-card-foreground flex flex-col gap-6">
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div className="text-base font-medium">Productos Vendidos</div>
+            <div className="bg-white rounded-full">
+              <ShoppingCart className="h-w-5 w-5 text-black/60" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold">+573</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-emerald-500 flex items-center">
+                <ArrowUp className="mr-1 h-4 w-4" />
+                +12.5%
+              </span>{" "}
+              desde el mes pasado
+            </p>
+          </div>
+        </div>
+      </CardShine>
+      <CardShine>
+        <div className="text-card-foreground flex flex-col gap-6">
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div className="text-base font-medium">Inventario Bajo</div>
+            <div className="bg-white rounded-full">
+              <Package className="h-w-5 w-5 text-black/60" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold">12</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-rose-500 flex items-center">
+                <ArrowDown className="mr-1 h-4 w-4" />
+                -2
+              </span>{" "}
+              desde ayer
+            </p>
+          </div>
+        </div>
+      </CardShine>
+      <CardShine>
+        <div className="text-card-foreground flex flex-col gap-6">
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div className="text-base font-medium">Clientes Activos</div>
+            <div className="bg-white rounded-full">
+              <Users className="h-w-5 w-5 text-black/60" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold">+2350</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-emerald-500 flex items-center">
+                <ArrowUp className="mr-1 h-4 w-4" />
+                +10.1%
+              </span>{" "}
+              desde el mes pasado
+            </p>
+          </div>
+        </div>
+      </CardShine>
       <Card className="col-span-4">
         <CardHeader>
           <CardTitle>Ventas Mensuales</CardTitle>

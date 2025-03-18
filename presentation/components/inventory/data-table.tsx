@@ -57,6 +57,7 @@ import {
   Filter,
 } from "lucide-react";
 import Link from "next/link";
+import { ButtonBackgroundShine } from "../ui/button-bg-shine";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -155,7 +156,7 @@ export function DataTable<TData, TValue>({
               table.getColumn("state")?.setFilterValue(value);
             }}
           >
-            <SelectTrigger className="w-auto ml-2 bg-main-background-color border border-stone-300">
+            <SelectTrigger className="w-auto ml-2 bg-transparent border">
               <Filter size={16} />
               <SelectValue placeholder="Estado - Todos" />
             </SelectTrigger>
@@ -174,7 +175,7 @@ export function DataTable<TData, TValue>({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="ml-auto bg-main-background-color border border-stone-300"
+                className="ml-auto bg-transparent border"
               >
                 <Columns2 size={16} />
                 Columns
@@ -218,9 +219,9 @@ export function DataTable<TData, TValue>({
           )}
         </article>
         <Link href="/inventory/registerProduct" passHref>
-          <Button className="bg-main-background-color hover:bg-main-background-color/90 shadow-md text-black font-medium">
+          <ButtonBackgroundShine className="bg-main-background-color">
             Agregar producto
-          </Button>
+          </ButtonBackgroundShine>
         </Link>
       </section>
 
@@ -230,7 +231,7 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
-                className="bg-main-background-color hover:bg-main-background-color/90"
+                className="bg-[#f9f9f9] hover:bg-[#f9f9f9]/90"
               >
                 {headerGroup.headers.map((header) => {
                   return (
@@ -294,7 +295,7 @@ export function DataTable<TData, TValue>({
                     variant="outline"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
-                    className="bg-main-background-color border border-stone-300"
+                    className="bg-transparent border"
                   >
                     <ChevronLeftIcon size={16} />
                   </Button>
@@ -312,7 +313,7 @@ export function DataTable<TData, TValue>({
                           typeof page === "number" &&
                           table.setPageIndex(page - 1)
                         }
-                        className="bg-main-background-color border border-stone-300 active:bg-main-background-color/90"
+                        className="bg-transparent border  active:bg-transparent/90"
                       >
                         {page}
                       </Button>
@@ -326,7 +327,7 @@ export function DataTable<TData, TValue>({
                     variant="outline"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
-                    className="bg-main-background-color border border-stone-300"
+                    className="bg-transparent border "
                   >
                     <ChevronRightIcon size={16} />
                   </Button>
@@ -341,7 +342,7 @@ export function DataTable<TData, TValue>({
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => table.setPageSize(Number(value))}
             >
-              <SelectTrigger className="w-[135px] bg-main-background-color border border-stone-300">
+              <SelectTrigger className="w-[135px] bg-transparent border ">
                 <SelectValue placeholder="Resultados por página" />
               </SelectTrigger>
               <SelectContent>

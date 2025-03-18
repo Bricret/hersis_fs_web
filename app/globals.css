@@ -8,6 +8,8 @@
   --color-main-background-color: #deddbb;
   --color-secondary-background-color: #d3d3d3;
   --color-tertiary-background-color: #f0ffff;
+  --color-quaternary-background-color: #f3f3f3;
+  --color-hover-background-color: #e6e6e6;
   --color-border-main: #a9a9a9;
   --color-border-strong: #033b4a;
   --color-main-content: #3d81b8;
@@ -22,6 +24,7 @@
   --color-accent-error-content: #d7535f;
   --color-accent-alert-bg: #faeed9;
   --color-accent-alert-content: #e17e2f;
+  --animation-animate-shine: shine 6s linear infinite;
 }
 
 @theme inline {
@@ -144,4 +147,18 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes shine {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: -400% 0;
+  }
+}
+
+.shine {
+  animation: shine 6s linear infinite;
 }

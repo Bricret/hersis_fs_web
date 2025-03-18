@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("overview");
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden bg-muted">
+    <div className="flex flex-col flex-1 overflow-hidden bg-white">
       <Header
         title="Dashboard"
         subTitle="Bienvenido al sistema de gestión de farmacia"
@@ -39,7 +39,7 @@ export default function DashboardPage() {
       <main className="flex-1 overflow-y-auto p-4 md:p-6">
         <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
           <div className="flex justify-between items-center mb-2">
-            <TabsList className="bg-secondary-background-color border border-border-main overflow-hidden shadow-sm gap-2">
+            <TabsList className="bg-quaternary-background-color border overflow-hidden shadow-inner inset-shadow-xs gap-2">
               <TabsTrigger value="overview">
                 <LayoutDashboard
                   className="-ms-0.5 me-1.5 opacity-60"

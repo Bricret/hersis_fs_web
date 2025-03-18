@@ -1,10 +1,10 @@
 "use client";
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
 } from "@/presentation/components/ui/sidebar";
@@ -13,33 +13,34 @@ import Link from "next/link";
 
 export function NavMain({
   items,
-  title,
 }: {
   items: {
-    title: string;
     url: string;
     icon?: LucideIcon;
     isActive?: boolean;
+    title: string;
   }[];
-  title: string;
 }) {
+  const pathname = usePathname();
+
   return (
-    <SidebarGroup className=" h-full">
-      <SidebarGroupLabel className="text-base font-semibold text-zinc-200">
-        {title}
-      </SidebarGroupLabel>
-      <SidebarMenu className="space-y-0.5  overflow-hidden">
+    <SidebarGroup className=" h-full mt-5">
+      <SidebarMenu className="overflow-hidden">
         {items.map((item) => (
           <SidebarMenuButton
             tooltip={item.title}
             key={item.title}
-            className="flex items-center text-sm font-normal py-2 px-6 rounded-lg text-white"
+            className={`flex items-center text-sm font-semibold py-2 px-6 rounded-bl-md text-content-muted hover:bg-hover-background-color hover:shadow-inner hover:inset-shadow-sm hover:text-content-normal ${
+              pathname === item.url &&
+              "bg-hover-background-color shadow-inner shadow-black/10 inset-shadow-sm text-content-normal hover:bg-hover-background-color hover:shadow-inner hover:inset-shadow-sm"
+            }`}
             asChild
           >
             <Button variant="ghost" className="w-full justify-start" asChild>
               <Link href={item.url} className="py-5">
                 {item.icon && <item.icon className="mr-2" />}
                 <span className="truncate">{item.title}</span>
+                {pathname === item.url && <ChevronRight className="ml-auto" />}
               </Link>
             </Button>
           </SidebarMenuButton>
