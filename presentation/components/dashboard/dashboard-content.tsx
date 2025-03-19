@@ -20,12 +20,12 @@ import {
 import { InventoryTable } from "./tables/inventory-table";
 import { RecentSalesTable } from "./tables/recent-sales-table";
 import { SalesChart } from "./tables/sales-chart";
-import { CardShine } from "../ui/card-shine";
+import { CardGradient } from "../ui/card-gradient";
 
 export function DashboardContent() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <CardShine>
+      <CardGradient>
         <div className="text-card-foreground flex flex-col gap-6">
           <div className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="text-base font-medium">Ventas Totales</div>
@@ -44,8 +44,8 @@ export function DashboardContent() {
             </p>
           </div>
         </div>
-      </CardShine>
-      <CardShine>
+      </CardGradient>
+      <CardGradient>
         <div className="text-card-foreground flex flex-col gap-6">
           <div className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="text-base font-medium">Productos Vendidos</div>
@@ -64,8 +64,8 @@ export function DashboardContent() {
             </p>
           </div>
         </div>
-      </CardShine>
-      <CardShine>
+      </CardGradient>
+      <CardGradient>
         <div className="text-card-foreground flex flex-col gap-6">
           <div className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="text-base font-medium">Inventario Bajo</div>
@@ -84,8 +84,8 @@ export function DashboardContent() {
             </p>
           </div>
         </div>
-      </CardShine>
-      <CardShine>
+      </CardGradient>
+      <CardGradient>
         <div className="text-card-foreground flex flex-col gap-6">
           <div className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="text-base font-medium">Clientes Activos</div>
@@ -104,7 +104,7 @@ export function DashboardContent() {
             </p>
           </div>
         </div>
-      </CardShine>
+      </CardGradient>
       <Card className="col-span-4">
         <CardHeader>
           <CardTitle>Ventas Mensuales</CardTitle>

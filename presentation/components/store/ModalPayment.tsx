@@ -85,7 +85,7 @@ export default function ModalPayment({
           <div className="rounded-lg bg-main-background-color p-4 shadow-md">
             <div className="text-center">
               <div className="text-sm text-black/70">Total a pagar</div>
-              <div className="text-3xl font-bold">${total.toFixed(2)}</div>
+              <div className="text-3xl font-bold">C${total.toFixed(2)}</div>
             </div>
           </div>
           <div className="space-y-2">
@@ -110,22 +110,6 @@ export default function ModalPayment({
               >
                 <RadioGroupItem value="tarjeta" id="tarjeta" />
                 <span>Tarjeta</span>
-              </Label>
-
-              <Label
-                htmlFor="transferencia"
-                className="flex items-center space-x-2 rounded-md border p-3 cursor-pointer"
-              >
-                <RadioGroupItem value="transferencia" id="transferencia" />
-                <span>Transferencia</span>
-              </Label>
-
-              <Label
-                htmlFor="otro"
-                className="flex items-center space-x-2 rounded-md border p-3 cursor-pointer"
-              >
-                <RadioGroupItem value="otro" id="otro" />
-                <span>Otro</span>
               </Label>
             </RadioGroup>
           </div>

@@ -65,6 +65,7 @@ import type {
 } from "@/core/data/sales/DataSales";
 import TabFavoriteProducts from "@/presentation/components/store/TabFavoriteProducts";
 import { TabAllProducts } from "@/presentation/components/store/TabAllProducts";
+import { CardBackgroundShine } from "@/presentation/components/ui/CardShine";
 
 export default function VentasPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -408,14 +409,14 @@ export default function VentasPage() {
                   <TabsList className="before:bg-border relative mb-3 h-auto w-full gap-0.5 bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px">
                     <TabsTrigger
                       value="tabSection-1"
-                      className="bg-main-background-color/75 border border-main-background-color overflow-hidden rounded-b-none border-x border-t py-2 data-[state=active]:z-10 data-[state=active]:shadow-none flex items-center"
+                      className="bg-white border data-[state=active]:bg-quaternary-background-color border-main-background-color overflow-hidden rounded-b-none border-x border-t py-2 data-[state=active]:z-10 data-[state=active]:shadow-none flex items-center"
                     >
                       <Star className="ml-2 h-4 w-4 text-yellow-500 mr-1" />
                       Productos populares
                     </TabsTrigger>
                     <TabsTrigger
                       value="tabSection-2"
-                      className="bg-main-background-color/75 border border-main-background-color overflow-hidden rounded-b-none border-x border-t py-2 data-[state=active]:z-10 data-[state=active]:shadow-none"
+                      className="bg-white border border-main-background-color data-[state=active]:bg-quaternary-background-color overflow-hidden rounded-b-none border-x border-t py-2 data-[state=active]:z-10 data-[state=active]:shadow-none"
                     >
                       <BoxIcon
                         className="-ms-0.5 me-1.5"
@@ -474,40 +475,39 @@ export default function VentasPage() {
                     ) : (
                       <div className="space-y-4">
                         {cart.map((item, index) => (
-                          <div
-                            key={`${item.id}-${item.sellByUnit}-${index}`}
-                            className="rounded-lg border p-3"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="font-medium">{item.name}</div>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-destructive"
-                                onClick={() => removeFromCart(index)}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <div className="mt-1 text-sm text-muted-foreground">
-                              {item.sellByUnit
-                                ? `Unidad - $${item.price.toFixed(2)}`
-                                : `Caja (${
-                                    item.unitsPerBox
-                                  } unidades) - $${item.price.toFixed(2)}`}
-                            </div>
-                            <div className="mt-2 flex items-center justify-between">
-                              <PlusMinusInput
-                                quantity={item.quantity}
-                                setQuantity={(quantity: number) =>
-                                  updateQuantity(index, quantity)
-                                }
-                              />
-                              <div className="font-medium">
-                                ${(item.price * item.quantity).toFixed(2)}
+                          <CardBackgroundShine key={`${item.id}-${index}`}>
+                            <div>
+                              <div className="flex items-center justify-between">
+                                <div className="font-medium">{item.name}</div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-destructive"
+                                  onClick={() => removeFromCart(index)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              <div className="mt-1 text-sm text-muted-foreground">
+                                {item.sellByUnit
+                                  ? `Unidad - $${item.price.toFixed(2)}`
+                                  : `Caja (${
+                                      item.unitsPerBox
+                                    } unidades) - $${item.price.toFixed(2)}`}
+                              </div>
+                              <div className="mt-2 flex items-center justify-between">
+                                <PlusMinusInput
+                                  quantity={item.quantity}
+                                  setQuantity={(quantity: number) =>
+                                    updateQuantity(index, quantity)
+                                  }
+                                />
+                                <div className="font-medium">
+                                  ${(item.price * item.quantity).toFixed(2)}
+                                </div>
                               </div>
                             </div>
-                          </div>
+                          </CardBackgroundShine>
                         ))}
                       </div>
                     )}

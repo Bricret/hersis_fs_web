@@ -44,7 +44,7 @@ export const TabAllProducts = ({
     <div className="space-y-4">
       <Tabs defaultValue="grid">
         <div className="flex justify-between">
-          <TabsList className="bg-main-background-color/75 border border-stone-300 overflow-hidden shadow-sm gap-2">
+          <TabsList className="bg-quaternary-background-color border overflow-hidden shadow-inner inset-shadow-xs gap-2">
             <TabsTrigger value="grid">
               <Grid
                 className="-ms-0.5 me-1.5 opacity-60"

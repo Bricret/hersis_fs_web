@@ -6,7 +6,10 @@ interface CardBackgroundShineProps {
   children?: ReactNode;
 }
 
-export function CardShine({ className, children }: CardBackgroundShineProps) {
+export function CardGradient({
+  className,
+  children,
+}: CardBackgroundShineProps) {
   return (
     <div
       className={cn(
