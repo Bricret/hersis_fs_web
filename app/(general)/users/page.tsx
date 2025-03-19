@@ -418,13 +418,13 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden bg-muted">
+    <div className="flex flex-col flex-1 overflow-hidden bg-white">
       <Header title="Usuarios" subTitle="Gestione los usuarios del sistema" />
       <div className="flex flex-col flex-1 overflow-hidden">
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex justify-between items-center gap-2">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -453,33 +453,33 @@ export default function UsersPage() {
                     <DropdownMenuItem>Sucursal Sur</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button className="gap-1">
-                      <UserPlus className="h-4 w-4" />
-                      Agregar Usuario
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                      <DialogTitle>Nuevo Usuario</DialogTitle>
-                      <DialogDescription>
-                        Complete el formulario para registrar un nuevo usuario
-                        en el sistema
-                      </DialogDescription>
-                    </DialogHeader>
-                    <NuevoUsuarioForm
-                      onClose={() =>
-                        document
-                          .querySelector<HTMLButtonElement>(
-                            '[data-state="closed"]'
-                          )
-                          ?.click()
-                      }
-                    />
-                  </DialogContent>
-                </Dialog>
               </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="gap-1 cursor-pointer">
+                    <UserPlus className="h-4 w-4" />
+                    Agregar Usuario
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>Nuevo Usuario</DialogTitle>
+                    <DialogDescription>
+                      Complete el formulario para registrar un nuevo usuario en
+                      el sistema
+                    </DialogDescription>
+                  </DialogHeader>
+                  <NuevoUsuarioForm
+                    onClose={() =>
+                      document
+                        .querySelector<HTMLButtonElement>(
+                          '[data-state="closed"]'
+                        )
+                        ?.click()
+                    }
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
             <Table>
               <TableHeader>
@@ -537,7 +537,7 @@ export default function UsersPage() {
                         <div className="flex items-center gap-2">
                           <Badge
                             variant={
-                              user.estado === "activo" ? "success" : "secondary"
+                              user.estado === "activo" ? "success" : "alert"
                             }
                           >
                             {user.estado === "activo" ? "Activo" : "Inactivo"}

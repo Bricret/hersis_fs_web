@@ -939,7 +939,7 @@ function FormularioMultiple() {
 
 export default function RegisterProductPage() {
   return (
-    <main className="flex flex-col flex-1 overflow-hidden bg-muted">
+    <main className="flex flex-col flex-1 overflow-hidden bg-white">
       <Header
         title="Registrar Producto"
         subTitle="Aquí podrás registrar un nuevo producto en tu inventario."
