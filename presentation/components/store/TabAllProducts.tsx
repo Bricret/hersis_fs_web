@@ -18,6 +18,8 @@ import { productsData } from "@/core/data/sales/DataSales";
 interface Props {
   selectedCategory: string;
   searchTerm: string;
+  //TODO: Cambiar el tipo de product
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   showProductDialog: (product: any) => void;
 }
 

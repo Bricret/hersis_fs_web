@@ -1,4 +1,4 @@
-import { productsData, ProductType } from "@/core/data/sales/DataSales";
+import { productsData, type ProductType } from "@/core/data/sales/DataSales";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
@@ -34,7 +34,7 @@ export default function TabFavoriteProducts({
     } else {
       setShowSuggestions(false);
     }
-  }, [searchTerm]);
+  }, [searchTerm, setSearchSuggestions, setShowSuggestions]);
 
   return (
     <div className="space-y-4">
