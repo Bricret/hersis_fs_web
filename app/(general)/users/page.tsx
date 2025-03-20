@@ -18,6 +18,8 @@ export default function UsersPage() {
     setSearchTerm,
     selectedTab,
     setSelectedTab,
+    selectedSucursal,
+    setSelectedSucursal,
   } = useUsers();
 
   const { handleToggleStatus, handleDeleteUser, handleResetPassword } =
@@ -34,6 +36,8 @@ export default function UsersPage() {
             onSearchChange={setSearchTerm}
             selectedTab={selectedTab}
             onTabChange={setSelectedTab}
+            selectedSucursal={selectedSucursal}
+            onSucursalChange={setSelectedSucursal}
           />
 
           <UserTable

@@ -13,11 +13,27 @@ export function useUsers() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("todos");
+  const [selectedSucursal, setSelectedSucursal] = useState("todas");
 
   const filteredUsers = () => {
     return users.filter((user) => {
-      const fullName = `${user.nombre} ${user.apellido}`;
-      return fullName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = `${user.nombre} ${user.apellido}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+      const matchesStatus =
+        selectedTab === "todos"
+          ? true
+          : selectedTab === "activos"
+          ? user.estado === "activo"
+          : user.estado === "inactivo";
+
+      const matchesSucursal =
+        selectedSucursal === "todas"
+          ? true
+          : user.sucursal === selectedSucursal;
+
+      return matchesSearch && matchesStatus && matchesSucursal;
     });
   };
 
@@ -27,14 +43,27 @@ export function useUsers() {
     return filteredUsers().slice(startIndex, endIndex);
   };
 
+  // Cuando cambia el filtro, regresamos a la primera página
+  const handleTabChange = (tab: string) => {
+    setSelectedTab(tab);
+    setCurrentPage(1);
+  };
+
+  const handleSucursalChange = (sucursal: string) => {
+    setSelectedSucursal(sucursal);
+    setCurrentPage(1);
+  };
+
   return {
     users: paginatedUsers,
-    totalUsers: filteredUsers.length,
+    totalUsers: filteredUsers().length,
     currentPage,
     setCurrentPage,
     searchTerm,
     setSearchTerm,
     selectedTab,
-    setSelectedTab,
+    setSelectedTab: handleTabChange,
+    selectedSucursal,
+    setSelectedSucursal: handleSucursalChange,
   };
 }
