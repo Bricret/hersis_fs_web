@@ -3,7 +3,7 @@
 import { usuariosData } from "@/core/data/users/users";
 import {
   ITEMS_PER_PAGE,
-  Usuario,
+  type Usuario,
 } from "@/infraestructure/interface/users/user.interface";
 import { useState } from "react";
 
