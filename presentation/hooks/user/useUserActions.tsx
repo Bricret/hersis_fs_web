@@ -1,4 +1,4 @@
-import { Usuario } from "@/infraestructure/interface/users/user.interface";
+import type { Usuario } from "@/infraestructure/interface/users/user.interface";
 
 // Hook para las acciones de usuarios
 export function useUserActions() {

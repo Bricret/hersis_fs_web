@@ -22,8 +22,9 @@ export class axiosAdapter implements HttpAdapter {
     tk?: string | undefined
   ): Promise<T> {
     try {
-      if (!tk) throw new Error("Token expirado o no válido");
-      this.patchToken(tk);
+      if (tk) {
+        this.patchToken(tk);
+      }
 
       const { data } = await this.axiosInstance.post<T>(url, body, options);
       return data;

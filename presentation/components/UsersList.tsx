@@ -1,4 +1,4 @@
-import { useUsers } from "@/presentation/hooks/useUsers";
+import { useUsers } from "@/presentation/hooks/user/useUsersFetch";
 import type { User } from "@/core/domain/entity/user.entity";
 
 export function UsersList() {
