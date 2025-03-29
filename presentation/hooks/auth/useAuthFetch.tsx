@@ -1,9 +1,8 @@
-import { signIn, type SignInResponse, signOut } from "next-auth/react";
-import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@/presentation/store/auth.store";
 import { APIFetcher } from "@/infraestructure/adapters/API.adapter";
 import { AuthService } from "@/core/aplication/auth.service";
 import { AuthApiRepository } from "@/infraestructure/repositories/auth.api";
+import Cookies from "js-cookie";
 
 export const useAuthFetch = () => {
   const { setUser, setAuthenticated } = useAuthStore();
@@ -16,9 +15,11 @@ export const useAuthFetch = () => {
       const response = await authService.login(email, password);
       setUser(response.data);
       setAuthenticated(true);
+      Cookies.set("token", response.accessToken);
+      return response;
     } catch (error) {
       console.log(error);
-      throw new Error("Error al iniciar sesion", { cause: error });
+      throw new Error(`${error}`);
     }
   };
 

@@ -28,12 +28,16 @@ export function LoginForm({
 
     setIsLoading(true);
     try {
-      login(email, password);
-      setIsLoading(false);
-      toast.success("¡Inicio de sesión exitoso!");
-      router.push("/");
-      router.refresh();
+      const response = await login(email, password);
+
+      if (response) {
+        setIsLoading(false);
+        toast.success("¡Inicio de sesión exitoso!");
+        router.push("/");
+        router.refresh();
+      }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error:", error);
       toast.error("Error al intentar iniciar sesión", {
         description:
