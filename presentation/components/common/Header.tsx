@@ -15,7 +15,6 @@ import NotificationPopover from "./NotificationPopover";
 import { cn } from "@/infraestructure/lib/utils";
 import { logOutFn } from "@/infraestructure/utils/logOutFn";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/presentation/store/auth.store";
 import { useAuthFetch } from "@/presentation/hooks/auth/useAuthFetch";
 
 export const Header = ({

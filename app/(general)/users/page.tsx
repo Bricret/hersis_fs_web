@@ -7,6 +7,9 @@ import { UserFilters } from "@/presentation/components/users/UserFilters";
 import { UserTable } from "@/presentation/components/users/UserTable";
 import { UserPagination } from "@/presentation/components/users/UserPagination";
 import { ITEMS_PER_PAGE } from "@/infraestructure/interface/users/user.interface";
+import { useSearchParams } from "@/presentation/hooks/common/useSearchParams";
+import { useEffect } from "react";
+import { useSearchParams as useNextSearchParams } from "next/navigation";
 
 export default function UsersPage() {
   const {
@@ -14,8 +17,6 @@ export default function UsersPage() {
     totalUsers,
     currentPage,
     setCurrentPage,
-    searchTerm,
-    setSearchTerm,
     selectedTab,
     setSelectedTab,
     selectedSucursal,
@@ -25,6 +26,29 @@ export default function UsersPage() {
   const { handleToggleStatus, handleDeleteUser, handleResetPassword } =
     useUserActions();
 
+  const { handleParams } = useSearchParams({
+    paramsName: "search",
+    waitInterval: 350,
+  });
+
+  const searchParams = useNextSearchParams();
+
+  // Aquí deberías hacer la petición a la base de datos
+  // usando los parámetros de la URL
+  useEffect(() => {
+    // TODO: Implementar la petición a la base de datos
+    // const fetchUsers = async () => {
+    //   const response = await fetchUsersFromDB({
+    //     search: searchParams.get('search'),
+    //     page: searchParams.get('page'),
+    //     tab: searchParams.get('tab'),
+    //     sucursal: searchParams.get('sucursal')
+    //   });
+    //   // Actualizar el estado con la respuesta
+    // };
+    // fetchUsers();
+  }, [searchParams]);
+
   return (
     <div className="flex flex-col flex-1 overflow-hidden bg-white">
       <Header title="Usuarios" subTitle="Gestione los usuarios del sistema" />
@@ -32,8 +56,7 @@ export default function UsersPage() {
       <div className="flex flex-col flex-1 overflow-hidden">
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <UserFilters
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
+            onSearchChange={handleParams}
             selectedTab={selectedTab}
             onTabChange={setSelectedTab}
             selectedSucursal={selectedSucursal}

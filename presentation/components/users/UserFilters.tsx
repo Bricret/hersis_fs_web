@@ -9,9 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { useSearchParams as useNextSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
 interface UserFiltersProps {
-  searchTerm: string;
   onSearchChange: (value: string) => void;
   selectedTab: string;
   onTabChange: (tab: string) => void;
@@ -27,13 +28,27 @@ const sucursales = [
 ];
 
 export function UserFilters({
-  searchTerm,
   onSearchChange,
   selectedTab,
   onTabChange,
   selectedSucursal,
   onSucursalChange,
 }: UserFiltersProps) {
+  const searchParams = useNextSearchParams();
+  const [localSearchTerm, setLocalSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+
+  // Sincronizamos el estado local con los parámetros de la URL
+  useEffect(() => {
+    setLocalSearchTerm(searchParams.get("search") || "");
+  }, [searchParams]);
+
+  const handleSearchChange = (value: string) => {
+    setLocalSearchTerm(value);
+    onSearchChange(value);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
@@ -44,8 +59,8 @@ export function UserFilters({
               type="search"
               placeholder="Buscar usuarios..."
               className="pl-8 md:w-[300px]"
-              value={searchTerm}
-              onChange={(e) => onSearchChange(e.target.value)}
+              value={localSearchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
             />
           </div>
 
