@@ -23,12 +23,12 @@ export function LoginForm({
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmitLogin = async (formData: FormData) => {
-    const email = formData.get("username") as string;
+    const username = formData.get("username") as string;
     const password = formData.get("password") as string;
 
     setIsLoading(true);
     try {
-      const response = await login(email, password);
+      const response = await login(username, password);
 
       if (response) {
         setIsLoading(false);
@@ -72,8 +72,7 @@ export function LoginForm({
                 <Label htmlFor="username">Correo Electrónico</Label>
                 <Input
                   id="username"
-                  type="email"
-                  placeholder="usuario@ejemplo.com"
+                  placeholder="usuario.rol"
                   required
                   name="username"
                 />

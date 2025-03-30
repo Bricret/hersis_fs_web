@@ -5,11 +5,11 @@ import type { HttpAdapter } from "../adapters/http/http.adapter";
 export class AuthApiRepository implements IAuthRepository {
   constructor(private readonly http: HttpAdapter) {}
 
-  async login(email: string, password: string): Promise<IUserAuth> {
+  async login(username: string, password: string): Promise<IUserAuth> {
     try {
       console.log("Iniciando petición de login a la API");
       const response = await this.http.post<IUserAuth>("/auth/login", {
-        email,
+        username,
         password,
       });
 

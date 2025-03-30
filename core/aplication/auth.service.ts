@@ -4,8 +4,8 @@ import type { IAuthRepository } from "../domain/repository/auth.repository";
 export class AuthService {
   constructor(private readonly repository: IAuthRepository) {}
 
-  async login(email: string, password: string): Promise<IUserAuth> {
-    const users = await this.repository.login(email, password);
+  async login(username: string, password: string): Promise<IUserAuth> {
+    const users = await this.repository.login(username, password);
     return users;
   }
 

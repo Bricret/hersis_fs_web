@@ -1,14 +1,7 @@
-import React from "react";
+"use client";
+
 import { SidebarTrigger } from "../ui/sidebar-trigger";
-import {
-  Bell,
-  ChevronDown,
-  LogOut,
-  Search,
-  Settings,
-  User,
-} from "lucide-react";
-import { Input } from "../ui/input";
+import { ChevronDown, LogOut, Settings, User } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -20,6 +13,8 @@ import {
 } from "../ui/dropdown-menu";
 import NotificationPopover from "./NotificationPopover";
 import { cn } from "@/infraestructure/lib/utils";
+import { logOutFn } from "@/infraestructure/utils/logOutFn";
+import { useRouter } from "next/navigation";
 
 export const Header = ({
   className,
@@ -34,6 +29,13 @@ export const Header = ({
   title: string;
   subTitle: string;
 }) => {
+  const router = useRouter();
+
+  const handleLogOut = () => {
+    logOutFn();
+    router.push("/login");
+  };
+
   return (
     <header
       className={cn(
@@ -74,7 +76,7 @@ export const Header = ({
               Configuración
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogOut}>
               <LogOut className="mr-2 h-4 w-4" />
               Cerrar Sesión
             </DropdownMenuItem>

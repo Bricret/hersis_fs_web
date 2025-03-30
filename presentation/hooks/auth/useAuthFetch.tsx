@@ -10,9 +10,9 @@ export const useAuthFetch = () => {
   const authRepository = new AuthApiRepository(APIFetcher);
   const authService = new AuthService(authRepository);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(username, password);
       setUser(response.data);
       setAuthenticated(true);
       Cookies.set("token", response.accessToken);
