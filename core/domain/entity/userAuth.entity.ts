@@ -5,9 +5,9 @@ export interface IUserAuth {
 }
 
 export interface IUserAuthData {
-  sub: string;
   email: string;
-  username: string;
+  sub: string;
   role: string;
+  name: string;
   isActive: boolean;
 }

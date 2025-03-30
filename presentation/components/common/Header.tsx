@@ -15,6 +15,8 @@ import NotificationPopover from "./NotificationPopover";
 import { cn } from "@/infraestructure/lib/utils";
 import { logOutFn } from "@/infraestructure/utils/logOutFn";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/presentation/store/auth.store";
+import { useAuthFetch } from "@/presentation/hooks/auth/useAuthFetch";
 
 export const Header = ({
   className,
@@ -30,6 +32,10 @@ export const Header = ({
   subTitle: string;
 }) => {
   const router = useRouter();
+
+  const { getUserAuth } = useAuthFetch();
+
+  const user = getUserAuth();
 
   const handleLogOut = () => {
     logOutFn();
@@ -60,7 +66,7 @@ export const Header = ({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2">
               <User className="h-4 w-4" />
-              <span className="hidden md:inline-flex">Admin</span>
+              <span className="hidden md:inline-flex">{user?.name}</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
