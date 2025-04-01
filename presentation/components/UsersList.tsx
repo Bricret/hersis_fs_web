@@ -1,9 +1,9 @@
-import { useUsers } from "@/presentation/hooks/user/useUsersFetch";
+import { useUsersFetch } from "@/presentation/hooks/user/useUsersFetch";
 import type { User } from "@/core/domain/entity/user.entity";
 
 export function UsersList() {
   const { users, isLoading, error, createUser, updateUser, deleteUser } =
-    useUsers();
+    useUsersFetch();
 
   if (isLoading) return <div>Cargando...</div>;
   if (error) return <div>Error al cargar los usuarios</div>;

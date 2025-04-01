@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/presentation/components/ui/sonner";
+
 const interTight = Inter_Tight({
   variable: "--font-inter-tight",
   subsets: ["latin"],

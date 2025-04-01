@@ -1,23 +1,38 @@
-// hooks/useUsers.ts
-
-import { usuariosData } from "@/core/data/users/users";
-import {
-  ITEMS_PER_PAGE,
-  type Usuario,
-} from "@/infraestructure/interface/users/user.interface";
+import { ITEMS_PER_PAGE, User } from "@/core/domain/entity/user.entity";
 import { useState } from "react";
+import { useUsersFetch } from "./useUsersFetch";
 
 // Hook para la lógica de usuarios
-export function useUsers() {
-  const [users, setUsers] = useState<Usuario[]>(usuariosData);
+export function useUsers({ users: initialUsers }: { users: User[] }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("todos");
   const [selectedSucursal, setSelectedSucursal] = useState("todas");
 
+  const { users: serverUsers, isLoading, error } = useUsersFetch();
+
+  // Usamos los datos del servidor si están disponibles, si no, usamos los datos iniciales
+  const users = serverUsers || initialUsers;
+
+  if (!users || isLoading)
+    return {
+      users: [],
+      totalUsers: 0,
+      currentPage: 1,
+      setCurrentPage: () => {},
+      searchTerm: "",
+      setSearchTerm: () => {},
+      selectedTab: "todos",
+      setSelectedTab: () => {},
+      selectedSucursal: "todas",
+      setSelectedSucursal: () => {},
+      isLoading,
+      error,
+    };
+
   const filteredUsers = () => {
     return users.filter((user) => {
-      const matchesSearch = `${user.nombre} ${user.apellido}`
+      const matchesSearch = user.name
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
@@ -25,13 +40,11 @@ export function useUsers() {
         selectedTab === "todos"
           ? true
           : selectedTab === "activos"
-          ? user.estado === "activo"
-          : user.estado === "inactivo";
+          ? user.isActive === true
+          : user.isActive === false;
 
       const matchesSucursal =
-        selectedSucursal === "todas"
-          ? true
-          : user.sucursal === selectedSucursal;
+        selectedSucursal === "todas" ? true : user.branch === selectedSucursal;
 
       return matchesSearch && matchesStatus && matchesSucursal;
     });
@@ -55,7 +68,7 @@ export function useUsers() {
   };
 
   return {
-    users: paginatedUsers,
+    users: paginatedUsers(),
     totalUsers: filteredUsers().length,
     currentPage,
     setCurrentPage,
@@ -65,5 +78,7 @@ export function useUsers() {
     setSelectedTab: handleTabChange,
     selectedSucursal,
     setSelectedSucursal: handleSucursalChange,
+    isLoading,
+    error,
   };
 }

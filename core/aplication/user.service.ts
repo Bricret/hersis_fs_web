@@ -13,4 +13,13 @@ export class UserService {
     const newUser = await this.repository.createUser(user);
     return newUser;
   }
+
+  async updateUser(user: User): Promise<User> {
+    const updatedUser = await this.repository.updateUser(user);
+    return updatedUser;
+  }
+
+  async deleteUser(user: User): Promise<void> {
+    await this.repository.deleteUser(user);
+  }
 }

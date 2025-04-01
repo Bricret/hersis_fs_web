@@ -6,7 +6,7 @@ export class UserApiRepository implements IUserRepository {
   constructor(private readonly http: HttpAdapter) {}
 
   async getAllUsers(): Promise<User[]> {
-    const response = await this.http.get<User[]>("/allUsers");
+    const response = await this.http.get<User[]>("/users/allUsers");
     return response;
   }
   async createUser(user: User): Promise<User> {

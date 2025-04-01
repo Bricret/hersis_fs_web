@@ -11,11 +11,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { sucursales } from "@/core/data/users/users";
 import { Switch } from "../ui/switch";
 import { DialogFooter } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { roles } from "@/infraestructure/interface/users/rols.interface";
+
+const sucursales = [
+  {
+    id: 1,
+    nombre: "Sucursal 1",
+  },
+  {
+    id: 2,
+    nombre: "Sucursal 2",
+  },
+  {
+    id: 3,
+    nombre: "Sucursal 3",
+  },
+];
 
 // Componente para el formulario de nuevo usuario
 export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
@@ -136,8 +150,8 @@ export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
             </SelectTrigger>
             <SelectContent>
               {sucursales.map((sucursal) => (
-                <SelectItem key={sucursal} value={sucursal}>
-                  {sucursal}
+                <SelectItem key={sucursal.id} value={sucursal.nombre}>
+                  {sucursal.nombre}
                 </SelectItem>
               ))}
             </SelectContent>

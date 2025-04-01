@@ -7,7 +7,8 @@ import type { User } from "@/core/domain/entity/user.entity";
 const userRepository = new UserApiRepository(APIFetcher);
 const userService = new UserService(userRepository);
 
-export const useUsers = () => {
+// Hook para obtener los usuarios y realizar mutaciones
+export const useUsersFetch = () => {
   const queryClient = useQueryClient();
 
   const {
@@ -16,25 +17,25 @@ export const useUsers = () => {
     error,
   } = useQuery({
     queryKey: ["users"],
-    queryFn: () => userService.getAllUsers(),
+    queryFn: async () => await userService.getAllUsers(),
   });
 
   const createUserMutation = useMutation({
-    mutationFn: (user: User) => userService.createUser(user),
+    mutationFn: async (user: User) => await userService.createUser(user),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: (user: User) => userRepository.updateUser(user),
+    mutationFn: async (user: User) => await userService.updateUser(user),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 
   const deleteUserMutation = useMutation({
-    mutationFn: (user: User) => userRepository.deleteUser(user),
+    mutationFn: async (user: User) => await userService.deleteUser(user),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },

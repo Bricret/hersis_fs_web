@@ -1,4 +1,4 @@
-import { Usuario } from "@/infraestructure/interface/users/user.interface";
+import { User } from "@/core/domain/entity/user.entity";
 import {
   Table,
   TableBody,
@@ -11,10 +11,10 @@ import {
 import { UserTableRow } from "./UserTableRow";
 
 interface UserTableProps {
-  users: Usuario[];
-  onDeleteUser: (user: Usuario) => void;
-  onResetPassword: (user: Usuario) => void;
-  onToggleStatus: (user: Usuario) => void;
+  users: User[];
+  onDeleteUser: (user: User) => void;
+  onResetPassword: (user: User) => void;
+  onToggleStatus: (user: User) => void;
 }
 
 export function UserTable({
