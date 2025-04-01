@@ -26,5 +26,5 @@ export function useSearchParams({
     HandleParams({ term, searchParams, paramsName, pathname, replace });
   }, waitInterval);
 
-  return { handleParams };
+  return { handleParams, searchParams };
 }

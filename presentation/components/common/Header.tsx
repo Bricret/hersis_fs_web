@@ -36,6 +36,10 @@ export const Header = ({
 
   const user = getUserAuth();
 
+  if (!user) {
+    return;
+  }
+
   const handleLogOut = () => {
     logOutFn();
     router.push("/login");
@@ -65,7 +69,7 @@ export const Header = ({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2">
               <User className="h-4 w-4" />
-              <span className="hidden md:inline-flex">{user?.name}</span>
+              <span className="hidden md:inline-flex">{user.name}</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

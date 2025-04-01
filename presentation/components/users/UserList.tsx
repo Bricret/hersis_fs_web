@@ -6,18 +6,18 @@ import { UserTable } from "@/presentation/components/users/UserTable";
 import { useUserActions } from "../../hooks/user/useUserActions";
 import { useUsers } from "../../hooks/user/useUsers";
 import { useSearchParams } from "@/presentation/hooks/common/useSearchParams";
-import { useSearchParams as useNextSearchParams } from "next/navigation";
 import { ITEMS_PER_PAGE, User } from "@/core/domain/entity/user.entity";
 import { LoadingState } from "../common/LoadingState";
 import { ErrorBoundary } from "../common/ErrorBoundary";
 
 export const UserList = ({ Users }: { Users: User[] }) => {
-  const { handleParams } = useSearchParams({
+  const { handleParams, searchParams } = useSearchParams({
     paramsName: "search",
     waitInterval: 350,
   });
 
-  const searchParams = useNextSearchParams();
+  console.log("searchParams", searchParams.get("search"));
+
   const { handleToggleStatus, handleDeleteUser, handleResetPassword } =
     useUserActions();
 
