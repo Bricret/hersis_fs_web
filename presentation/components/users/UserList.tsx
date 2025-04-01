@@ -3,11 +3,12 @@
 import { UserFilters } from "@/presentation/components/users/UserFilters";
 import { UserPagination } from "@/presentation/components/users/UserPagination";
 import { UserTable } from "@/presentation/components/users/UserTable";
-import { useUserActions } from "./useUserActions";
-import { useUsers } from "./useUsers";
+import { useUserActions } from "../../hooks/user/useUserActions";
+import { useUsers } from "../../hooks/user/useUsers";
 import { useSearchParams } from "@/presentation/hooks/common/useSearchParams";
 import { useSearchParams as useNextSearchParams } from "next/navigation";
 import { ITEMS_PER_PAGE, User } from "@/core/domain/entity/user.entity";
+import { LoadingState } from "../common/LoadingState";
 
 export const UserList = ({ Users }: { Users: User[] }) => {
   const {
@@ -19,7 +20,12 @@ export const UserList = ({ Users }: { Users: User[] }) => {
     setSelectedTab,
     selectedSucursal,
     setSelectedSucursal,
+    isLoading,
+    error,
   } = useUsers({ users: Users });
+
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState error={error} />;
 
   const { handleToggleStatus, handleDeleteUser, handleResetPassword } =
     useUserActions();

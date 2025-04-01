@@ -1,5 +1,5 @@
 import { Header } from "@/presentation/components/common/Header";
-import { UserList } from "@/presentation/hooks/user/UserList";
+import { UserList } from "@/presentation/components/users/UserList";
 import { getUsers } from "@/presentation/services/server/users.server";
 
 export default async function UsersPage() {

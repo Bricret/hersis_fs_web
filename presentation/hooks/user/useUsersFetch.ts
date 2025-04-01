@@ -3,6 +3,7 @@ import { UserService } from "@/core/aplication/user.service";
 import { APIFetcher } from "@/infraestructure/adapters/API.adapter";
 import { UserApiRepository } from "@/infraestructure/repositories/user.api";
 import type { User } from "@/core/domain/entity/user.entity";
+import { toast } from "sonner";
 
 const userRepository = new UserApiRepository(APIFetcher);
 const userService = new UserService(userRepository);
@@ -29,7 +30,14 @@ export const useUsersFetch = () => {
 
   const updateUserMutation = useMutation({
     mutationFn: async (user: User) => await userService.updateUser(user),
+    retry: 3, // Número de intentos
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Backoff exponencial
+    onError: (error, variables, context) => {
+      // Mostrar notificación de error
+      toast.error("Error al actualizar usuario. Reintentando...");
+    },
     onSuccess: () => {
+      toast.success("Usuario actualizado correctamente");
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
