@@ -14,23 +14,9 @@ export function useUsers({ users: initialUsers }: { users: User[] }) {
   // Usamos los datos del servidor si están disponibles, si no, usamos los datos iniciales
   const users = serverUsers || initialUsers;
 
-  if (!users || isLoading)
-    return {
-      users: [],
-      totalUsers: 0,
-      currentPage: 1,
-      setCurrentPage: () => {},
-      searchTerm: "",
-      setSearchTerm: () => {},
-      selectedTab: "todos",
-      setSelectedTab: () => {},
-      selectedSucursal: "todas",
-      setSelectedSucursal: () => {},
-      isLoading,
-      error,
-    };
-
   const filteredUsers = () => {
+    if (!users) return [];
+
     return users.filter((user) => {
       const matchesSearch = user.name
         .toLowerCase()
@@ -68,8 +54,8 @@ export function useUsers({ users: initialUsers }: { users: User[] }) {
   };
 
   return {
-    users: paginatedUsers(),
-    totalUsers: filteredUsers().length,
+    users: isLoading ? [] : paginatedUsers(),
+    totalUsers: isLoading ? 0 : filteredUsers().length,
     currentPage,
     setCurrentPage,
     searchTerm,

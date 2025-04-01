@@ -9,8 +9,18 @@ import { useSearchParams } from "@/presentation/hooks/common/useSearchParams";
 import { useSearchParams as useNextSearchParams } from "next/navigation";
 import { ITEMS_PER_PAGE, User } from "@/core/domain/entity/user.entity";
 import { LoadingState } from "../common/LoadingState";
+import { ErrorBoundary } from "../common/ErrorBoundary";
 
 export const UserList = ({ Users }: { Users: User[] }) => {
+  const { handleParams } = useSearchParams({
+    paramsName: "search",
+    waitInterval: 350,
+  });
+
+  const searchParams = useNextSearchParams();
+  const { handleToggleStatus, handleDeleteUser, handleResetPassword } =
+    useUserActions();
+
   const {
     users,
     totalUsers,
@@ -25,17 +35,12 @@ export const UserList = ({ Users }: { Users: User[] }) => {
   } = useUsers({ users: Users });
 
   if (isLoading) return <LoadingState />;
-  if (error) return <ErrorState error={error} />;
-
-  const { handleToggleStatus, handleDeleteUser, handleResetPassword } =
-    useUserActions();
-
-  const { handleParams } = useSearchParams({
-    paramsName: "search",
-    waitInterval: 350,
-  });
-
-  const searchParams = useNextSearchParams();
+  if (error)
+    return (
+      <ErrorBoundary>
+        <h1>Error al cargar los usuarios</h1>
+      </ErrorBoundary>
+    );
 
   return (
     <main className="flex-1 overflow-y-auto p-4 md:p-6">
