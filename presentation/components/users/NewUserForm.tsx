@@ -11,22 +11,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { sucursales } from "@/core/data/users/users";
 import { Switch } from "../ui/switch";
 import { DialogFooter } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { roles } from "@/infraestructure/interface/users/rols.interface";
+import {
+  inititalRegisterUser,
+  RegisterUserForm,
+} from "@/infraestructure/interface/users/RegisterUserForm.interface";
+
+const sucursales = [
+  {
+    id: 1,
+    nombre: "Sucursal 1",
+  },
+  {
+    id: 2,
+    nombre: "Sucursal 2",
+  },
+  {
+    id: 3,
+    nombre: "Sucursal 3",
+  },
+];
 
 // Componente para el formulario de nuevo usuario
 export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
-  const [formData, setFormData] = useState({
-    nombre: "",
-    apellido: "",
-    email: "",
-    rol: "",
-    sucursal: "",
-    generarPassword: true,
-  });
+  const [formData, setFormData] =
+    useState<RegisterUserForm>(inititalRegisterUser);
 
   const handleChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({
@@ -40,8 +52,8 @@ export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
 
     // Validación básica
     if (
-      !formData.nombre ||
-      !formData.apellido ||
+      !formData.name ||
+      !formData.username ||
       !formData.email ||
       !formData.rol ||
       !formData.sucursal
@@ -51,42 +63,45 @@ export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
       });
       return;
     }
-
-    // Simulamos la creación del usuario
-    toast("Usuario creado", {
-      description: `${formData.nombre} ${formData.apellido} ha sido registrado correctamente`,
-    });
-
     // Si se seleccionó generar contraseña, mostramos un mensaje adicional
-    if (formData.generarPassword) {
+    if (formData.generatePassword) {
       toast("Contraseña generada", {
         description: "Se ha enviado un correo con las credenciales de acceso",
       });
+      const passwordGenerated = `${formData.username}${new Date()
+        .getTime()
+        .toString()
+        .slice(2, 6)}`;
+      console.log({ password: passwordGenerated });
+    } else {
+      //TODO: Enviar contraseña al backend
+      console.log("se esta imprimiendo esto");
+      console.log(formData.password);
     }
 
-    onClose();
+    // onClose();
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="nombre">Nombre</Label>
+          <Label htmlFor="name">Nombre</Label>
           <Input
-            id="nombre"
-            value={formData.nombre}
-            onChange={(e) => handleChange("nombre", e.target.value)}
+            id="name"
+            value={formData.name}
+            onChange={(e) => handleChange("name", e.target.value)}
             placeholder="Ingrese el nombre"
             required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="apellido">Apellido</Label>
+          <Label htmlFor="username">Nombre de usuario</Label>
           <Input
-            id="apellido"
-            value={formData.apellido}
-            onChange={(e) => handleChange("apellido", e.target.value)}
-            placeholder="Ingrese el apellido"
+            id="username"
+            value={formData.username}
+            onChange={(e) => handleChange("username", e.target.value)}
+            placeholder="Ingrese el usuario"
             required
           />
         </div>
@@ -136,8 +151,8 @@ export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
             </SelectTrigger>
             <SelectContent>
               {sucursales.map((sucursal) => (
-                <SelectItem key={sucursal} value={sucursal}>
-                  {sucursal}
+                <SelectItem key={sucursal.id} value={sucursal.nombre}>
+                  {sucursal.nombre}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -147,25 +162,27 @@ export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
 
       <div className="flex items-center space-x-2">
         <Switch
-          id="generarPassword"
-          checked={formData.generarPassword}
+          id="generatePassword"
+          checked={formData.generatePassword}
           onCheckedChange={(checked) =>
-            handleChange("generarPassword", checked)
+            handleChange("generatePassword", checked)
           }
         />
-        <Label htmlFor="generarPassword">
+        <Label htmlFor="generatePassword">
           Generar contraseña automáticamente y enviar por correo
         </Label>
       </div>
 
-      {!formData.generarPassword && (
+      {!formData.generatePassword && (
         <div className="space-y-2">
           <Label htmlFor="password">Contraseña</Label>
           <Input
             id="password"
             type="password"
             placeholder="Ingrese la contraseña"
-            required={!formData.generarPassword}
+            required={!formData.generatePassword}
+            value={formData.password}
+            onChange={(e) => handleChange("password", e.target.value)}
           />
         </div>
       )}

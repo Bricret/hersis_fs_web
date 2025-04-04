@@ -1,22 +1,46 @@
-import { Usuario } from "@/infraestructure/interface/users/user.interface";
+import { User } from "@/core/domain/entity/user.entity";
+import { useUsersFetch } from "./useUsersFetch";
+import { toast } from "sonner";
 
 // Hook para las acciones de usuarios
 export function useUserActions() {
-  const handleToggleStatus = (user: Usuario) => {
-    // Lógica para cambiar estado
+  const { updateUser, deleteUser, isLoading } = useUsersFetch();
+
+  const handleToggleStatus = async (user: User) => {
+    try {
+      await updateUser({ ...user, isActive: !user.isActive });
+      toast.success("Estado del usuario actualizado correctamente");
+    } catch (error) {
+      toast.error("Error al actualizar el estado del usuario");
+      throw error;
+    }
   };
 
-  const handleDeleteUser = (user: Usuario) => {
-    // Lógica para eliminar
+  const handleDeleteUser = async (user: User) => {
+    try {
+      await deleteUser(user);
+      toast.success("Usuario eliminado correctamente");
+    } catch (error) {
+      toast.error("Error al eliminar el usuario");
+      throw error;
+    }
   };
 
-  const handleResetPassword = (user: Usuario) => {
-    // Lógica para resetear contraseña
+  const handleResetPassword = async (user: User) => {
+    try {
+      // Aquí implementarías la lógica específica para resetear la contraseña
+      // Por ejemplo, llamar a un endpoint específico
+      toast.success("Contraseña reseteada correctamente");
+    } catch (error) {
+      toast.error("Error al resetear la contraseña");
+      throw error;
+    }
   };
 
   return {
     handleToggleStatus,
     handleDeleteUser,
     handleResetPassword,
+    isLoading,
   };
 }

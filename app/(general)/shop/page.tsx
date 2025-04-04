@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { Header } from "@/presentation/components/common/Header";
 import type { ProductType } from "@/core/data/sales/DataSales";
-import { useCart } from "@/presentation/hooks/store/useCart";
-import { useSearch } from "@/presentation/hooks/store/useSearch";
+import { useCart } from "@/presentation/store/useCart";
+import { useSearch } from "@/presentation/store/useSearch";
 import { SearchActions } from "@/presentation/components/store/SearchActions";
 import { CartSection } from "@/presentation/components/store/CartSection";
 import { SearchSection } from "@/presentation/components/store/SearchSection";

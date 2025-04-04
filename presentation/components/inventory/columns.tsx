@@ -16,7 +16,7 @@ import {
 import { Checkbox } from "@/presentation/components/ui/checkbox";
 
 import { toast } from "sonner";
-import { Products, ProductState } from "@/core/entity/product.entity";
+import { Products, ProductState } from "@/core/domain/entity/product.entity";
 import { ChevronDownIcon, ChevronUpIcon, Ellipsis } from "lucide-react";
 import { format } from "@formkit/tempo";
 

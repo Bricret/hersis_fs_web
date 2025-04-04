@@ -1,4 +1,4 @@
-import { Products, ProductState } from "@/core/entity/product.entity";
+import { Products, ProductState } from "@/core/domain/entity/product.entity";
 
 export const DataProducts: Products[] = [
   {
