@@ -1,26 +1,50 @@
-import { ITEMS_PER_PAGE, User } from "@/core/domain/entity/user.entity";
-import { useState } from "react";
+import {
+  ITEMS_PER_PAGE,
+  User,
+  PaginatedResponse,
+} from "@/core/domain/entity/user.entity";
+import { useState, useEffect } from "react";
 import { useUsersFetch } from "./useUsersFetch";
+import { useSearchParams as useNextSearchParams } from "next/navigation";
 
 // Hook para la lógica de usuarios
-export function useUsers({ users: initialUsers }: { users: User[] }) {
+export function useUsers({
+  users: initialUsers,
+}: {
+  users: User[] | PaginatedResponse<User>;
+}) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTab, setSelectedTab] = useState("todos");
   const [selectedSucursal, setSelectedSucursal] = useState("todas");
 
   const { users: serverUsers, isLoading, error } = useUsersFetch();
+  const searchParams = useNextSearchParams();
+
+  // Sincronizamos el término de búsqueda con los parámetros de la URL
+  useEffect(() => {
+    const searchParam = searchParams.get("search");
+    // Si el parámetro de búsqueda es null o está vacío, establecemos searchTerm como cadena vacía
+    setSearchTerm(searchParam || "");
+  }, [searchParams]);
 
   // Usamos los datos del servidor si están disponibles, si no, usamos los datos iniciales
-  const users = serverUsers || initialUsers;
+  const usersData = serverUsers || initialUsers;
+
+  // Extraemos el array de usuarios y los metadatos
+  const users = Array.isArray(usersData) ? usersData : usersData.data;
+
+  const meta = !Array.isArray(usersData) ? usersData.meta : null;
 
   const filteredUsers = () => {
     if (!users) return [];
 
     return users.filter((user) => {
-      const matchesSearch = user.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      // Si searchTerm está vacío, no filtramos por búsqueda
+      const matchesSearch =
+        searchTerm === ""
+          ? true
+          : user.name.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus =
         selectedTab === "todos"
@@ -66,5 +90,6 @@ export function useUsers({ users: initialUsers }: { users: User[] }) {
     setSelectedSucursal: handleSucursalChange,
     isLoading,
     error,
+    meta,
   };
 }

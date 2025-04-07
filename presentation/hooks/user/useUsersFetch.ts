@@ -4,6 +4,7 @@ import { APIFetcher } from "@/infraestructure/adapters/API.adapter";
 import { UserApiRepository } from "@/infraestructure/repositories/user.api";
 import type { User } from "@/core/domain/entity/user.entity";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 const userRepository = new UserApiRepository(APIFetcher);
 const userService = new UserService(userRepository);
@@ -11,14 +12,17 @@ const userService = new UserService(userRepository);
 // Hook para obtener los usuarios y realizar mutaciones
 export const useUsersFetch = () => {
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const searchTerm = searchParams.get("search") || "";
 
   const {
     data: users,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["users"],
+    queryKey: ["users", searchTerm],
     queryFn: async () => await userService.getAllUsers(),
+    staleTime: 1000 * 60 * 5, // 5 minutos
   });
 
   const createUserMutation = useMutation({

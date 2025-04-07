@@ -5,7 +5,7 @@ export interface User {
   email: string;
   role: UserRole;
   isActive: boolean;
-  lastLogin: Date;
+  lastLogin: Date | null;
   branch: string;
 }
 
@@ -15,3 +15,15 @@ export enum UserRole {
 }
 
 export const ITEMS_PER_PAGE = 5;
+
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: PaginationMeta;
+}

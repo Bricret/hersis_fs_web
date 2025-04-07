@@ -6,17 +6,23 @@ import { UserTable } from "@/presentation/components/users/UserTable";
 import { useUserActions } from "../../hooks/user/useUserActions";
 import { useUsers } from "../../hooks/user/useUsers";
 import { useSearchParams } from "@/presentation/hooks/common/useSearchParams";
-import { ITEMS_PER_PAGE, User } from "@/core/domain/entity/user.entity";
+import {
+  ITEMS_PER_PAGE,
+  User,
+  PaginatedResponse,
+} from "@/core/domain/entity/user.entity";
 import { LoadingState } from "../common/LoadingState";
 import { ErrorBoundary } from "../common/ErrorBoundary";
 
-export const UserList = ({ Users }: { Users: User[] }) => {
+export const UserList = ({
+  Users,
+}: {
+  Users: User[] | PaginatedResponse<User>;
+}) => {
   const { handleParams, searchParams } = useSearchParams({
     paramsName: "search",
     waitInterval: 350,
   });
-
-  console.log("searchParams", searchParams.get("search"));
 
   const { handleToggleStatus, handleDeleteUser, handleResetPassword } =
     useUserActions();
@@ -32,9 +38,11 @@ export const UserList = ({ Users }: { Users: User[] }) => {
     setSelectedSucursal,
     isLoading,
     error,
+    meta,
   } = useUsers({ users: Users });
 
   if (isLoading) return <LoadingState />;
+
   if (error)
     return (
       <ErrorBoundary>
@@ -61,9 +69,11 @@ export const UserList = ({ Users }: { Users: User[] }) => {
 
       <UserPagination
         currentPage={currentPage}
-        totalPages={Math.ceil(totalUsers / ITEMS_PER_PAGE)}
-        totalItems={totalUsers}
-        itemsPerPage={ITEMS_PER_PAGE}
+        totalPages={
+          meta ? meta.totalPages : Math.ceil(totalUsers / ITEMS_PER_PAGE)
+        }
+        totalItems={meta ? meta.total : totalUsers}
+        itemsPerPage={meta ? meta.limit : ITEMS_PER_PAGE}
         onPageChange={setCurrentPage}
       />
     </main>

@@ -1,4 +1,4 @@
-import type { User } from "../entity/user.entity";
+import type { User, PaginatedResponse } from "../entity/user.entity";
 
 export interface IUserRepository {
   createUser(user: User): Promise<User>;
@@ -6,5 +6,5 @@ export interface IUserRepository {
   deleteUser(user: User): Promise<void>;
 
   getUserById(id: string): Promise<User>;
-  getAllUsers(): Promise<User[]>;
+  getAllUsers(): Promise<PaginatedResponse<User>>;
 }

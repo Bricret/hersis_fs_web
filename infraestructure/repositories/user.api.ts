@@ -1,12 +1,14 @@
 import type { IUserRepository } from "@/core/domain/repository/user.repository";
 import type { HttpAdapter } from "../adapters/http/http.adapter";
-import type { User } from "@/core/domain/entity/user.entity";
+import type { User, PaginatedResponse } from "@/core/domain/entity/user.entity";
 
 export class UserApiRepository implements IUserRepository {
   constructor(private readonly http: HttpAdapter) {}
 
-  async getAllUsers(): Promise<User[]> {
-    const response = await this.http.get<User[]>("/users/allUsers");
+  async getAllUsers(): Promise<PaginatedResponse<User>> {
+    const response = await this.http.get<PaginatedResponse<User>>(
+      "/users/allUsers"
+    );
     return response;
   }
   async createUser(user: User): Promise<User> {
