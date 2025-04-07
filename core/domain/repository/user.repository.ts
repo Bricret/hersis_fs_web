@@ -1,7 +1,8 @@
+import { UserSchema } from "@/infraestructure/schema/users.schema";
 import type { User, PaginatedResponse } from "../entity/user.entity";
 
 export interface IUserRepository {
-  createUser(user: User): Promise<User>;
+  createUser(user: UserSchema): Promise<User>;
   updateUser(user: User): Promise<User>;
   deleteUser(user: User): Promise<void>;
 

@@ -6,16 +6,18 @@ import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
 import { DialogFooter } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { roles } from "@/infraestructure/interface/users/rols.interface";
+import { Roles } from "@/infraestructure/interface/users/rols.interface";
 import { userSchema, UserSchema } from "@/infraestructure/schema/users.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
 import { InputField, SelectField, ButtonSubmit } from "../common/Forms";
 import { sucursales } from "@/core/data/sucursales";
+import { useUsersFetch } from "@/presentation/hooks/user/useUsersFetch";
 
 export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
   const [generatePassword, setGeneratePassword] = useState(true);
-  const [loading, setLoading] = useState(false);
+
+  const { createUser, isLoading } = useUsersFetch();
 
   const methods = useForm<UserSchema>({
     resolver: zodResolver(userSchema),
@@ -43,10 +45,19 @@ export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
     }
   }, [username, generatePassword, setValue]);
 
-  const onSubmit = async (data: UserSchema) => {
-    setLoading(true);
-    console.log("Datos validados:", data);
-    setLoading(false);
+  const onSubmit = (data: UserSchema) => {
+    createUser(data, {
+      onSuccess: () => {
+        toast.success("Usuario creado correctamente");
+        onClose();
+      },
+      onError: (error) => {
+        toast.error("Error al crear el usuario", {
+          description:
+            error instanceof Error ? error.message : "Error desconocido",
+        });
+      },
+    });
   };
 
   return (
@@ -80,17 +91,17 @@ export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
         <div className="grid grid-cols-2 gap-4">
           <SelectField
             label="Sucursal"
-            error={errors.sucursal}
-            registration={register("sucursal")}
+            error={errors.branch}
+            registration={register("branch")}
             placeholder="Seleccione una sucursal"
-            options={sucursales.map((sucursal) => sucursal.nombre)}
+            options={sucursales.map((sucursal) => sucursal.value)}
           />
           <SelectField
             label="Rol"
-            error={errors.rol}
-            registration={register("rol")}
+            error={errors.role}
+            registration={register("role")}
             placeholder="Seleccione un rol"
-            options={roles.map((rol) => rol)}
+            options={Object.values(Roles).map((rol) => rol)}
           />
         </div>
 
@@ -124,7 +135,7 @@ export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
           <Button type="button" variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <ButtonSubmit loading={loading} />
+          <ButtonSubmit loading={isLoading} />
         </DialogFooter>
       </form>
     </FormProvider>

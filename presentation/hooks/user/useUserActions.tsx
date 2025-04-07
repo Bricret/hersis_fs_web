@@ -1,10 +1,11 @@
 import { User } from "@/core/domain/entity/user.entity";
 import { useUsersFetch } from "./useUsersFetch";
 import { toast } from "sonner";
+import { UserSchema } from "@/infraestructure/schema/users.schema";
 
 // Hook para las acciones de usuarios
 export function useUserActions() {
-  const { updateUser, deleteUser, isLoading } = useUsersFetch();
+  const { updateUser, deleteUser, createUser, isLoading } = useUsersFetch();
 
   const handleToggleStatus = async (user: User) => {
     try {

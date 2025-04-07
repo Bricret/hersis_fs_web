@@ -1,1 +1,4 @@
-export const roles = ["Administrador", "Farmacéutico"];
+export enum Roles {
+  ADMIN = "admin",
+  PHARMACIST = "pharmacist",
+}

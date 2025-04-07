@@ -1,5 +1,6 @@
 import type { IUserRepository } from "../domain/repository/user.repository";
 import type { User, PaginatedResponse } from "../domain/entity/user.entity";
+import { UserSchema } from "@/infraestructure/schema/users.schema";
 
 export class UserService {
   constructor(private readonly repository: IUserRepository) {}
@@ -9,7 +10,8 @@ export class UserService {
     return users;
   }
 
-  async createUser(user: User): Promise<User> {
+  async createUser(user: UserSchema): Promise<User> {
+    console.log("en el service");
     const newUser = await this.repository.createUser(user);
     return newUser;
   }

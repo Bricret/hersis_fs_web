@@ -24,7 +24,7 @@ export const UserList = ({
     waitInterval: 350,
   });
 
-  const { handleToggleStatus, handleDeleteUser, handleResetPassword } =
+  const { handleToggleStatus, handleResetPassword, handleDeleteUser } =
     useUserActions();
 
   const {

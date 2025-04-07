@@ -1,9 +1,12 @@
 import type { IUserRepository } from "@/core/domain/repository/user.repository";
 import type { HttpAdapter } from "../adapters/http/http.adapter";
 import type { User, PaginatedResponse } from "@/core/domain/entity/user.entity";
+import { UserSchema } from "../schema/users.schema";
 
 export class UserApiRepository implements IUserRepository {
   constructor(private readonly http: HttpAdapter) {}
+
+  private userRecord: Record<string, unknown> = {};
 
   async getAllUsers(): Promise<PaginatedResponse<User>> {
     const response = await this.http.get<PaginatedResponse<User>>(
@@ -11,16 +14,18 @@ export class UserApiRepository implements IUserRepository {
     );
     return response;
   }
-  async createUser(user: User): Promise<User> {
-    const userRecord: Record<string, unknown> = { ...user };
-    const response = await this.http.post<User>("/users", userRecord);
+  async createUser(user: UserSchema): Promise<User> {
+    this.userRecord = { ...user };
+    console.log(this.userRecord);
+    const response = await this.http.post<User>("/users", this.userRecord);
     return response;
   }
+
   async updateUser(user: User): Promise<User> {
-    const userRecord: Record<string, unknown> = { ...user };
+    this.userRecord = { ...user };
     const response = await this.http.patch<User>(
       `/users/${user.id}`,
-      userRecord
+      this.userRecord
     );
     return response;
   }
