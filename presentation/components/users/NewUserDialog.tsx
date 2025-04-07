@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,10 +9,13 @@ import {
 import { Button } from "../ui/button";
 import { UserPlus } from "lucide-react";
 import NuevoUsuarioForm from "./NewUserForm";
+import { useState } from "react";
 
 export const NewUserDialog = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button className="gap-1 cursor-pointer">
           <UserPlus className="h-4 w-4" />
@@ -27,13 +29,7 @@ export const NewUserDialog = () => {
             Complete el formulario para registrar un nuevo usuario en el sistema
           </DialogDescription>
         </DialogHeader>
-        <NuevoUsuarioForm
-          onClose={() =>
-            document
-              .querySelector<HTMLButtonElement>('[data-state="closed"]')
-              ?.click()
-          }
-        />
+        <NuevoUsuarioForm onClose={() => setIsOpen(!isOpen)} />
       </DialogContent>
     </Dialog>
   );

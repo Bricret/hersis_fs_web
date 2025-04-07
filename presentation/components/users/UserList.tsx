@@ -19,7 +19,7 @@ export const UserList = ({
 }: {
   Users: User[] | PaginatedResponse<User>;
 }) => {
-  const { handleParams, searchParams } = useSearchParams({
+  const { handleParams } = useSearchParams({
     paramsName: "search",
     waitInterval: 350,
   });

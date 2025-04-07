@@ -1,198 +1,132 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Switch } from "../ui/switch";
 import { DialogFooter } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { roles } from "@/infraestructure/interface/users/rols.interface";
-import {
-  inititalRegisterUser,
-  RegisterUserForm,
-} from "@/infraestructure/interface/users/RegisterUserForm.interface";
+import { userSchema, UserSchema } from "@/infraestructure/schema/users.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, FormProvider } from "react-hook-form";
+import { InputField, SelectField, ButtonSubmit } from "../common/Forms";
+import { sucursales } from "@/core/data/sucursales";
 
-const sucursales = [
-  {
-    id: 1,
-    nombre: "Sucursal 1",
-  },
-  {
-    id: 2,
-    nombre: "Sucursal 2",
-  },
-  {
-    id: 3,
-    nombre: "Sucursal 3",
-  },
-];
-
-// Componente para el formulario de nuevo usuario
 export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
-  const [formData, setFormData] =
-    useState<RegisterUserForm>(inititalRegisterUser);
+  const [generatePassword, setGeneratePassword] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const methods = useForm<UserSchema>({
+    resolver: zodResolver(userSchema),
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+  } = methods;
+  const username = watch("username");
 
-    // Validación básica
-    if (
-      !formData.name ||
-      !formData.username ||
-      !formData.email ||
-      !formData.rol ||
-      !formData.sucursal
-    ) {
-      toast("Error en el formulario", {
-        description: "Por favor complete todos los campos obligatorios",
-      });
-      return;
+  useEffect(() => {
+    if (generatePassword && username) {
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, "0");
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const year = String(now.getFullYear()).slice(-2);
+      const dateStr = `${day}${month}${year}`;
+
+      const generatedPassword = `${username}${dateStr}`;
+      setValue("password", generatedPassword);
     }
-    // Si se seleccionó generar contraseña, mostramos un mensaje adicional
-    if (formData.generatePassword) {
-      toast("Contraseña generada", {
-        description: "Se ha enviado un correo con las credenciales de acceso",
-      });
-      const passwordGenerated = `${formData.username}${new Date()
-        .getTime()
-        .toString()
-        .slice(2, 6)}`;
-      console.log({ password: passwordGenerated });
-    } else {
-      //TODO: Enviar contraseña al backend
-      console.log("se esta imprimiendo esto");
-      console.log(formData.password);
-    }
+  }, [username, generatePassword, setValue]);
 
-    // onClose();
+  const onSubmit = async (data: UserSchema) => {
+    setLoading(true);
+    console.log("Datos validados:", data);
+    setLoading(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Nombre</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-            placeholder="Ingrese el nombre"
-            required
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <InputField
+            label="Nombre y apellido"
+            type="text"
+            error={errors.name}
+            registration={register("name")}
+            placeholder="Ingrese el nombre del usuario"
+          />
+          <InputField
+            label="Nombre de usuario"
+            type="text"
+            error={errors.username}
+            registration={register("username")}
+            placeholder="Ingrese el nombre para acceder"
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="username">Nombre de usuario</Label>
-          <Input
-            id="username"
-            value={formData.username}
-            onChange={(e) => handleChange("username", e.target.value)}
-            placeholder="Ingrese el usuario"
-            required
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="email">Correo electrónico</Label>
-        <Input
-          id="email"
+        <InputField
+          label="Correo electrónico"
           type="email"
-          value={formData.email}
-          onChange={(e) => handleChange("email", e.target.value)}
-          placeholder="correo@ejemplo.com"
-          required
+          error={errors.email}
+          registration={register("email")}
+          className="w-full"
+          placeholder="Ingrese el correo electrónico"
         />
-      </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="rol">Rol</Label>
-          <Select
-            value={formData.rol}
-            onValueChange={(value) => handleChange("rol", value)}
-            required
-          >
-            <SelectTrigger id="rol">
-              <SelectValue placeholder="Seleccione un rol" />
-            </SelectTrigger>
-            <SelectContent>
-              {roles.map((rol) => (
-                <SelectItem key={rol} value={rol}>
-                  {rol}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="sucursal">Sucursal</Label>
-          <Select
-            value={formData.sucursal}
-            onValueChange={(value) => handleChange("sucursal", value)}
-            required
-          >
-            <SelectTrigger id="sucursal">
-              <SelectValue placeholder="Seleccione una sucursal" />
-            </SelectTrigger>
-            <SelectContent>
-              {sucursales.map((sucursal) => (
-                <SelectItem key={sucursal.id} value={sucursal.nombre}>
-                  {sucursal.nombre}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="generatePassword"
-          checked={formData.generatePassword}
-          onCheckedChange={(checked) =>
-            handleChange("generatePassword", checked)
-          }
-        />
-        <Label htmlFor="generatePassword">
-          Generar contraseña automáticamente y enviar por correo
-        </Label>
-      </div>
-
-      {!formData.generatePassword && (
-        <div className="space-y-2">
-          <Label htmlFor="password">Contraseña</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Ingrese la contraseña"
-            required={!formData.generatePassword}
-            value={formData.password}
-            onChange={(e) => handleChange("password", e.target.value)}
+        <div className="grid grid-cols-2 gap-4">
+          <SelectField
+            label="Sucursal"
+            error={errors.sucursal}
+            registration={register("sucursal")}
+            placeholder="Seleccione una sucursal"
+            options={sucursales.map((sucursal) => sucursal.nombre)}
+          />
+          <SelectField
+            label="Rol"
+            error={errors.rol}
+            registration={register("rol")}
+            placeholder="Seleccione un rol"
+            options={roles.map((rol) => rol)}
           />
         </div>
-      )}
 
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={onClose}>
-          Cancelar
-        </Button>
-        <Button type="submit">Guardar usuario</Button>
-      </DialogFooter>
-    </form>
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="generatePassword"
+            checked={generatePassword}
+            onCheckedChange={(checked) => setGeneratePassword(checked)}
+          />
+          <Label htmlFor="generatePassword">
+            Generar contraseña automáticamente y enviar por correo
+          </Label>
+        </div>
+
+        {!generatePassword && (
+          <InputField
+            label="Contraseña"
+            type="password"
+            error={errors.password}
+            registration={register("password", {
+              required: !generatePassword
+                ? "La contraseña es obligatoria"
+                : false,
+            })}
+            required={!generatePassword}
+            placeholder="Ingrese la contraseña"
+          />
+        )}
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancelar
+          </Button>
+          <ButtonSubmit loading={loading} />
+        </DialogFooter>
+      </form>
+    </FormProvider>
   );
 }
