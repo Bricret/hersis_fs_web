@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hersis FS Web
 
-## Getting Started
+<div align="center">
+  <img src="public/onlylogo.png" alt="Farmacia Los Ángeles Logo" width="500"/>
+</div>
 
-First, run the development server:
+Sistema de gestión integral para Farmacia Los Ángeles, diseñado para optimizar y automatizar los procesos de inventario, ventas, facturación y administración de la farmacia. Esta plataforma permite un control eficiente del stock de medicamentos, gestión de ventas, seguimiento de prescripciones y generación de reportes detallados.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Descripción
+
+Hersis FS Web es una aplicación web moderna desarrollada con Next.js 15, diseñada para proporcionar una interfaz de usuario robusta y eficiente. El proyecto implementa una arquitectura limpia y modular, siguiendo las mejores prácticas de desarrollo.
+
+## Características Principales
+
+- 🚀 Desarrollado con Next.js 15 y React 19
+- 🎨 UI moderna con Tailwind CSS y componentes Radix UI
+- 📊 Visualización de datos con Chart.js y Recharts
+- 🔒 Gestión de estado con Zustand
+- 📝 Formularios avanzados con React Hook Form y Zod
+- 🌙 Soporte para tema claro/oscuro
+- 📱 Diseño responsive
+- 🔍 Búsqueda con debounce
+- 📅 Manejo de fechas con date-fns
+- 🎭 Animaciones con Lottie
+
+## Estructura del Proyecto
+
+```
+hersis_fs_web/
+├── app/                 # Páginas y rutas de Next.js
+├── core/               # Lógica de negocio central
+├── infraestructure/    # Configuraciones y servicios externos
+├── presentation/       # Componentes de UI y lógica de presentación
+├── public/            # Archivos estáticos
+└── resources/         # Recursos adicionales
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Requisitos Previos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Node.js (versión LTS recomendada)
+- pnpm (gestor de paquetes)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Instalación
 
-## Learn More
+1. Clonar el repositorio:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+git clone [URL_DEL_REPOSITORIO]
+cd hersis_fs_web
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Instalar dependencias:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm install
+```
 
-## Deploy on Vercel
+3. Configurar variables de entorno:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+cp .env.example .env
+# Editar .env con tus configuraciones
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Scripts Disponibles
+
+- `pnpm dev`: Inicia el servidor de desarrollo con Turbopack
+- `pnpm build`: Construye la aplicación para producción
+- `pnpm start`: Inicia el servidor de producción
+- `pnpm lint`: Ejecuta el linter
+
+## Tecnologías Principales
+
+- **Framework**: Next.js 15
+- **UI**: Tailwind CSS, Radix UI
+- **Estado**: Zustand
+- **Formularios**: React Hook Form, Zod
+- **Visualización**: Chart.js, Recharts
+- **Utilidades**: date-fns, js-cookie
+- **Desarrollo**: TypeScript, ESLint, Biome
+
+## Contribución
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## Licencia
+
+Este proyecto es privado y todos los derechos están reservados.
+
+## Soporte
+
+Para soporte, por favor contacta al equipo de desarrollo.
