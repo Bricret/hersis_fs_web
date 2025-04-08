@@ -81,8 +81,11 @@ export function useUsers({
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
     onError: (error) => {
-      console.log("Error al desactivar el usuario", error);
-      throw new Error("Error al desactivar el usuario:", error);
+      console.error("Error al desactivar el usuario", error);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error("Error desconocido al desactivar el usuario");
     },
   });
 

@@ -19,14 +19,22 @@ interface UserActionsProps {
 export function UserActions({ user }: UserActionsProps) {
   const { disableUser } = useUsers();
 
-  const handleDisableUser = () => {
+  const handleSwitchStatusUser = () => {
     try {
       disableUser(user.id);
       toast.success("Usuario desactivado correctamente");
     } catch (error) {
       console.error(error);
-      toast.error("Error al desactivar el usuario");
+      if (error instanceof Error) {
+        toast.error(`Error al desactivar el usuario: ${error.message}`);
+      } else {
+        toast.error("Error al desactivar el usuario: Error desconocido");
+      }
     }
+  };
+
+  const handleResetPassword = () => {
+    //TODO: Implement method t reset password. Add in service and repository.
   };
 
   return (
@@ -60,7 +68,7 @@ export function UserActions({ user }: UserActionsProps) {
           Restablecer contraseña
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => handleDisableUser()}
+          onClick={() => handleSwitchStatusUser()}
           className="focus:bg-blue-50 focus:text-blue-700 cursor-pointer"
         >
           {user.isActive ? (

@@ -21,6 +21,14 @@ export class UserService {
   }
 
   async disableUser(id: string): Promise<void> {
-    await this.repository.deleteUser(id);
+    try {
+      await this.repository.deleteUser(id);
+    } catch (error) {
+      console.error("Error en UserService.disableUser:", error);
+      if (error instanceof Error) {
+        throw new Error(`Error al desactivar el usuario: ${error.message}`);
+      }
+      throw new Error("Error desconocido al desactivar el usuario");
+    }
   }
 }
