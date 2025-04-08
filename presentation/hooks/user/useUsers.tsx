@@ -113,6 +113,17 @@ export function useUsers({
     });
   };
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (id: string) => await userService.resetPassword(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (error) => {
+      console.log("Error al restablecer la contraseña", error);
+      throw new Error("Error al restablecer la contraseña:", error);
+    },
+  });
+
   const paginatedUsers = () => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -154,5 +165,6 @@ export function useUsers({
     createUser: createUserMutation.mutate,
     updateUser: updateUserMutation.mutate,
     disableUser: disableUserMutation.mutate,
+    resetPassword: resetPasswordMutation.mutate,
   };
 }

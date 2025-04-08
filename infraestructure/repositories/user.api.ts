@@ -3,11 +3,20 @@ import type { HttpAdapter } from "../adapters/http/http.adapter";
 import type { User, PaginatedResponse } from "@/core/domain/entity/user.entity";
 import { UserSchema } from "../schema/users.schema";
 import Cookies from "js-cookie";
+import { IResetPasswordResponse } from "../interface/users/resMethod.interface";
 
 export class UserApiRepository implements IUserRepository {
   constructor(private readonly http: HttpAdapter) {}
 
   private userRecord: Record<string, unknown> = {};
+
+  private getToken(): string {
+    const token = Cookies.get("token");
+    if (!token) {
+      throw new Error("Token de autenticación no encontrado");
+    }
+    return token;
+  }
 
   async getAllUsers(): Promise<PaginatedResponse<User>> {
     const response = await this.http.get<PaginatedResponse<User>>(
@@ -31,7 +40,7 @@ export class UserApiRepository implements IUserRepository {
   }
 
   async deleteUser(id: string): Promise<void> {
-    const token = Cookies.get("token");
+    const token = this.getToken();
     if (!token) {
       throw new Error("Token de autenticación no encontrado");
     }
@@ -46,6 +55,20 @@ export class UserApiRepository implements IUserRepository {
 
   async getUserById(id: string): Promise<User> {
     const response = await this.http.get<User>(`/users/${id}`);
+    return response;
+  }
+
+  async resetPassword(id: string): Promise<IResetPasswordResponse> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error("Token de autenticación no encontrado");
+    }
+    const response = await this.http.patch<IResetPasswordResponse>(
+      `/users/resetPassword/${id}`,
+      {},
+      undefined,
+      token
+    );
     return response;
   }
 }
