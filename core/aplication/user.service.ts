@@ -11,7 +11,6 @@ export class UserService {
   }
 
   async createUser(user: UserSchema): Promise<User> {
-    console.log("en el service");
     const newUser = await this.repository.createUser(user);
     return newUser;
   }
@@ -21,7 +20,7 @@ export class UserService {
     return updatedUser;
   }
 
-  async deleteUser(user: User): Promise<void> {
-    await this.repository.deleteUser(user);
+  async disableUser(id: string): Promise<void> {
+    await this.repository.deleteUser(id);
   }
 }

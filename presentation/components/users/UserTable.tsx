@@ -12,17 +12,9 @@ import { UserTableRow } from "./UserTableRow";
 
 interface UserTableProps {
   users: User[];
-  onDeleteUser: (user: User) => void;
-  onResetPassword: (user: User) => void;
-  onToggleStatus: (user: User) => void;
 }
 
-export function UserTable({
-  users,
-  onDeleteUser,
-  onResetPassword,
-  onToggleStatus,
-}: UserTableProps) {
+export function UserTable({ users }: UserTableProps) {
   return (
     <div className="rounded-lg border border-blue-100 bg-white shadow-sm">
       <Table className="border-collapse">
@@ -57,14 +49,7 @@ export function UserTable({
             </TableRow>
           ) : (
             users.map((user, index) => (
-              <UserTableRow
-                key={user.id}
-                user={user}
-                onDelete={onDeleteUser}
-                onResetPassword={onResetPassword}
-                onToggleStatus={onToggleStatus}
-                index={index}
-              />
+              <UserTableRow key={user.id} user={user} index={index} />
             ))
           )}
         </TableBody>

@@ -3,7 +3,6 @@
 import { UserFilters } from "@/presentation/components/users/UserFilters";
 import { UserPagination } from "@/presentation/components/users/UserPagination";
 import { UserTable } from "@/presentation/components/users/UserTable";
-import { useUserActions } from "../../hooks/user/useUserActions";
 import { useUsers } from "../../hooks/user/useUsers";
 import { useSearchParams } from "@/presentation/hooks/common/useSearchParams";
 import {
@@ -24,9 +23,6 @@ export const UserList = ({
     waitInterval: 350,
   });
 
-  const { handleToggleStatus, handleResetPassword, handleDeleteUser } =
-    useUserActions();
-
   const {
     users,
     totalUsers,
@@ -39,7 +35,7 @@ export const UserList = ({
     isLoading,
     error,
     meta,
-  } = useUsers({ users: Users });
+  } = useUsers({ initialUsers: Users });
 
   if (isLoading) return <LoadingState />;
 
@@ -60,12 +56,7 @@ export const UserList = ({
         onSucursalChange={setSelectedSucursal}
       />
 
-      <UserTable
-        users={users}
-        onDeleteUser={handleDeleteUser}
-        onResetPassword={handleResetPassword}
-        onToggleStatus={handleToggleStatus}
-      />
+      <UserTable users={users} />
 
       <UserPagination
         currentPage={currentPage}

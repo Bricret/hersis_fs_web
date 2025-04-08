@@ -8,19 +8,10 @@ import { format, parse } from "@formkit/tempo";
 
 interface UserTableRowProps {
   user: User;
-  onDelete: (user: User) => void;
-  onResetPassword: (user: User) => void;
-  onToggleStatus: (user: User) => void;
   index: number;
 }
 
-export function UserTableRow({
-  user,
-  onDelete,
-  onResetPassword,
-  onToggleStatus,
-  index,
-}: UserTableRowProps) {
+export function UserTableRow({ user, index }: UserTableRowProps) {
   return (
     <TableRow
       className={`hover:bg-blue-50/30 transition-colors ${
@@ -71,12 +62,7 @@ export function UserTableRow({
           : "Nunca ha iniciado sesión"}
       </TableCell>
       <TableCell className="text-right">
-        <UserActions
-          user={user}
-          onDelete={onDelete}
-          onResetPassword={onResetPassword}
-          onToggleStatus={onToggleStatus}
-        />
+        <UserActions user={user} />
       </TableCell>
     </TableRow>
   );

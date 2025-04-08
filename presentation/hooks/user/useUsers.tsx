@@ -4,43 +4,93 @@ import {
   PaginatedResponse,
 } from "@/core/domain/entity/user.entity";
 import { useState, useEffect } from "react";
-import { useUsersFetch } from "./useUsersFetch";
-import { useSearchParams as useNextSearchParams } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { UserService } from "@/core/aplication/user.service";
+import { APIFetcher } from "@/infraestructure/adapters/API.adapter";
+import { UserApiRepository } from "@/infraestructure/repositories/user.api";
+import { useSearchParams } from "next/navigation";
+import { UserSchema } from "@/infraestructure/schema/users.schema";
 
-// Hook para la lógica de usuarios
+const userRepository = new UserApiRepository(APIFetcher);
+const userService = new UserService(userRepository);
+
 export function useUsers({
-  users: initialUsers,
+  initialUsers,
 }: {
-  users: User[] | PaginatedResponse<User>;
-}) {
+  initialUsers?: User[] | PaginatedResponse<User>;
+} = {}) {
+  const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const urlSearchTerm = searchParams.get("search") || "";
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(urlSearchTerm);
   const [selectedTab, setSelectedTab] = useState("todos");
   const [selectedSucursal, setSelectedSucursal] = useState("todas");
 
-  const { users: serverUsers, isLoading, error } = useUsersFetch();
-  const searchParams = useNextSearchParams();
-
-  // Sincronizamos el término de búsqueda con los parámetros de la URL
   useEffect(() => {
-    const searchParam = searchParams.get("search");
-    // Si el parámetro de búsqueda es null o está vacío, establecemos searchTerm como cadena vacía
-    setSearchTerm(searchParam || "");
-  }, [searchParams]);
+    setSearchTerm(urlSearchTerm);
+  }, [urlSearchTerm]);
 
-  // Usamos los datos del servidor si están disponibles, si no, usamos los datos iniciales
+  const {
+    data: serverUsers,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["users", searchTerm],
+    queryFn: async () => await userService.getAllUsers(),
+    staleTime: 1000 * 60 * 5, //! ==> 5 minutos
+    initialData: initialUsers,
+    enabled: !initialUsers || searchTerm !== "",
+  });
+
   const usersData = serverUsers || initialUsers;
 
-  // Extraemos el array de usuarios y los metadatos
-  const users = Array.isArray(usersData) ? usersData : usersData.data;
+  const users = Array.isArray(usersData) ? usersData : usersData?.data || [];
+  const meta = !Array.isArray(usersData) ? usersData?.meta : null;
 
-  const meta = !Array.isArray(usersData) ? usersData.meta : null;
+  // Mutaciones para crear, actualizar y desactivar usuarios
+  const createUserMutation = useMutation({
+    mutationFn: async (user: UserSchema): Promise<User> =>
+      await userService.createUser(user),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (error) => {
+      console.log("Error al crear el usuario", error);
+      throw new Error("Error al crear el usuario:", error);
+    },
+  });
 
+  const updateUserMutation = useMutation({
+    mutationFn: async (user: User) => await userService.updateUser(user),
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onError: (error) => {
+      console.log("Error al actualizar el usuario", error);
+      throw new Error("Error al actualizar el usuario:", error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+
+  const disableUserMutation = useMutation({
+    mutationFn: async (id: string) => await userService.disableUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (error) => {
+      console.log("Error al desactivar el usuario", error);
+      throw new Error("Error al desactivar el usuario:", error);
+    },
+  });
+
+  // Funciones de filtrado
   const filteredUsers = () => {
     if (!users) return [];
 
     return users.filter((user) => {
-      // Si searchTerm está vacío, no filtramos por búsqueda
       const matchesSearch =
         searchTerm === ""
           ? true
@@ -66,7 +116,7 @@ export function useUsers({
     return filteredUsers().slice(startIndex, endIndex);
   };
 
-  // Cuando cambia el filtro, regresamos a la primera página
+  // Manejadores de cambios
   const handleTabChange = (tab: string) => {
     setSelectedTab(tab);
     setCurrentPage(1);
@@ -78,18 +128,28 @@ export function useUsers({
   };
 
   return {
+    // Datos y estado
     users: isLoading ? [] : paginatedUsers(),
     totalUsers: isLoading ? 0 : filteredUsers().length,
+    isLoading,
+    error,
+    meta,
+
+    // Paginación
     currentPage,
     setCurrentPage,
+
+    // Filtros
     searchTerm,
     setSearchTerm,
     selectedTab,
     setSelectedTab: handleTabChange,
     selectedSucursal,
     setSelectedSucursal: handleSucursalChange,
-    isLoading,
-    error,
-    meta,
+
+    // Mutaciones
+    createUser: createUserMutation.mutate,
+    updateUser: updateUserMutation.mutate,
+    disableUser: disableUserMutation.mutate,
   };
 }

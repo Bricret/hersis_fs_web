@@ -9,20 +9,26 @@ import {
 import { Button } from "../ui/button";
 import { Check, Lock, MoreHorizontal, UserCog, X, Trash2 } from "lucide-react";
 import { User } from "@/core/domain/entity/user.entity";
+import { toast } from "sonner";
+import { useUsers } from "@/presentation/hooks/user/useUsers";
 
 interface UserActionsProps {
   user: User;
-  onDelete: (user: User) => void;
-  onResetPassword: (user: User) => void;
-  onToggleStatus: (user: User) => void;
 }
 
-export function UserActions({
-  user,
-  onDelete,
-  onResetPassword,
-  onToggleStatus,
-}: UserActionsProps) {
+export function UserActions({ user }: UserActionsProps) {
+  const { disableUser } = useUsers();
+
+  const handleDisableUser = () => {
+    try {
+      disableUser(user.id);
+      toast.success("Usuario desactivado correctamente");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al desactivar el usuario");
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -47,14 +53,14 @@ export function UserActions({
           Editar usuario
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => onResetPassword(user)}
+          // onClick={() => onResetPassword(user)}
           className="focus:bg-blue-50 focus:text-blue-700 cursor-pointer"
         >
           <Lock className="mr-2 h-4 w-4 text-blue-600" />
           Restablecer contraseña
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => onToggleStatus(user)}
+          onClick={() => handleDisableUser()}
           className="focus:bg-blue-50 focus:text-blue-700 cursor-pointer"
         >
           {user.isActive ? (
@@ -68,14 +74,6 @@ export function UserActions({
               Activar usuario
             </>
           )}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-blue-100" />
-        <DropdownMenuItem
-          onClick={() => onDelete(user)}
-          className="focus:bg-red-50 focus:text-red-700 cursor-pointer"
-        >
-          <Trash2 className="mr-2 h-4 w-4 text-red-500" />
-          Eliminar usuario
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

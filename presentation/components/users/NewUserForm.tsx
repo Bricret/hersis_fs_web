@@ -12,12 +12,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
 import { InputField, SelectField, ButtonSubmit } from "../common/Forms";
 import { sucursales } from "@/core/data/sucursales";
-import { useUsersFetch } from "@/presentation/hooks/user/useUsersFetch";
+import { useUsers } from "@/presentation/hooks/user/useUsers";
 
 export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
   const [generatePassword, setGeneratePassword] = useState(true);
 
-  const { createUser, isLoading } = useUsersFetch();
+  const { createUser, isLoading } = useUsers();
 
   const methods = useForm<UserSchema>({
     resolver: zodResolver(userSchema),

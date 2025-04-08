@@ -16,7 +16,6 @@ export class UserApiRepository implements IUserRepository {
   }
   async createUser(user: UserSchema): Promise<User> {
     this.userRecord = { ...user };
-    console.log(this.userRecord);
     const response = await this.http.post<User>("/users", this.userRecord);
     return response;
   }
@@ -30,8 +29,8 @@ export class UserApiRepository implements IUserRepository {
     return response;
   }
 
-  async deleteUser(user: User): Promise<void> {
-    await this.http.delete(`/users/${user.id}`);
+  async deleteUser(id: string): Promise<void> {
+    await this.http.delete(`/users/${id}`);
   }
 
   async getUserById(id: string): Promise<User> {
