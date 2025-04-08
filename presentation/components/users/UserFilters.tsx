@@ -52,7 +52,7 @@ export function UserFilters({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 mb-7">
       <div className="flex items-center justify-between gap-4">
         <div className="flex gap-2 items-center">
           <div className="relative">
@@ -78,29 +78,19 @@ export function UserFilters({
               ))}
             </SelectContent>
           </Select>
+
+          <Select value={selectedTab} onValueChange={onTabChange}>
+            <SelectTrigger className="w-auto">
+              <SelectValue placeholder="Filtrar por estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos</SelectItem>
+              <SelectItem value="activos">Activos</SelectItem>
+              <SelectItem value="inactivos">Inactivos</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <NewUserDialog />
-      </div>
-
-      <div className="flex gap-2">
-        <Button
-          variant={selectedTab === "todos" ? "default" : "outline"}
-          onClick={() => onTabChange("todos")}
-        >
-          Todos
-        </Button>
-        <Button
-          variant={selectedTab === "activos" ? "default" : "outline"}
-          onClick={() => onTabChange("activos")}
-        >
-          Activos
-        </Button>
-        <Button
-          variant={selectedTab === "inactivos" ? "default" : "outline"}
-          onClick={() => onTabChange("inactivos")}
-        >
-          Inactivos
-        </Button>
       </div>
     </div>
   );

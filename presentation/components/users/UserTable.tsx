@@ -24,36 +24,51 @@ export function UserTable({
   onToggleStatus,
 }: UserTableProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Usuario</TableHead>
-          <TableHead>Rol</TableHead>
-          <TableHead>Sucursal</TableHead>
-          <TableHead>Estado</TableHead>
-          <TableHead>Último acceso</TableHead>
-          <TableHead className="text-right">Acciones</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {users.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={6} className="h-24 text-center">
-              No se encontraron usuarios
-            </TableCell>
+    <div className="rounded-lg border border-blue-100 bg-white shadow-sm">
+      <Table className="border-collapse">
+        <TableHeader>
+          <TableRow className="bg-tertiary-background-color hover:bg-tertiary-background-color/90">
+            <TableHead className="text-border-strong font-semibold">
+              Usuario
+            </TableHead>
+            <TableHead className="text-border-strong font-semibold">
+              Rol
+            </TableHead>
+            <TableHead className="text-border-strong font-semibold">
+              Sucursal
+            </TableHead>
+            <TableHead className="text-border-strong font-semibold">
+              Estado
+            </TableHead>
+            <TableHead className="text-border-strong font-semibold">
+              Último acceso
+            </TableHead>
+            <TableHead className="text-border-strong font-semibold text-right">
+              Acciones
+            </TableHead>
           </TableRow>
-        ) : (
-          users.map((user) => (
-            <UserTableRow
-              key={user.id}
-              user={user}
-              onDelete={onDeleteUser}
-              onResetPassword={onResetPassword}
-              onToggleStatus={onToggleStatus}
-            />
-          ))
-        )}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {users.length === 0 ? (
+            <TableRow className="hover:bg-blue-50/30">
+              <TableCell colSpan={6} className="h-24 text-center text-gray-500">
+                No se encontraron usuarios
+              </TableCell>
+            </TableRow>
+          ) : (
+            users.map((user, index) => (
+              <UserTableRow
+                key={user.id}
+                user={user}
+                onDelete={onDeleteUser}
+                onResetPassword={onResetPassword}
+                onToggleStatus={onToggleStatus}
+                index={index}
+              />
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
