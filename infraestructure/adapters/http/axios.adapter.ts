@@ -43,15 +43,22 @@ export class axiosAdapter implements HttpAdapter {
     tk?: string | undefined
   ): Promise<T> {
     try {
-      if (!tk) throw new Error("Token experiado o no valido");
+      if (!tk) {
+        console.error("Token no proporcionado para la petición PATCH");
+        throw new Error("Token expirado o no válido");
+      }
+
       this.patchToken(tk);
       const { data } = await this.axiosInstance.patch<T>(url, body, options);
       return data;
     } catch (error: unknown) {
+      console.error("Error en axiosAdapter.patch:", error);
       if (axios.isAxiosError(error) && error.response) {
-        throw new Error(error.response.data.message);
+        throw new Error(
+          error.response.data.message || "Error en la petición PATCH"
+        );
       }
-      throw new Error("Error desconocido");
+      throw new Error("Error desconocido en la petición PATCH");
     }
   }
 

@@ -135,7 +135,7 @@ export default function NuevoUsuarioForm({ onClose }: { onClose: () => void }) {
           <Button type="button" variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <ButtonSubmit loading={isLoading} />
+          <ButtonSubmit loading={isLoading} text="Guardar" />
         </DialogFooter>
       </form>
     </FormProvider>

@@ -1,7 +1,13 @@
 import type { IUserRepository } from "../domain/repository/user.repository";
 import type { User, PaginatedResponse } from "../domain/entity/user.entity";
-import { UserSchema } from "@/infraestructure/schema/users.schema";
-import { IResetPasswordResponse } from "@/infraestructure/interface/users/resMethod.interface";
+import {
+  EditUserSchema,
+  UserSchema,
+} from "@/infraestructure/schema/users.schema";
+import {
+  IGenericResponse,
+  IResetPasswordResponse,
+} from "@/infraestructure/interface/users/resMethod.interface";
 
 export class UserService {
   constructor(private readonly repository: IUserRepository) {}
@@ -16,9 +22,23 @@ export class UserService {
     return newUser;
   }
 
-  async updateUser(user: User): Promise<User> {
-    const updatedUser = await this.repository.updateUser(user);
-    return updatedUser;
+  async updateUser({
+    user,
+    id,
+  }: {
+    user: EditUserSchema;
+    id: string;
+  }): Promise<IGenericResponse> {
+    try {
+      const updatedUser = await this.repository.updateUser(user, id);
+      return updatedUser;
+    } catch (error) {
+      console.error("Error en UserService.updateUser:", error);
+      if (error instanceof Error) {
+        throw new Error(`Error al actualizar el usuario: ${error.message}`);
+      }
+      throw new Error("Error desconocido al actualizar el usuario");
+    }
   }
 
   async disableUser(id: string): Promise<void> {

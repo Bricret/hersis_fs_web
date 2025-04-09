@@ -1,9 +1,12 @@
 import type { IUserRepository } from "@/core/domain/repository/user.repository";
 import type { HttpAdapter } from "../adapters/http/http.adapter";
 import type { User, PaginatedResponse } from "@/core/domain/entity/user.entity";
-import { UserSchema } from "../schema/users.schema";
+import { EditUserSchema, UserSchema } from "../schema/users.schema";
 import Cookies from "js-cookie";
-import { IResetPasswordResponse } from "../interface/users/resMethod.interface";
+import {
+  IGenericResponse,
+  IResetPasswordResponse,
+} from "../interface/users/resMethod.interface";
 
 export class UserApiRepository implements IUserRepository {
   constructor(private readonly http: HttpAdapter) {}
@@ -30,13 +33,34 @@ export class UserApiRepository implements IUserRepository {
     return response;
   }
 
-  async updateUser(user: User): Promise<User> {
-    this.userRecord = { ...user };
-    const response = await this.http.patch<User>(
-      `/users/${user.id}`,
-      this.userRecord
-    );
-    return response;
+  async updateUser(
+    user: EditUserSchema,
+    id: string
+  ): Promise<IGenericResponse> {
+    try {
+      const token = this.getToken();
+      // Filtrar las propiedades que no deben enviarse al backend
+      const {
+        id: _,
+        isActive: __,
+        lastLogin: ___,
+        ...filteredUser
+      } = user as any;
+      const data = (this.userRecord = { ...filteredUser });
+      const response = await this.http.patch<IGenericResponse>(
+        `/users/${id}`,
+        data,
+        undefined,
+        token
+      );
+      return response;
+    } catch (error) {
+      console.error("Error en UserApiRepository.updateUser:", error);
+      if (error instanceof Error) {
+        throw new Error(`Error al actualizar el usuario: ${error.message}`);
+      }
+      throw new Error("Error desconocido al actualizar el usuario");
+    }
   }
 
   async deleteUser(id: string): Promise<void> {

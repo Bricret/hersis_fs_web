@@ -7,11 +7,12 @@ import { Input } from "@/presentation/components/ui/input";
 import { Label } from "@/presentation/components/ui/label";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import largeLogo from "@/resources/img/large_logo_without_bg.png";
 import pharmacyCover from "@/resources/img/pharmacy_cover.jpg";
 import { toast } from "sonner";
 import { useAuthFetch } from "@/presentation/hooks/auth/useAuthFetch";
+import { Loader2 } from "lucide-react";
 
 export function LoginForm({
   className,
@@ -22,10 +23,11 @@ export function LoginForm({
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmitLogin = async (formData: FormData) => {
+  const handleSubmitLogin = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     const username = formData.get("username") as string;
     const password = formData.get("password") as string;
-
     setIsLoading(true);
     try {
       const response = await login(username, password);
@@ -52,7 +54,7 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden py-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8" action={handleSubmitLogin}>
+          <form className="p-6 md:p-8" onSubmit={handleSubmitLogin}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <Image
@@ -90,7 +92,14 @@ export function LoginForm({
                 <Input id="password" type="password" name="password" required />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Iniciando sesión...
+                  </>
+                ) : (
+                  "Iniciar Sesión"
+                )}
               </Button>
             </div>
           </form>

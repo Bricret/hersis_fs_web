@@ -12,4 +12,15 @@ export const userSchema = z.object({
   branch: z.string().min(1, "La sucursal es obligatoria"),
 });
 
+export const editUserSchema = z.object({
+  name: z.string().min(1, "El nombre es obligatorio"),
+  username: z.string().min(1, "El nombre de usuario es obligatorio"),
+  email: z.string().email("Email Invalido"),
+  role: z.enum(Object.values(Roles) as [string, ...string[]], {
+    message: "El rol es obligatorio",
+  }),
+  // branch: z.string().min(1, "La sucursal es obligatoria"),
+});
+
 export type UserSchema = z.infer<typeof userSchema>;
+export type EditUserSchema = z.infer<typeof editUserSchema>;

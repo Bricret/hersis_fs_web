@@ -9,7 +9,10 @@ import { UserService } from "@/core/aplication/user.service";
 import { APIFetcher } from "@/infraestructure/adapters/API.adapter";
 import { UserApiRepository } from "@/infraestructure/repositories/user.api";
 import { useSearchParams } from "next/navigation";
-import { UserSchema } from "@/infraestructure/schema/users.schema";
+import {
+  EditUserSchema,
+  UserSchema,
+} from "@/infraestructure/schema/users.schema";
 
 const userRepository = new UserApiRepository(APIFetcher);
 const userService = new UserService(userRepository);
@@ -63,12 +66,12 @@ export function useUsers({
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: async (user: User) => await userService.updateUser(user),
+    mutationFn: async ({ user, id }: { user: EditUserSchema; id: string }) =>
+      await userService.updateUser({ user, id }),
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     onError: (error) => {
-      console.log("Error al actualizar el usuario", error);
-      throw new Error("Error al actualizar el usuario:", error);
+      console.error("Error al actualizar el usuario", error);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });

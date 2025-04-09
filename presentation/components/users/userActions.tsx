@@ -7,12 +7,12 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { Check, Lock, MoreHorizontal, UserCog, X, Trash2 } from "lucide-react";
+import { Check, Lock, MoreHorizontal, UserCog, X } from "lucide-react";
 import { User } from "@/core/domain/entity/user.entity";
 import { toast } from "sonner";
 import { useUsers } from "@/presentation/hooks/user/useUsers";
 import { useState } from "react";
-import Banner from "../common/Banner";
+import { EditUserDialog } from "./EditUserDialog";
 
 interface UserActionsProps {
   user: User;
@@ -20,8 +20,7 @@ interface UserActionsProps {
 
 export function UserActions({ user }: UserActionsProps) {
   const { disableUser, resetPassword } = useUsers();
-  const [showBanner, setShowBanner] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const handleSwitchStatusUser = () => {
     try {
@@ -40,9 +39,8 @@ export function UserActions({ user }: UserActionsProps) {
   const handleResetPassword = () => {
     resetPassword(user.id, {
       onSuccess: (data) => {
-        setNewPassword(data.newPassword);
-        setShowBanner(true);
-        toast.success("Contraseña restablecida correctamente");
+        navigator.clipboard.writeText(data.newPassword);
+        toast.success("Contraseña restablecida y copiada al portapapeles");
       },
       onError: (error) => {
         console.error(error);
@@ -55,21 +53,12 @@ export function UserActions({ user }: UserActionsProps) {
     });
   };
 
-  const handleCopyPassword = () => {
-    navigator.clipboard.writeText(newPassword);
-    toast.success("Contraseña copiada al portapapeles");
+  const handleEditUser = () => {
+    setIsEditDialogOpen(true);
   };
 
   return (
     <>
-      {showBanner && (
-        <Banner
-          title="Contraseña restablecida"
-          description="La contraseña ha sido restablecida correctamente. Por favor, copie la nueva contraseña y compártala con el usuario de forma segura."
-          buttonText="Copiar contraseña"
-          buttonAction={handleCopyPassword}
-        />
-      )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -88,7 +77,10 @@ export function UserActions({ user }: UserActionsProps) {
             Acciones
           </DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-blue-100" />
-          <DropdownMenuItem className="focus:bg-blue-50 focus:text-blue-700 cursor-pointer">
+          <DropdownMenuItem
+            onClick={handleEditUser}
+            className="focus:bg-blue-50 focus:text-blue-700 cursor-pointer"
+          >
             <UserCog className="mr-2 h-4 w-4 text-blue-600" />
             Editar usuario
           </DropdownMenuItem>
@@ -117,6 +109,12 @@ export function UserActions({ user }: UserActionsProps) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <EditUserDialog
+        user={user}
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+      />
     </>
   );
 }

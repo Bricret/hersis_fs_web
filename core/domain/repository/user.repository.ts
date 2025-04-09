@@ -1,10 +1,16 @@
-import { UserSchema } from "@/infraestructure/schema/users.schema";
+import {
+  EditUserSchema,
+  UserSchema,
+} from "@/infraestructure/schema/users.schema";
 import type { User, PaginatedResponse } from "../entity/user.entity";
-import { IResetPasswordResponse } from "@/infraestructure/interface/users/resMethod.interface";
+import {
+  IGenericResponse,
+  IResetPasswordResponse,
+} from "@/infraestructure/interface/users/resMethod.interface";
 
 export interface IUserRepository {
   createUser(user: UserSchema): Promise<User>;
-  updateUser(user: User): Promise<User>;
+  updateUser(user: EditUserSchema, id: string): Promise<IGenericResponse>;
   deleteUser(id: string): Promise<void>;
   resetPassword(id: string): Promise<IResetPasswordResponse>;
 
