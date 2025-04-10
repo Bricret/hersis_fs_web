@@ -15,5 +15,5 @@ export interface IUserRepository {
   resetPassword(id: string): Promise<IResetPasswordResponse>;
 
   getUserById(id: string): Promise<User>;
-  getAllUsers(): Promise<PaginatedResponse<User>>;
+  getAllUsers(page: number, limit: number): Promise<PaginatedResponse<User>>;
 }

@@ -6,8 +6,11 @@ import type { User, PaginatedResponse } from "@/core/domain/entity/user.entity";
 const userRepository = new UserApiRepository(APIFetcher);
 const userService = new UserService(userRepository);
 
-export async function getUsers(): Promise<PaginatedResponse<User>> {
-  return await userService.getAllUsers();
+export async function getUsers(
+  page = 1,
+  limit = 5
+): Promise<PaginatedResponse<User>> {
+  return await userService.getAllUsers(page, limit);
 }
 
 export async function getUserById(id: string): Promise<User> {

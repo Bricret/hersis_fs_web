@@ -13,11 +13,7 @@ import {
 import { LoadingState } from "../common/LoadingState";
 import { ErrorBoundary } from "../common/ErrorBoundary";
 
-export const UserList = ({
-  Users,
-}: {
-  Users: User[] | PaginatedResponse<User>;
-}) => {
+export const UserList = ({ Users }: { Users: PaginatedResponse<User> }) => {
   const { handleParams } = useSearchParams({
     paramsName: "search",
     waitInterval: 350,

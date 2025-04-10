@@ -21,9 +21,14 @@ export class UserApiRepository implements IUserRepository {
     return token;
   }
 
-  async getAllUsers(): Promise<PaginatedResponse<User>> {
+  //TODO: Agregar el manejo correcto de la busqueda y del paginado al 100%
+  async getAllUsers(
+    page = 1,
+    limit = 5,
+    search?: string
+  ): Promise<PaginatedResponse<User>> {
     const response = await this.http.get<PaginatedResponse<User>>(
-      "/users/allUsers"
+      `/users/allUsers?page=${page}&limit=${limit}&search=${search}`
     );
     return response;
   }

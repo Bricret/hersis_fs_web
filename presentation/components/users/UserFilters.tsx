@@ -46,8 +46,6 @@ export function UserFilters({
 
   const handleSearchChange = (value: string) => {
     setLocalSearchTerm(value);
-    // Siempre llamamos a onSearchChange, incluso cuando el valor está vacío
-    // Esto asegura que se actualice la URL y se regrese a la lista completa
     onSearchChange(value);
   };
 
