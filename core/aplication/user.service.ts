@@ -12,8 +12,12 @@ import {
 export class UserService {
   constructor(private readonly repository: IUserRepository) {}
 
-  async getAllUsers(page = 1, limit = 5): Promise<PaginatedResponse<User>> {
-    const users = await this.repository.getAllUsers(page, limit);
+  async getAllUsers(
+    page = 1,
+    limit = 5,
+    search = ""
+  ): Promise<PaginatedResponse<User>> {
+    const users = await this.repository.getAllUsers(page, limit, search);
     return users;
   }
 

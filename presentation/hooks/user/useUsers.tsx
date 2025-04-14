@@ -33,6 +33,7 @@ export function useUsers({
 
   useEffect(() => {
     setSearchTerm(urlSearchTerm);
+    setCurrentPage(1);
   }, [urlSearchTerm]);
 
   const {
@@ -40,15 +41,23 @@ export function useUsers({
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["users", searchTerm],
-    queryFn: async () => await userService.getAllUsers(),
-    staleTime: 1000 * 60 * 5, //! ==> 5 minutos
+    queryKey: ["users", searchTerm, currentPage, selectedTab, selectedSucursal],
+    queryFn: async () => {
+      const response = await userService.getAllUsers(
+        currentPage,
+        ITEMS_PER_PAGE,
+        searchTerm
+      );
+      return response;
+    },
+    staleTime: 0, // No cachear los resultados
     initialData: initialUsers,
-    enabled: !initialUsers || searchTerm !== "",
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    enabled: true,
   });
 
   const usersData = serverUsers || initialUsers;
-
   const users = Array.isArray(usersData) ? usersData : usersData?.data || [];
   const meta = !Array.isArray(usersData) ? usersData?.meta : null;
 
@@ -134,31 +143,56 @@ export function useUsers({
   };
 
   // Manejadores de cambios
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+    // Invalidar la query para forzar una nueva petición
+    queryClient.invalidateQueries({
+      queryKey: ["users", value, 1, selectedTab, selectedSucursal],
+    });
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Invalidar la query para forzar una nueva petición
+    queryClient.invalidateQueries({
+      queryKey: ["users", searchTerm, page, selectedTab, selectedSucursal],
+    });
+  };
+
   const handleTabChange = (tab: string) => {
     setSelectedTab(tab);
     setCurrentPage(1);
+    // Invalidar la query para forzar una nueva petición
+    queryClient.invalidateQueries({
+      queryKey: ["users", searchTerm, 1, tab, selectedSucursal],
+    });
   };
 
   const handleSucursalChange = (sucursal: string) => {
     setSelectedSucursal(sucursal);
     setCurrentPage(1);
+    // Invalidar la query para forzar una nueva petición
+    queryClient.invalidateQueries({
+      queryKey: ["users", searchTerm, 1, selectedTab, sucursal],
+    });
   };
 
   return {
     // Datos y estado
-    users: isLoading ? [] : paginatedUsers(),
-    totalUsers: isLoading ? 0 : filteredUsers().length,
+    users: isLoading ? [] : users,
+    totalUsers: meta?.total || 0,
     isLoading,
     error,
     meta,
 
     // Paginación
     currentPage,
-    setCurrentPage,
+    setCurrentPage: handlePageChange,
 
     // Filtros
     searchTerm,
-    setSearchTerm,
+    setSearchTerm: handleSearchChange,
     selectedTab,
     setSelectedTab: handleTabChange,
     selectedSucursal,

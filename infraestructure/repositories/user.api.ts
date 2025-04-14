@@ -25,7 +25,7 @@ export class UserApiRepository implements IUserRepository {
   async getAllUsers(
     page = 1,
     limit = 5,
-    search?: string
+    search = ""
   ): Promise<PaginatedResponse<User>> {
     const response = await this.http.get<PaginatedResponse<User>>(
       `/users/allUsers?page=${page}&limit=${limit}&search=${search}`
