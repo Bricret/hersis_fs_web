@@ -1,5 +1,5 @@
 import { TableCell, TableRow } from "../ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 import { UserActions } from "./userActions";
 import { Badge } from "../ui/badge";
 import { Store } from "lucide-react";
@@ -12,6 +12,13 @@ interface UserTableRowProps {
 }
 
 export function UserTableRow({ user, index }: UserTableRowProps) {
+  const getBranchName = (branch: User["branch"]): string => {
+    if (typeof branch === "object" && branch !== null) {
+      return branch.name;
+    }
+    return branch || "Sin sucursal";
+  };
+
   return (
     <TableRow
       className={`hover:bg-blue-50/30 transition-colors ${
@@ -39,7 +46,7 @@ export function UserTableRow({ user, index }: UserTableRowProps) {
       <TableCell>
         <div className="flex items-center gap-2">
           <Store className="h-4 w-4" />
-          <span className="text-gray-700">{user.branch}</span>
+          <span className="text-gray-700">{getBranchName(user.branch)}</span>
         </div>
       </TableCell>
       <TableCell>

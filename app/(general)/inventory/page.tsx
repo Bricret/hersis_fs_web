@@ -1,7 +1,5 @@
-import { DataProducts } from "@/core/data/DataProducts";
 import { Header } from "@/presentation/components/common/Header";
-import { columns } from "@/presentation/components/inventory/columns";
-import { DataTable } from "@/presentation/components/inventory/data-table";
+import { InventoryManagae } from "@/presentation/components/inventory/InventoryManagae";
 
 export default function InventoryPage() {
   return (
@@ -11,9 +9,7 @@ export default function InventoryPage() {
         subTitle="
       Aquí podrás ver y gestionar todos los productos que tienes en tu inventario."
       />
-      <div className="flex-1 overflow-y-auto p-4 md:p-6">
-        <DataTable columns={columns} data={DataProducts} />
-      </div>
+      <InventoryManagae />
     </main>
   );
 }

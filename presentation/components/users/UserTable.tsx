@@ -15,6 +15,9 @@ interface UserTableProps {
 }
 
 export function UserTable({ users }: UserTableProps) {
+  // Asegurarnos de que users sea un array
+  const validUsers = Array.isArray(users) ? users : [];
+
   return (
     <div className="rounded-lg border border-blue-100 bg-white shadow-sm">
       <Table className="border-collapse">
@@ -41,14 +44,14 @@ export function UserTable({ users }: UserTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.length === 0 ? (
+          {validUsers.length === 0 ? (
             <TableRow className="hover:bg-blue-50/30">
               <TableCell colSpan={6} className="h-24 text-center text-gray-500">
                 No se encontraron usuarios
               </TableCell>
             </TableRow>
           ) : (
-            users.map((user, index) => (
+            validUsers.map((user, index) => (
               <UserTableRow key={user.id} user={user} index={index} />
             ))
           )}

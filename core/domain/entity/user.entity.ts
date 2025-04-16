@@ -1,3 +1,5 @@
+import { Branch } from "./branch.entity";
+
 export interface User {
   id: string;
   name: string;
@@ -6,7 +8,7 @@ export interface User {
   role: UserRole;
   isActive: boolean;
   lastLogin: Date | null;
-  branch: string;
+  branch: Branch | string;
 }
 
 export enum UserRole {

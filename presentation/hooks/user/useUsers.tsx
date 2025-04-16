@@ -50,16 +50,21 @@ export function useUsers({
       );
       return response;
     },
-    staleTime: 0, // No cachear los resultados
+    staleTime: 0,
     initialData: initialUsers,
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     enabled: true,
   });
 
-  const usersData = serverUsers || initialUsers;
-  const users = Array.isArray(usersData) ? usersData : usersData?.data || [];
-  const meta = !Array.isArray(usersData) ? usersData?.meta : null;
+  // Asegurarnos de que siempre tengamos un array de usuarios
+  const users = Array.isArray(serverUsers)
+    ? serverUsers
+    : Array.isArray(serverUsers?.data)
+    ? serverUsers.data
+    : [];
+
+  const meta = !Array.isArray(serverUsers) ? serverUsers?.meta : null;
 
   // Mutaciones para crear, actualizar y desactivar usuarios
   const createUserMutation = useMutation({
@@ -103,7 +108,7 @@ export function useUsers({
 
   // Funciones de filtrado
   const filteredUsers = () => {
-    if (!users) return [];
+    if (!Array.isArray(users)) return [];
 
     return users.filter((user) => {
       const matchesSearch =

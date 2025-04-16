@@ -31,7 +31,12 @@ export const UserList = ({ Users }: { Users: PaginatedResponse<User> }) => {
     isLoading,
     error,
     meta,
-  } = useUsers({ initialUsers: Users });
+  } = useUsers({
+    initialUsers: {
+      data: Users.data || [],
+      meta: Users.meta,
+    },
+  });
 
   if (isLoading) return <LoadingState />;
 
