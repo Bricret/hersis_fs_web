@@ -21,7 +21,6 @@ export class UserApiRepository implements IUserRepository {
     return token;
   }
 
-  //TODO: Agregar el manejo correcto de la busqueda y del paginado al 100%
   async getAllUsers(
     page = 1,
     limit = 5,

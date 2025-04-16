@@ -7,6 +7,7 @@ import {
   GeneralInventorySchema,
   MedicineInventorySchema,
 } from "@/infraestructure/schema/inventory.schema";
+import { IGenericResponse } from "@/infraestructure/interface/users/resMethod.interface";
 
 export interface IInventoryRepository {
   createMedicineInventory(
@@ -16,7 +17,7 @@ export interface IInventoryRepository {
   createGeneralInventory(
     generalInventory: GeneralInventorySchema
   ): Promise<GeneralInventory>;
-  deleteInventory(id: string): Promise<void>;
+  deleteInventory(id: string): Promise<IGenericResponse>;
 
   getInventoryById(id: string): Promise<MedicineInventory | GeneralInventory>;
 
@@ -25,4 +26,9 @@ export interface IInventoryRepository {
     limit: number,
     search?: string
   ): Promise<PaginatedResponse<MedicineInventory | GeneralInventory>>;
+
+  updateInventory(
+    inventory: MedicineInventorySchema | GeneralInventorySchema,
+    id: string
+  ): Promise<IGenericResponse>;
 }

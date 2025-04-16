@@ -1,3 +1,5 @@
+import { ProductState } from "@/infraestructure/schema/inventory.schema";
+
 interface BaseInverntory {
   id: number;
   is_active: boolean;
@@ -9,6 +11,7 @@ interface BaseInverntory {
   purchase_price: number;
   initial_quantity: number;
   barCode: string;
+  type: ProductState;
   units_per_box: number;
   lot_number: string;
   expiration_date: string;
@@ -31,6 +34,7 @@ export interface GeneralInventory extends BaseInverntory {
   brand: string;
   model: string;
 }
+export type Inventory = MedicineInventory | GeneralInventory;
 
 export interface InventoryCategory {
   id: number;

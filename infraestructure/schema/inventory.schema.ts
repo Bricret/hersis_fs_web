@@ -1,7 +1,6 @@
 import { z } from "zod";
-import { Roles } from "../interface/users/rols.interface";
 
-enum ProductState {
+export enum ProductState {
   MEDICINE = "medicine",
   GENERAL = "general",
 }
