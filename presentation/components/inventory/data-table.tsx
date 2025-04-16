@@ -42,8 +42,8 @@ import {
 
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
-import { Products } from "@/core/domain/entity/product.entity";
-import { ProductState } from "../../../core/domain/entity/product.entity";
+import { Products } from "@/core/domain/entity/inventory.entity";
+import { ProductState } from "../../../core/domain/entity/inventory.entity";
 import {
   Pagination,
   PaginationContent,

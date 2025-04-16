@@ -1,7 +1,7 @@
 import { Header } from "@/presentation/components/common/Header";
 import { InventoryManagae } from "@/presentation/components/inventory/InventoryManagae";
 
-export default function InventoryPage() {
+export default async function InventoryPage() {
   return (
     <main className="flex flex-col flex-1 overflow-hidden bg-white">
       <Header
