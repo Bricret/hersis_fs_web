@@ -41,3 +41,9 @@ export interface InventoryCategory {
   name: string;
   description: string;
 }
+
+export enum InventoryState {
+  ALTO = "ALTO",
+  MEDIO = "MEDIO",
+  CRITICO = "CRITICO",
+}

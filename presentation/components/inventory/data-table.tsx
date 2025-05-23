@@ -42,8 +42,6 @@ import {
 
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
-import { Products } from "@/core/domain/entity/inventory.entity";
-import { ProductState } from "../../../core/domain/entity/inventory.entity";
 import {
   Pagination,
   PaginationContent,
@@ -58,6 +56,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ButtonBackgroundShine } from "../ui/button-bg-shine";
+import {
+  Inventory,
+  InventoryState,
+} from "@/core/domain/entity/inventory.entity";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -164,9 +166,9 @@ export function DataTable<TData, TValue>({
               <SelectGroup>
                 <SelectLabel>Estado de los productos</SelectLabel>
                 <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value={ProductState.ALTO}>Alto</SelectItem>
-                <SelectItem value={ProductState.MEDIO}>Medio</SelectItem>
-                <SelectItem value={ProductState.CRITICO}>Critico</SelectItem>
+                <SelectItem value={InventoryState.ALTO}>Alto</SelectItem>
+                <SelectItem value={InventoryState.MEDIO}>Medio</SelectItem>
+                <SelectItem value={InventoryState.CRITICO}>Critico</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -208,7 +210,7 @@ export function DataTable<TData, TValue>({
               variant="destructive"
               onClick={() => {
                 const ids = table.getSelectedRowModel().rows.map((row) => {
-                  return (row.original as Products).id;
+                  return (row.original as Inventory).id;
                 });
 
                 console.log(ids);
