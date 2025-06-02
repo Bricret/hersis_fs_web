@@ -1,7 +1,6 @@
 import { ProductState } from "@/infraestructure/schema/inventory.schema";
 
-interface BaseInverntory {
-  id: number;
+interface BaseInventoryRegister {
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
@@ -17,24 +16,25 @@ interface BaseInverntory {
   expiration_date: string;
 }
 
-export interface MedicineInventory extends BaseInverntory {
+export interface MedicineInventory extends BaseInventoryRegister {
   active_name: string;
   dosage: string;
   prescription: boolean;
   laboratory: string;
-  registration_number: string;
-  storage_conditions: string;
-  warnings: string;
   administration_route: string;
   presentation: string;
-  category: InventoryCategory;
+  category: string;
 }
 
-export interface GeneralInventory extends BaseInverntory {
+export interface GeneralInventory extends BaseInventoryRegister {
   brand: string;
   model: string;
 }
 export type Inventory = MedicineInventory | GeneralInventory;
+
+export interface RegisterInventoryRes {
+  message: string;
+}
 
 export interface InventoryCategory {
   id: number;

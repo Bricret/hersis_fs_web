@@ -30,10 +30,6 @@ export const medicineInventorySchema = baseInventorySchema.extend({
   registration_number: z
     .string()
     .min(1, "El número de registro es obligatorio"),
-  storage_conditions: z
-    .string()
-    .min(1, "Las condiciones de almacenamiento es obligatoria"),
-  warnings: z.string().min(1, "Los advertencias son obligatorias"),
   administration_route: z
     .string()
     .min(1, "La ruta de administración es obligatoria"),

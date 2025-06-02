@@ -5,6 +5,7 @@ import { IInventoryRepository } from "@/core/domain/repository/inventory.reposit
 import {
   GeneralInventory,
   MedicineInventory,
+  RegisterInventoryRes,
 } from "@/core/domain/entity/inventory.entity";
 import {
   GeneralInventorySchema,
@@ -25,22 +26,14 @@ export class InventoryApiRepository implements IInventoryRepository {
     return token;
   }
 
-  async createMedicineInventory(
-    medicineInventory: MedicineInventorySchema
-  ): Promise<MedicineInventory> {
-    const response = await this.http.post<MedicineInventory>(
-      "/products",
-      medicineInventory
-    );
-    return response;
-  }
-
-  async createGeneralInventory(
-    generalInventory: GeneralInventorySchema
-  ): Promise<GeneralInventory> {
-    const response = await this.http.post<GeneralInventory>(
-      "/products",
-      generalInventory
+  async createInventory(
+    inventory: MedicineInventory[] | GeneralInventory[]
+  ): Promise<RegisterInventoryRes> {
+    const response = await this.http.post<RegisterInventoryRes>(
+      "/products/bulk",
+      {
+        inventory,
+      }
     );
     return response;
   }

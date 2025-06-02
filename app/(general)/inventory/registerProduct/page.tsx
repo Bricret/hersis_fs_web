@@ -1,5 +1,6 @@
 "use client";
 
+import { MedicineInventory } from "@/core/domain/entity/inventory.entity";
 import { Header } from "@/presentation/components/common/Header";
 import {
   AlertDialog,
@@ -49,19 +50,12 @@ import {
   TableRow,
 } from "@/presentation/components/ui/table";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/presentation/components/ui/tabs";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/presentation/components/ui/tooltip";
 import {
-  ArrowLeft,
   Check,
   Download,
   FileSpreadsheet,
@@ -74,25 +68,8 @@ import {
 } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { toast } from "sonner";
-
-type Medicamento = {
-  id?: string;
-  codigo: string;
-  nombre: string;
-  principioActivo: string;
-  concentracion: string;
-  formaFarmaceutica: string;
-  categoria: string;
-  precioCompra: number;
-  precioVenta: number;
-  unidadesPorCaja: number;
-  stock: number;
-  proveedor: string;
-  fechaVencimiento: string;
-  requiereReceta: boolean;
-  descripcion: string;
-  errors?: Record<string, string | undefined>;
-};
+import { ProductState } from "@/infraestructure/schema/inventory.schema";
+import { GeneralInventory } from "@/core/domain/entity/inventory.entity";
 
 // Datos de ejemplo para los selectores
 const categorias = [
@@ -129,21 +106,45 @@ const proveedores = [
   "Otro",
 ];
 
-const medicamentoVacio: Medicamento = {
-  codigo: "",
-  nombre: "",
-  principioActivo: "",
-  concentracion: "",
-  formaFarmaceutica: "",
-  categoria: "",
-  precioCompra: 0,
-  precioVenta: 0,
-  unidadesPorCaja: 1,
-  stock: 0,
-  proveedor: "",
-  fechaVencimiento: "",
-  requiereReceta: false,
-  descripcion: "",
+const medicamentoVacio: MedicineInventory = {
+  barCode: "",
+  name: "",
+  active_name: "",
+  dosage: "",
+  presentation: "",
+  sales_price: 0,
+  purchase_price: 0,
+  units_per_box: 1,
+  initial_quantity: 0,
+  laboratory: "",
+  expiration_date: "",
+  prescription: false,
+  description: "",
+  type: ProductState.MEDICINE,
+  administration_route: "",
+  category: "",
+  lot_number: "",
+  is_active: true,
+  created_at: new Date(),
+  updated_at: new Date(),
+};
+
+const productoGeneralVacio: GeneralInventory = {
+  barCode: "",
+  name: "",
+  description: "",
+  sales_price: 0,
+  purchase_price: 0,
+  units_per_box: 1,
+  initial_quantity: 0,
+  type: ProductState.GENERAL,
+  lot_number: "",
+  expiration_date: "",
+  brand: "",
+  model: "",
+  is_active: true,
+  created_at: new Date(),
+  updated_at: new Date(),
 };
 
 // Componente para la plantilla de Excel
@@ -191,7 +192,9 @@ function PlantillaExcel() {
 function CargaArchivo({
   onFileProcessed,
 }: {
-  onFileProcessed: (medicamentos: Medicamento[]) => void;
+  onFileProcessed: (
+    productos: (MedicineInventory | GeneralInventory)[]
+  ) => void;
 }) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -200,75 +203,7 @@ function CargaArchivo({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
-
-    // Simulamos el procesamiento del archivo
-    setTimeout(() => {
-      // En una implementación real, aquí procesaríamos el archivo CSV/Excel
-      // Para este ejemplo, generamos datos de prueba
-      const medicamentosPrueba: Medicamento[] = [
-        {
-          codigo: "MED001",
-          nombre: "Paracetamol 500mg",
-          principioActivo: "Paracetamol",
-          concentracion: "500mg",
-          formaFarmaceutica: "Tableta",
-          categoria: "Analgésicos",
-          precioCompra: 3.5,
-          precioVenta: 5.99,
-          unidadesPorCaja: 12,
-          stock: 100,
-          proveedor: "Farmacéutica Nacional",
-          fechaVencimiento: "2025-12-31",
-          requiereReceta: false,
-          descripcion: "Analgésico y antipirético",
-        },
-        {
-          codigo: "MED002",
-          nombre: "Ibuprofeno 400mg",
-          principioActivo: "Ibuprofeno",
-          concentracion: "400mg",
-          formaFarmaceutica: "Tableta",
-          categoria: "Antiinflamatorios",
-          precioCompra: 4.2,
-          precioVenta: 6.5,
-          unidadesPorCaja: 10,
-          stock: 80,
-          proveedor: "MediPharma",
-          fechaVencimiento: "2025-10-15",
-          requiereReceta: false,
-          descripcion: "Antiinflamatorio no esteroideo",
-        },
-        {
-          codigo: "MED003",
-          nombre: "Amoxicilina 500mg",
-          principioActivo: "Amoxicilina",
-          concentracion: "500mg",
-          formaFarmaceutica: "Cápsula",
-          categoria: "Antibióticos",
-          precioCompra: 10.25,
-          precioVenta: 15.75,
-          unidadesPorCaja: 12,
-          stock: 50,
-          proveedor: "Laboratorios Médicos",
-          fechaVencimiento: "2025-08-20",
-          requiereReceta: true,
-          descripcion: "Antibiótico de amplio espectro",
-        },
-      ];
-
-      onFileProcessed(medicamentosPrueba);
-      setIsUploading(false);
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-
-      toast("Archivo procesado", {
-        description: `Se han cargado ${medicamentosPrueba.length} medicamentos`,
-        duration: 1500,
-      });
-    }, 1500);
+    console.log("eventualmente hare que esto funcione");
   };
 
   return (
@@ -276,7 +211,7 @@ function CargaArchivo({
       <CardHeader>
         <CardTitle className="text-lg">Cargar archivo</CardTitle>
         <CardDescription>
-          Suba un archivo CSV o Excel con los datos de los medicamentos
+          Suba un archivo CSV o Excel con los datos de los productos
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -328,62 +263,64 @@ function FormularioMedicamento({
   onSave,
   isNew = true,
 }: {
-  medicamento: Medicamento;
+  medicamento: MedicineInventory & { errors?: Record<string, string> };
   onChange: (field: string, value: any) => void;
   onSave: () => void;
   isNew?: boolean;
 }) {
+  const errors = medicamento.errors || {};
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="codigo">Código / SKU</Label>
+          <Label htmlFor="barCode">Código / SKU</Label>
           <Input
-            id="codigo"
-            value={medicamento.codigo}
-            onChange={(e) => onChange("codigo", e.target.value)}
+            id="barCode"
+            value={medicamento.barCode}
+            onChange={(e) => onChange("barCode", e.target.value)}
             placeholder="Ej: MED001"
-            className={medicamento.errors?.codigo ? "border-destructive" : ""}
+            required
           />
-          {medicamento.errors?.codigo && (
-            <p className="text-xs text-destructive">
-              {medicamento.errors.codigo}
-            </p>
+          {errors.codigo && (
+            <span className="text-xs text-red-500">{errors.codigo}</span>
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="nombre">Nombre del medicamento</Label>
+          <Label htmlFor="name">Nombre del medicamento</Label>
           <Input
-            id="nombre"
-            value={medicamento.nombre}
-            onChange={(e) => onChange("nombre", e.target.value)}
+            id="name"
+            value={medicamento.name}
+            onChange={(e) => onChange("name", e.target.value)}
             placeholder="Ej: Paracetamol 500mg"
-            className={medicamento.errors?.nombre ? "border-destructive" : ""}
+            required
           />
-          {medicamento.errors?.nombre && (
-            <p className="text-xs text-destructive">
-              {medicamento.errors.nombre}
-            </p>
+          {errors.nombre && (
+            <span className="text-xs text-red-500">{errors.nombre}</span>
           )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="principioActivo">Principio activo</Label>
+          <Label htmlFor="active_name">Principio activo</Label>
           <Input
-            id="principioActivo"
-            value={medicamento.principioActivo}
-            onChange={(e) => onChange("principioActivo", e.target.value)}
+            id="active_name"
+            value={medicamento.active_name}
+            onChange={(e) => onChange("active_name", e.target.value)}
             placeholder="Ej: Paracetamol"
           />
+          {errors.principioActivo && (
+            <span className="text-xs text-red-500">
+              {errors.principioActivo}
+            </span>
+          )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="concentracion">Concentración</Label>
+          <Label htmlFor="presentation">Concentración</Label>
           <Input
-            id="concentracion"
-            value={medicamento.concentracion}
-            onChange={(e) => onChange("concentracion", e.target.value)}
+            id="presentation"
+            value={medicamento.presentation}
+            onChange={(e) => onChange("presentation", e.target.value)}
             placeholder="Ej: 500mg"
           />
         </div>
@@ -391,19 +328,35 @@ function FormularioMedicamento({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="formaFarmaceutica">Forma farmacéutica</Label>
+          <Label htmlFor="dosage">Dosis</Label>
+          <Input
+            id="dosage"
+            value={medicamento.dosage}
+            onChange={(e) => onChange("dosage", e.target.value)}
+            placeholder="Ej: 1 tableta cada 8 horas"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="administration_route">Vía de administración</Label>
+          <Input
+            id="administration_route"
+            value={medicamento.administration_route}
+            onChange={(e) => onChange("administration_route", e.target.value)}
+            placeholder="Ej: Oral, Intravenosa, etc."
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="presentation">Forma farmacéutica</Label>
           <Select
-            value={medicamento.formaFarmaceutica}
-            onValueChange={(value) => onChange("formaFarmaceutica", value)}
+            value={medicamento.presentation}
+            onValueChange={(value) => onChange("presentation", value)}
+            required
           >
-            <SelectTrigger
-              id="formaFarmaceutica"
-              className={
-                medicamento.errors?.formaFarmaceutica
-                  ? "border-destructive"
-                  : ""
-              }
-            >
+            <SelectTrigger id="presentation">
               <SelectValue placeholder="Seleccione una forma farmacéutica" />
             </SelectTrigger>
             <SelectContent>
@@ -414,24 +367,14 @@ function FormularioMedicamento({
               ))}
             </SelectContent>
           </Select>
-          {medicamento.errors?.formaFarmaceutica && (
-            <p className="text-xs text-destructive">
-              {medicamento.errors.formaFarmaceutica}
-            </p>
-          )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="categoria">Categoría</Label>
+          <Label htmlFor="category">Categoría</Label>
           <Select
-            value={medicamento.categoria}
-            onValueChange={(value) => onChange("categoria", value)}
+            value={medicamento.category}
+            onValueChange={(value) => onChange("category", value)}
           >
-            <SelectTrigger
-              id="categoria"
-              className={
-                medicamento.errors?.categoria ? "border-destructive" : ""
-              }
-            >
+            <SelectTrigger id="category">
               <SelectValue placeholder="Seleccione una categoría" />
             </SelectTrigger>
             <SelectContent>
@@ -442,91 +385,74 @@ function FormularioMedicamento({
               ))}
             </SelectContent>
           </Select>
-          {medicamento.errors?.categoria && (
-            <p className="text-xs text-destructive">
-              {medicamento.errors.categoria}
-            </p>
-          )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="space-y-2">
-          <Label htmlFor="precioCompra">Precio de compra ($)</Label>
+          <Label htmlFor="sales_price">Precio de compra (C$)</Label>
           <Input
-            id="precioCompra"
+            id="sales_price"
             type="number"
             min="0"
             step="0.01"
-            value={medicamento.precioCompra}
+            value={medicamento.sales_price}
             onChange={(e) =>
-              onChange("precioCompra", Number.parseFloat(e.target.value) || 0)
+              onChange("sales_price", Number.parseFloat(e.target.value) || 0)
             }
-            className={
-              medicamento.errors?.precioCompra ? "border-destructive" : ""
-            }
+            required
           />
-          {medicamento.errors?.precioCompra && (
-            <p className="text-xs text-destructive">
-              {medicamento.errors.precioCompra}
-            </p>
-          )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="precioVenta">Precio de venta ($)</Label>
+          <Label htmlFor="purchase_price">Precio de venta (C$)</Label>
           <Input
-            id="precioVenta"
+            id="purchase_price"
             type="number"
             min="0"
             step="0.01"
-            value={medicamento.precioVenta}
+            value={medicamento.purchase_price}
             onChange={(e) =>
-              onChange("precioVenta", Number.parseFloat(e.target.value) || 0)
+              onChange("purchase_price", Number.parseFloat(e.target.value) || 0)
             }
-            className={
-              medicamento.errors?.precioVenta ? "border-destructive" : ""
-            }
+            required
           />
-          {medicamento.errors?.precioVenta && (
-            <p className="text-xs text-destructive">
-              {medicamento.errors.precioVenta}
-            </p>
-          )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="unidadesPorCaja">Unidades por caja</Label>
+          <Label htmlFor="units_per_box">Unidades por caja</Label>
           <Input
-            id="unidadesPorCaja"
+            id="units_per_box"
             type="number"
             min="1"
-            value={medicamento.unidadesPorCaja}
+            value={medicamento.units_per_box}
             onChange={(e) =>
-              onChange("unidadesPorCaja", Number.parseInt(e.target.value) || 1)
+              onChange("units_per_box", Number.parseInt(e.target.value) || 1)
             }
+            required
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="space-y-2">
-          <Label htmlFor="stock">Stock inicial</Label>
+          <Label htmlFor="initial_quantity">Stock inicial</Label>
           <Input
-            id="stock"
+            id="initial_quantity"
             type="number"
             min="0"
-            value={medicamento.stock}
+            value={medicamento.initial_quantity}
             onChange={(e) =>
-              onChange("stock", Number.parseInt(e.target.value) || 0)
+              onChange("initial_quantity", Number.parseInt(e.target.value) || 0)
             }
+            required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="proveedor">Proveedor</Label>
+          <Label htmlFor="laboratory">Proveedor</Label>
           <Select
-            value={medicamento.proveedor}
-            onValueChange={(value) => onChange("proveedor", value)}
+            value={medicamento.laboratory}
+            onValueChange={(value) => onChange("laboratory", value)}
           >
-            <SelectTrigger id="proveedor">
+            <SelectTrigger id="laboratory">
               <SelectValue placeholder="Seleccione un proveedor" />
             </SelectTrigger>
             <SelectContent>
@@ -539,33 +465,37 @@ function FormularioMedicamento({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="fechaVencimiento">Fecha de vencimiento</Label>
+          <Label htmlFor="expiration_date">Fecha de vencimiento</Label>
           <Input
-            id="fechaVencimiento"
+            id="expiration_date"
             type="date"
-            value={medicamento.fechaVencimiento}
-            onChange={(e) => onChange("fechaVencimiento", e.target.value)}
+            value={medicamento.expiration_date}
+            onChange={(e) => onChange("expiration_date", e.target.value)}
           />
         </div>
       </div>
 
       <div className="flex items-center space-x-2">
         <Switch
-          id="requiereReceta"
-          checked={medicamento.requiereReceta}
-          onCheckedChange={(checked) => onChange("requiereReceta", checked)}
+          id="prescription"
+          checked={medicamento.prescription}
+          onCheckedChange={(checked) => onChange("prescription", checked)}
         />
-        <Label htmlFor="requiereReceta">Requiere receta médica</Label>
+        <Label htmlFor="prescription">Requiere receta médica</Label>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="descripcion">Descripción / Notas</Label>
+      {/* Campo Descripción/Notas ocupa todo el ancho y tiene borde */}
+      <div className="md:col-span-full">
+        <Label htmlFor="description" className="pb-2">
+          Descripción / Notas
+        </Label>
         <textarea
-          id="descripcion"
-          value={medicamento.descripcion}
-          onChange={(e) => onChange("descripcion", e.target.value)}
+          id="description"
+          value={medicamento.description}
+          onChange={(e) => onChange("description", e.target.value)}
           placeholder="Información adicional sobre el medicamento"
           rows={3}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         />
       </div>
 
@@ -579,11 +509,193 @@ function FormularioMedicamento({
   );
 }
 
+// Componente para el formulario de producto general
+function FormularioProductoGeneral({
+  producto,
+  onChange,
+  onSave,
+  isNew = true,
+}: {
+  producto: GeneralInventory & { errors?: Record<string, string> };
+  onChange: (field: string, value: any) => void;
+  onSave: () => void;
+  isNew?: boolean;
+}) {
+  const errors = producto.errors || {};
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="barCode">Código / SKU</Label>
+          <Input
+            id="barCode"
+            value={producto.barCode}
+            onChange={(e) => onChange("barCode", e.target.value)}
+            placeholder="Ej: PROD001"
+            required
+          />
+          {errors.codigo && (
+            <span className="text-xs text-red-500">{errors.codigo}</span>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="name">Nombre del producto</Label>
+          <Input
+            id="name"
+            value={producto.name}
+            onChange={(e) => onChange("name", e.target.value)}
+            placeholder="Ej: Aspirina 500mg"
+            required
+          />
+          {errors.nombre && (
+            <span className="text-xs text-red-500">{errors.nombre}</span>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="description">Descripción</Label>
+          <textarea
+            id="description"
+            value={producto.description}
+            onChange={(e) => onChange("description", e.target.value)}
+            placeholder="Descripción del producto"
+            rows={3}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          {errors.descripcion && (
+            <span className="text-xs text-red-500">{errors.descripcion}</span>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="space-y-2">
+          <Label htmlFor="purchase_price">Precio de compra ($)</Label>
+          <Input
+            id="purchase_price"
+            type="number"
+            min="0"
+            step="0.01"
+            value={producto.purchase_price}
+            onChange={(e) =>
+              onChange("purchase_price", Number.parseFloat(e.target.value) || 0)
+            }
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="sales_price">Precio de venta ($)</Label>
+          <Input
+            id="sales_price"
+            type="number"
+            min="0"
+            step="0.01"
+            value={producto.sales_price}
+            onChange={(e) =>
+              onChange("sales_price", Number.parseFloat(e.target.value) || 0)
+            }
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="units_per_box">Unidades por caja</Label>
+          <Input
+            id="units_per_box"
+            type="number"
+            min="1"
+            value={producto.units_per_box}
+            onChange={(e) =>
+              onChange("units_per_box", Number.parseInt(e.target.value) || 1)
+            }
+            required
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="space-y-2">
+          <Label htmlFor="initial_quantity">Stock inicial</Label>
+          <Input
+            id="initial_quantity"
+            type="number"
+            min="0"
+            value={producto.initial_quantity}
+            onChange={(e) =>
+              onChange("initial_quantity", Number.parseInt(e.target.value) || 0)
+            }
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="brand">Marca</Label>
+          <Input
+            id="brand"
+            value={producto.brand}
+            onChange={(e) => onChange("brand", e.target.value)}
+            placeholder="Ej: Bayer"
+          />
+          {errors.marca && (
+            <span className="text-xs text-red-500">{errors.marca}</span>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="model">Modelo</Label>
+          <Input
+            id="model"
+            value={producto.model}
+            onChange={(e) => onChange("model", e.target.value)}
+            placeholder="Ej: Aspirina 500mg"
+          />
+          {errors.modelo && (
+            <span className="text-xs text-red-500">{errors.modelo}</span>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="space-y-2">
+          <Label htmlFor="expiration_date">Fecha de vencimiento</Label>
+          <Input
+            id="expiration_date"
+            type="date"
+            value={producto.expiration_date}
+            onChange={(e) => onChange("expiration_date", e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <Button onClick={onSave} className="gap-2">
+          <Save className="h-4 w-4" />
+          {isNew ? "Guardar producto general" : "Actualizar producto general"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // Componente para el formulario múltiple
 function FormularioMultiple() {
-  const [medicamentos, setMedicamentos] = useState<Medicamento[]>([]);
-  const [medicamentoActual, setMedicamentoActual] = useState<Medicamento>({
+  const [medicamentos, setMedicamentos] = useState<MedicineInventory[]>([]);
+  const [productosGenerales, setProductosGenerales] = useState<
+    GeneralInventory[]
+  >([]);
+  const [tipoProducto, setTipoProducto] = useState<ProductState>(
+    ProductState.MEDICINE
+  );
+  const [medicamentoActual, setMedicamentoActual] = useState<
+    MedicineInventory & { errors?: Record<string, string> }
+  >({
     ...medicamentoVacio,
+    errors: {},
+  });
+  const [productoGeneralActual, setProductoGeneralActual] = useState<
+    GeneralInventory & { errors?: Record<string, string> }
+  >({
+    ...productoGeneralVacio,
+    errors: {},
   });
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -592,122 +704,212 @@ function FormularioMultiple() {
 
   // Manejar cambios en el formulario actual
   const handleChange = (field: string, value: any) => {
-    setMedicamentoActual((prev) => ({
-      ...prev,
-      [field]: value,
-      errors: {
-        ...prev.errors,
-        [field]: undefined, // Limpiar error al cambiar el valor
-      },
-    }));
+    if (tipoProducto === ProductState.MEDICINE) {
+      setMedicamentoActual((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    } else {
+      setProductoGeneralActual((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
   };
 
-  // Validar medicamento
-  const validarMedicamento = (med: Medicamento): Record<string, string> => {
+  // Validar producto
+  const validarProducto = (
+    producto: MedicineInventory | GeneralInventory
+  ): Record<string, string> => {
     const errors: Record<string, string> = {};
 
-    if (!med.codigo) errors.codigo = "El código es obligatorio";
-    if (!med.nombre) errors.nombre = "El nombre es obligatorio";
-    if (!med.formaFarmaceutica)
-      errors.formaFarmaceutica = "La forma farmacéutica es obligatoria";
-    if (!med.categoria) errors.categoria = "La categoría es obligatoria";
-    if (med.precioCompra <= 0)
+    // Validaciones básicas para todos los productos
+    if (!producto.barCode) errors.codigo = "El código es obligatorio";
+    if (!producto.name) errors.nombre = "El nombre es obligatorio";
+    if (producto.purchase_price <= 0)
       errors.precioCompra = "El precio de compra debe ser mayor a 0";
-    if (med.precioVenta <= 0)
+    if (producto.sales_price <= 0)
       errors.precioVenta = "El precio de venta debe ser mayor a 0";
-    if (med.precioVenta < med.precioCompra)
+    if (producto.sales_price <= producto.purchase_price) {
       errors.precioVenta =
         "El precio de venta debe ser mayor al precio de compra";
+      toast.error("Error de validación", {
+        description: "El precio de venta debe ser mayor al precio de compra",
+        duration: 3000,
+      });
+    }
 
-    // Verificar si el código ya existe (excepto si estamos editando)
-    if (
-      editIndex === null &&
-      medicamentos.some((m) => m.codigo === med.codigo)
-    ) {
-      errors.codigo = "Este código ya existe";
+    // Validaciones específicas según el tipo de producto
+    if (tipoProducto === ProductState.MEDICINE) {
+      const med = producto as MedicineInventory;
+      if (!med.active_name)
+        errors.principioActivo = "El principio activo es obligatorio";
+      if (!med.category) errors.categoria = "La categoría es obligatoria";
+      if (!med.dosage) errors.dosage = "La dosis es obligatoria";
+    } else {
+      const prod = producto as GeneralInventory;
+      if (!prod.brand) errors.marca = "La marca es obligatoria";
+      if (!prod.model) errors.modelo = "El modelo es obligatorio";
+    }
+
+    // Validar código único solo si no está en modo edición
+    if (editIndex === null) {
+      if (tipoProducto === ProductState.MEDICINE) {
+        if (medicamentos.some((m) => m.barCode === producto.barCode)) {
+          errors.codigo = "Este código ya existe";
+          toast.error("Error de validación", {
+            description: "Este código ya existe en la lista",
+            duration: 3000,
+          });
+        }
+      } else {
+        if (productosGenerales.some((p) => p.barCode === producto.barCode)) {
+          errors.codigo = "Este código ya existe";
+          toast.error("Error de validación", {
+            description: "Este código ya existe en la lista",
+            duration: 3000,
+          });
+        }
+      }
     }
 
     return errors;
   };
 
-  // Agregar o actualizar medicamento
-  const agregarMedicamento = () => {
-    const errors = validarMedicamento(medicamentoActual);
+  // Agregar o actualizar producto
+  const agregarProducto = () => {
+    const producto =
+      tipoProducto === ProductState.MEDICINE
+        ? medicamentoActual
+        : productoGeneralActual;
+    const errors = validarProducto(producto);
 
     if (Object.keys(errors).length > 0) {
-      setMedicamentoActual((prev) => ({ ...prev, errors }));
+      if (tipoProducto === ProductState.MEDICINE) {
+        setMedicamentoActual((prev) => ({ ...prev, errors }));
+      } else {
+        setProductoGeneralActual((prev) => ({ ...prev, errors }));
+      }
       return;
     }
 
     if (editIndex !== null) {
-      // Actualizar medicamento existente
-      const nuevosMedicamentos = [...medicamentos];
-      nuevosMedicamentos[editIndex] = { ...medicamentoActual };
-      setMedicamentos(nuevosMedicamentos);
+      if (tipoProducto === ProductState.MEDICINE) {
+        const nuevosMedicamentos = [...medicamentos];
+        nuevosMedicamentos[editIndex] = { ...medicamentoActual };
+        setMedicamentos(nuevosMedicamentos);
+      } else {
+        const nuevosProductos = [...productosGenerales];
+        nuevosProductos[editIndex] = { ...productoGeneralActual };
+        setProductosGenerales(nuevosProductos);
+      }
       setEditIndex(null);
 
-      toast("Medicamento actualizado", {
-        description: `${medicamentoActual.nombre} ha sido actualizado`,
+      toast.success("Producto actualizado", {
+        description: `${producto.name} ha sido actualizado`,
         duration: 1500,
       });
     } else {
-      // Agregar nuevo medicamento
-      setMedicamentos([...medicamentos, { ...medicamentoActual }]);
+      if (tipoProducto === ProductState.MEDICINE) {
+        setMedicamentos([...medicamentos, { ...medicamentoActual }]);
+      } else {
+        setProductosGenerales([
+          ...productosGenerales,
+          { ...productoGeneralActual },
+        ]);
+      }
 
-      toast("Medicamento agregado", {
-        description: `${medicamentoActual.nombre} ha sido agregado a la lista`,
+      toast.success("Producto agregado", {
+        description: `${producto.name} ha sido agregado a la lista`,
         duration: 1500,
       });
     }
 
     // Limpiar formulario
-    setMedicamentoActual({ ...medicamentoVacio });
+    if (tipoProducto === ProductState.MEDICINE) {
+      setMedicamentoActual({ ...medicamentoVacio, errors: {} });
+    } else {
+      setProductoGeneralActual({ ...productoGeneralVacio, errors: {} });
+    }
   };
 
-  // Editar medicamento
-  const editarMedicamento = (index: number) => {
-    setMedicamentoActual({ ...medicamentos[index] });
+  // Editar producto
+  const editProduct = (index: number) => {
+    if (tipoProducto === ProductState.MEDICINE) {
+      setMedicamentoActual({ ...medicamentos[index] });
+    } else {
+      setProductoGeneralActual({ ...productosGenerales[index] });
+    }
     setEditIndex(index);
   };
 
-  // Eliminar medicamento
-  const eliminarMedicamento = (index: number) => {
-    const nuevosMedicamentos = [...medicamentos];
-    nuevosMedicamentos.splice(index, 1);
-    setMedicamentos(nuevosMedicamentos);
+  // Eliminar producto
+  const deleteProduct = (index: number) => {
+    if (tipoProducto === ProductState.MEDICINE) {
+      const nuevosMedicamentos = [...medicamentos];
+      nuevosMedicamentos.splice(index, 1);
+      setMedicamentos(nuevosMedicamentos);
+    } else {
+      const nuevosProductos = [...productosGenerales];
+      nuevosProductos.splice(index, 1);
+      setProductosGenerales(nuevosProductos);
+    }
 
-    // Si estábamos editando este medicamento, limpiar el formulario
+    // Si estábamos editando este producto, limpiar el formulario
     if (editIndex === index) {
-      setMedicamentoActual({ ...medicamentoVacio });
+      if (tipoProducto === ProductState.MEDICINE) {
+        setMedicamentoActual({ ...medicamentoVacio });
+      } else {
+        setProductoGeneralActual({ ...productoGeneralVacio });
+      }
       setEditIndex(null);
     }
 
-    toast("Medicamento eliminado", {
-      description: "El medicamento ha sido eliminado de la lista",
+    toast("Producto eliminado", {
+      description: "El producto ha sido eliminado de la lista",
       duration: 1500,
     });
   };
 
   // Procesar archivo cargado
-  const procesarArchivo = (medicamentosCargados: Medicamento[]) => {
-    // Validar y filtrar medicamentos cargados
-    const medicamentosValidos = medicamentosCargados.filter((med) => {
-      const errors = validarMedicamento(med);
+  const processFile = (
+    productosCargados: (MedicineInventory | GeneralInventory)[]
+  ) => {
+    const medicamentosValidos = productosCargados.filter((prod) => {
+      const errors = validarProducto(prod);
       return Object.keys(errors).length === 0;
     });
 
-    setMedicamentos([...medicamentos, ...medicamentosValidos]);
+    if (tipoProducto === ProductState.MEDICINE) {
+      setMedicamentos([
+        ...medicamentos,
+        ...(medicamentosValidos as MedicineInventory[]),
+      ]);
+    } else {
+      setProductosGenerales([
+        ...productosGenerales,
+        ...(medicamentosValidos as GeneralInventory[]),
+      ]);
+    }
   };
 
-  // Guardar todos los medicamentos
-  const guardarTodos = () => {
-    if (medicamentos.length === 0) {
-      toast("No hay medicamentos", {
-        description: "Agregue al menos un medicamento para guardar",
+  // Guardar todos los productos
+  const onSaveAll = async () => {
+    const productos =
+      tipoProducto === ProductState.MEDICINE
+        ? medicamentos
+        : productosGenerales;
+
+    if (productos.length === 0) {
+      toast("No hay productos", {
+        description: "Agregue al menos un producto para guardar",
         duration: 1500,
       });
       return;
     }
+
+    // Log para depuración
+    console.log("Productos a guardar:", productos);
 
     setIsSubmitting(true);
 
@@ -725,27 +927,65 @@ function FormularioMultiple() {
           <CardHeader>
             <CardTitle className="text-lg">
               {editIndex !== null
-                ? "Editar medicamento"
-                : "Agregar nuevo medicamento"}
+                ? "Editar producto"
+                : "Agregar nuevo producto"}
             </CardTitle>
             <CardDescription>
-              Complete los datos del medicamento y agréguelo a la lista
+              Seleccione el tipo de producto y complete los datos
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <FormularioMedicamento
-              medicamento={medicamentoActual}
-              onChange={handleChange}
-              onSave={agregarMedicamento}
-              isNew={editIndex === null}
-            />
+            <div className="pb-6">
+              <Label className="mb-2">Tipo de producto</Label>
+              <Select
+                value={tipoProducto}
+                onValueChange={(value) => {
+                  setTipoProducto(value as ProductState);
+                  setMedicamentoActual({ ...medicamentoVacio });
+                  setProductoGeneralActual({ ...productoGeneralVacio });
+                  setEditIndex(null);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione el tipo de producto" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ProductState.MEDICINE}>
+                    Medicamento
+                  </SelectItem>
+                  <SelectItem value={ProductState.GENERAL}>
+                    Producto general
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {tipoProducto === ProductState.MEDICINE ? (
+              <FormularioMedicamento
+                medicamento={medicamentoActual}
+                onChange={handleChange}
+                onSave={agregarProducto}
+                isNew={editIndex === null}
+              />
+            ) : (
+              <FormularioProductoGeneral
+                producto={productoGeneralActual}
+                onChange={handleChange}
+                onSave={agregarProducto}
+                isNew={editIndex === null}
+              />
+            )}
           </CardContent>
           {editIndex !== null && (
             <CardFooter className="justify-between border-t px-6 py-4">
               <Button
                 variant="outline"
                 onClick={() => {
-                  setMedicamentoActual({ ...medicamentoVacio });
+                  if (tipoProducto === ProductState.MEDICINE) {
+                    setMedicamentoActual({ ...medicamentoVacio });
+                  } else {
+                    setProductoGeneralActual({ ...productoGeneralVacio });
+                  }
                   setEditIndex(null);
                 }}
               >
@@ -757,7 +997,7 @@ function FormularioMultiple() {
 
         <div className="space-y-6">
           <PlantillaExcel />
-          <CargaArchivo onFileProcessed={procesarArchivo} />
+          <CargaArchivo onFileProcessed={processFile} />
         </div>
       </div>
 
@@ -765,15 +1005,22 @@ function FormularioMultiple() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg">
-              Lista de medicamentos a registrar
+              Lista de productos a registrar
             </CardTitle>
             <CardDescription>
-              {medicamentos.length} medicamentos listos para guardar
+              {tipoProducto === ProductState.MEDICINE
+                ? `${medicamentos.length} medicamentos`
+                : `${productosGenerales.length} productos generales`}{" "}
+              listos para guardar
             </CardDescription>
           </div>
           <Button
-            onClick={guardarTodos}
-            disabled={medicamentos.length === 0 || isSubmitting}
+            onClick={onSaveAll}
+            disabled={
+              (tipoProducto === ProductState.MEDICINE
+                ? medicamentos.length === 0
+                : productosGenerales.length === 0) || isSubmitting
+            }
             className="gap-2"
           >
             {isSubmitting ? (
@@ -790,13 +1037,16 @@ function FormularioMultiple() {
           </Button>
         </CardHeader>
         <CardContent>
-          {medicamentos.length === 0 ? (
+          {(tipoProducto === ProductState.MEDICINE &&
+            medicamentos.length === 0) ||
+          (tipoProducto === ProductState.GENERAL &&
+            productosGenerales.length === 0) ? (
             <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed p-8 text-center">
               <Package className="h-10 w-10 text-muted-foreground" />
               <div>
-                <h3 className="font-medium">No hay medicamentos en la lista</h3>
+                <h3 className="font-medium">No hay productos en la lista</h3>
                 <p className="text-sm text-muted-foreground">
-                  Agregue medicamentos usando el formulario o cargue un archivo
+                  Agregue productos usando el formulario o cargue un archivo
                 </p>
               </div>
             </div>
@@ -807,7 +1057,18 @@ function FormularioMultiple() {
                   <TableRow>
                     <TableHead>Código</TableHead>
                     <TableHead>Nombre</TableHead>
-                    <TableHead>Categoría</TableHead>
+                    {tipoProducto === ProductState.MEDICINE ? (
+                      <>
+                        <TableHead>Categoría</TableHead>
+                        <TableHead>Dosis</TableHead>
+                        <TableHead>Administración</TableHead>
+                      </>
+                    ) : (
+                      <>
+                        <TableHead>Marca</TableHead>
+                        <TableHead>Modelo</TableHead>
+                      </>
+                    )}
                     <TableHead>Precio compra</TableHead>
                     <TableHead>Precio venta</TableHead>
                     <TableHead>Stock</TableHead>
@@ -815,57 +1076,114 @@ function FormularioMultiple() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {medicamentos.map((med, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">
-                        {med.codigo}
-                      </TableCell>
-                      <TableCell>{med.nombre}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{med.categoria}</Badge>
-                      </TableCell>
-                      <TableCell>${med.precioCompra.toFixed(2)}</TableCell>
-                      <TableCell>${med.precioVenta.toFixed(2)}</TableCell>
-                      <TableCell>{med.stock}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => editarMedicamento(index)}
-                                >
-                                  <Info className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Editar medicamento</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="text-destructive"
-                                  onClick={() => eliminarMedicamento(index)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Eliminar medicamento</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {tipoProducto === ProductState.MEDICINE
+                    ? medicamentos.map((med, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">
+                            {med.barCode}
+                          </TableCell>
+                          <TableCell>{med.name}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{med.category}</Badge>
+                          </TableCell>
+                          <TableCell>{med.dosage}</TableCell>
+                          <TableCell>{med.administration_route}</TableCell>
+                          <TableCell>${med.sales_price.toFixed(2)}</TableCell>
+                          <TableCell>
+                            ${med.purchase_price.toFixed(2)}
+                          </TableCell>
+                          <TableCell>{med.initial_quantity}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => editProduct(index)}
+                                    >
+                                      <Info className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Editar producto</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="text-destructive"
+                                      onClick={() => deleteProduct(index)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Eliminar producto</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    : productosGenerales.map((prod, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">
+                            {prod.barCode}
+                          </TableCell>
+                          <TableCell>{prod.name}</TableCell>
+                          <TableCell>{prod.brand}</TableCell>
+                          <TableCell>{prod.model}</TableCell>
+                          <TableCell>${prod.sales_price.toFixed(2)}</TableCell>
+                          <TableCell>
+                            ${prod.purchase_price.toFixed(2)}
+                          </TableCell>
+                          <TableCell>{prod.initial_quantity}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => editProduct(index)}
+                                    >
+                                      <Info className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Editar producto</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="text-destructive"
+                                      onClick={() => deleteProduct(index)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Eliminar producto</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                 </TableBody>
               </Table>
             </ScrollArea>
@@ -879,20 +1197,25 @@ function FormularioMultiple() {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Está seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción eliminará todos los medicamentos de la lista. Esta
-              acción no se puede deshacer.
+              Esta acción eliminará todos los productos de la lista. Esta acción
+              no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                setMedicamentos([]);
-                setMedicamentoActual({ ...medicamentoVacio });
+                if (tipoProducto === ProductState.MEDICINE) {
+                  setMedicamentos([]);
+                  setMedicamentoActual({ ...medicamentoVacio });
+                } else {
+                  setProductosGenerales([]);
+                  setProductoGeneralActual({ ...productoGeneralVacio });
+                }
                 setEditIndex(null);
                 toast("Lista limpiada", {
                   description:
-                    "Todos los medicamentos han sido eliminados de la lista",
+                    "Todos los productos han sido eliminados de la lista",
                   duration: 1500,
                 });
               }}
@@ -907,10 +1230,13 @@ function FormularioMultiple() {
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>¡Medicamentos guardados!</DialogTitle>
+            <DialogTitle>¡Productos guardados!</DialogTitle>
             <DialogDescription>
-              Se han guardado {medicamentos.length} medicamentos correctamente
-              en el sistema.
+              Se han guardado{" "}
+              {tipoProducto === ProductState.MEDICINE
+                ? medicamentos.length
+                : productosGenerales.length}{" "}
+              productos correctamente en el sistema.
             </DialogDescription>
           </DialogHeader>
           <div className="flex h-20 items-center justify-center">
@@ -922,8 +1248,13 @@ function FormularioMultiple() {
             <Button
               onClick={() => {
                 setShowSuccessDialog(false);
-                setMedicamentos([]);
-                setMedicamentoActual({ ...medicamentoVacio });
+                if (tipoProducto === ProductState.MEDICINE) {
+                  setMedicamentos([]);
+                  setMedicamentoActual({ ...medicamentoVacio });
+                } else {
+                  setProductosGenerales([]);
+                  setProductoGeneralActual({ ...productoGeneralVacio });
+                }
                 setEditIndex(null);
               }}
               className="w-full"

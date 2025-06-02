@@ -9,7 +9,12 @@ import {
   IResetPasswordResponse,
 } from "@/infraestructure/interface/users/resMethod.interface";
 import { IInventoryRepository } from "../domain/repository/inventory.repository";
-import { Inventory } from "../domain/entity/inventory.entity";
+import {
+  GeneralInventory,
+  Inventory,
+  MedicineInventory,
+  RegisterInventoryRes,
+} from "../domain/entity/inventory.entity";
 import {
   GeneralInventorySchema,
   MedicineInventorySchema,
@@ -33,18 +38,14 @@ export class InventoryService {
   }
 
   async createInventory(
-    inventory: MedicineInventorySchema | GeneralInventorySchema
-  ): Promise<Inventory> {
-    if (inventory.type === ProductState.MEDICINE) {
-      const medicineInventory = await this.repository.createMedicineInventory(
-        inventory as MedicineInventorySchema
-      );
-      return medicineInventory;
-    } else {
-      const generalInventory = await this.repository.createGeneralInventory(
-        inventory as GeneralInventorySchema
-      );
-      return generalInventory;
+    inventory: MedicineInventory[] | GeneralInventory[]
+  ): Promise<RegisterInventoryRes> {
+    try {
+      const response = await this.repository.createInventory(inventory);
+      return response;
+    } catch (error) {
+      console.error("Error en InventoryService.createInventory:", error);
+      throw new Error("Error desconocido al crear el inventario");
     }
   }
 

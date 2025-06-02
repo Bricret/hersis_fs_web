@@ -2,6 +2,7 @@ import type { PaginatedResponse } from "../entity/user.entity";
 import {
   GeneralInventory,
   MedicineInventory,
+  RegisterInventoryRes,
 } from "../entity/inventory.entity";
 import {
   GeneralInventorySchema,
@@ -10,13 +11,10 @@ import {
 import { IGenericResponse } from "@/infraestructure/interface/users/resMethod.interface";
 
 export interface IInventoryRepository {
-  createMedicineInventory(
-    medicineInventory: MedicineInventorySchema
-  ): Promise<MedicineInventory>;
+  createInventory(
+    inventory: MedicineInventory[] | GeneralInventory[]
+  ): Promise<RegisterInventoryRes>;
 
-  createGeneralInventory(
-    generalInventory: GeneralInventorySchema
-  ): Promise<GeneralInventory>;
   deleteInventory(id: string): Promise<IGenericResponse>;
 
   getInventoryById(id: string): Promise<MedicineInventory | GeneralInventory>;

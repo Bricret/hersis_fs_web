@@ -1,6 +1,11 @@
 import { APIFetcher } from "@/infraestructure/adapters/API.adapter";
 import type { PaginatedResponse } from "@/core/domain/entity/user.entity";
-import { Inventory } from "@/core/domain/entity/inventory.entity";
+import {
+  GeneralInventory,
+  Inventory,
+  MedicineInventory,
+  RegisterInventoryRes,
+} from "@/core/domain/entity/inventory.entity";
 import { InventoryService } from "@/core/aplication/inventory.service";
 import { InventoryApiRepository } from "@/infraestructure/repositories/inventory.api";
 
@@ -16,4 +21,10 @@ export async function getInventory(
 
 export async function getUserById(id: string): Promise<Inventory> {
   return await inventoryRepository.getInventoryById(id);
+}
+
+export async function createInventory(
+  inventory: MedicineInventory[] | GeneralInventory[]
+): Promise<RegisterInventoryRes> {
+  return await inventoryService.createInventory(inventory);
 }
