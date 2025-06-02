@@ -49,13 +49,6 @@ export class InventoryApiRepository implements IInventoryRepository {
     return response;
   }
 
-  async deleteInventory(id: string): Promise<IGenericResponse> {
-    const response = await this.http.delete<IGenericResponse>(
-      `/products/${id}`
-    );
-    return response;
-  }
-
   async getInventoryById(
     id: string
   ): Promise<MedicineInventory | GeneralInventory> {
@@ -94,6 +87,16 @@ export class InventoryApiRepository implements IInventoryRepository {
     const res = await this.http.patch<{ message: string }>(
       `/products/updatePrice/${id}`,
       { newPrice: body.newPrice, type: body.type }
+    );
+    return res;
+  }
+
+  async disableProduct(id: bigint, type: string): Promise<{ message: string }> {
+    const res = await this.http.patch<{ message: string }>(
+      `/products/disable/${id}`,
+      {
+        type,
+      }
     );
     return res;
   }

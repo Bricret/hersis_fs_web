@@ -15,8 +15,6 @@ export interface IInventoryRepository {
     inventory: MedicineInventory[] | GeneralInventory[]
   ): Promise<RegisterInventoryRes>;
 
-  deleteInventory(id: string): Promise<IGenericResponse>;
-
   getInventoryById(id: string): Promise<MedicineInventory | GeneralInventory>;
 
   getAllInventory(
@@ -29,6 +27,8 @@ export interface IInventoryRepository {
     inventory: MedicineInventorySchema | GeneralInventorySchema,
     id: string
   ): Promise<IGenericResponse>;
+
+  disableProduct(id: bigint, type: string): Promise<{ message: string }>;
 
   refillProduct(
     id: bigint,

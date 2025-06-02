@@ -109,16 +109,16 @@ export class InventoryService {
     }
   }
 
-  async disableInventory(id: string): Promise<IGenericResponse> {
+  async disableInventory(id: bigint, type: string): Promise<IGenericResponse> {
     try {
-      const response = await this.repository.deleteInventory(id);
+      const response = await this.repository.disableProduct(id, type);
       return response;
     } catch (error) {
       console.error("Error en InventoryService.disableInventory:", error);
       if (error instanceof Error) {
-        throw new Error(`Error al desactivar el inventario: ${error.message}`);
+        throw new Error(`Error al desactivar el producto: ${error.message}`);
       }
-      throw new Error("Error desconocido al desactivar el inventario");
+      throw new Error("Error desconocido al desactivar el producto");
     }
   }
 }

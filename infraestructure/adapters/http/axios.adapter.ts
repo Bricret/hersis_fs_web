@@ -57,13 +57,9 @@ export class axiosAdapter implements HttpAdapter {
 
   async delete<T>(
     url: string,
-    options?: Record<string, unknown> | undefined,
-    tk?: string | undefined
+    options?: Record<string, unknown> | undefined
   ): Promise<T> {
     try {
-      if (!tk) throw new Error("Token experiado o no valido");
-      this.patchToken(tk);
-
       const { data } = await this.axiosInstance.delete<T>(url, options);
       return data;
     } catch (error: unknown) {

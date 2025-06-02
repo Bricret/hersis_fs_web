@@ -11,6 +11,7 @@ import {
 import { InventoryService } from "@/core/aplication/inventory.service";
 import { InventoryApiRepository } from "@/infraestructure/repositories/inventory.api";
 import { revalidatePath } from "next/cache";
+import { IGenericResponse } from "@/infraestructure/interface/users/resMethod.interface";
 
 const inventoryRepository = new InventoryApiRepository(APIFetcher);
 const inventoryService = new InventoryService(inventoryRepository);
@@ -50,4 +51,13 @@ export async function updatePriceProduct(
   const response = await inventoryService.updatePriceProduct(id, body);
   revalidatePath("/inventory");
   return response;
+}
+
+export async function disableProduct(
+  id: bigint,
+  type: string
+): Promise<IGenericResponse> {
+  const res = await inventoryRepository.disableProduct(id, type);
+  revalidatePath("/inventory");
+  return res;
 }

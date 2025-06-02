@@ -35,6 +35,7 @@ import {
 import { ProductDialog } from "./product-dialog";
 import { RefillDialog } from "./refill-dialog";
 import { UpdatePriceDialog } from "./update-price-dialog";
+import { DeactivateProductDialog } from "./deactivate-product-dialog";
 
 const myCustomFilterFn: FilterFn<Inventory> = (
   row: Row<Inventory>,
@@ -353,9 +354,7 @@ export const columns: ColumnDef<Inventory>[] = [
             <UpdatePriceDialog product={product} />
             <DropdownMenuSeparator />
             <DropdownMenuItem>Editar</DropdownMenuItem>
-            <DropdownMenuItem>
-              <p className="text-destructive">Desactivar</p>
-            </DropdownMenuItem>
+            <DeactivateProductDialog product={product} />
           </DropdownMenuContent>
         </DropdownMenu>
       );
