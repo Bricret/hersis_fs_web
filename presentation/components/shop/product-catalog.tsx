@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Search,
   Pill,
@@ -24,59 +24,102 @@ import {
   SheetFooter,
 } from "@/presentation/components/ui/sheet";
 import { useIsMobile } from "@/presentation/hooks/use-mobile";
-import { PHARMACY_PRODUCTS } from "@/core/data/products";
+import { Inventory } from "@/core/domain/entity/inventory.entity";
+import { toast } from "sonner";
 
 interface ProductCatalogProps {
   mode: "cashier" | "pharmacist";
-  onProductSelect: (product: any) => void;
+  onProductSelect: (product: Inventory) => void;
+  products: Inventory[];
 }
 
 export default function ProductCatalog({
   mode,
   onProductSelect,
+  products,
 }: ProductCatalogProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const isMobile = useIsMobile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const barcodeTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  // Filter products based on search query and category
-  const filteredProducts = PHARMACY_PRODUCTS.filter((product) => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.barcode.includes(searchQuery);
+  // Focus input on mount and after sale completion
+  useEffect(() => {
+    const focusInput = () => {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
+    };
 
-    if (activeCategory === "all") return matchesSearch;
-    return (
-      matchesSearch &&
-      product.category.toLowerCase().includes(activeCategory.toLowerCase())
-    );
-  });
+    // Focus on mount
+    focusInput();
+
+    // Listen for sale completion
+    window.addEventListener("saleCompleted", focusInput);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("saleCompleted", focusInput);
+    };
+  }, []);
 
   // Categories with icons
   const categories = [
     { id: "all", name: "Todos", icon: <Pill className="h-4 w-4" /> },
-    { id: "pain", name: "Analgésicos", icon: <Heart className="h-4 w-4" /> },
-    {
-      id: "antibiotics",
-      name: "Antibióticos",
-      icon: <Droplet className="h-4 w-4" />,
-    },
-    { id: "allergy", name: "Alergias", icon: <Leaf className="h-4 w-4" /> },
-    {
-      id: "vitamins",
-      name: "Vitaminas",
-      icon: <Thermometer className="h-4 w-4" />,
-    },
+    { id: "medicine", name: "Medicinas", icon: <Heart className="h-4 w-4" /> },
+    { id: "general", name: "General", icon: <Leaf className="h-4 w-4" /> },
   ];
+
+  // Handle barcode scanning
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+
+    // Clear any existing timeout
+    if (barcodeTimeoutRef.current) {
+      clearTimeout(barcodeTimeoutRef.current);
+    }
+
+    // Set a new timeout to detect barcode scanning or pasting
+    barcodeTimeoutRef.current = setTimeout(() => {
+      // If the value is a barcode (assuming barcodes are numeric and at least 8 digits)
+      if (/^\d{8,}$/.test(value)) {
+        const product = products.find((p) => p.barCode === value);
+        if (product) {
+          onProductSelect(product);
+          setSearchQuery("");
+          if (searchInputRef.current) {
+            searchInputRef.current.focus();
+          }
+          toast.success("Producto agregado al carrito", {
+            description: `${product.name} ha sido añadido al carrito`,
+          });
+        } else {
+          toast.error("Producto no encontrado");
+          setSearchQuery("");
+        }
+      }
+    }, 100); // Short timeout to detect barcode scanning or pasting
+  };
+
+  // Filter products based on search query and category
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.barCode.includes(searchQuery);
+
+    if (activeCategory === "all") return matchesSearch;
+    return matchesSearch && product.type === activeCategory;
+  });
 
   // Scroll to category
   const scrollToCategory = (categoryId: string) => {
     setActiveCategory(categoryId);
 
     if (scrollContainerRef.current) {
-      // Smooth scroll to top when changing categories
       scrollContainerRef.current.scrollTo({
         top: 0,
         behavior: "smooth",
@@ -91,11 +134,13 @@ export default function ProductCatalog({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
+              ref={searchInputRef}
               type="text"
-              placeholder="Buscar productos..."
+              placeholder="Buscar productos o escanear código de barras..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               className="pl-9"
+              autoFocus
             />
           </div>
 
@@ -191,8 +236,8 @@ export default function ProductCatalog({
 }
 
 interface ProductCardProps {
-  product: any;
-  onSelect: (product: any) => void;
+  product: Inventory;
+  onSelect: (product: Inventory) => void;
   mode: "cashier" | "pharmacist";
 }
 
@@ -212,38 +257,27 @@ function ProductCard({ product, onSelect, mode }: ProductCardProps) {
               <Badge
                 variant="outline"
                 className={
-                  product.stock > 50
+                  product.initial_quantity > 50
                     ? "bg-green-50 text-green-700 text-xs"
                     : "bg-amber-50 text-amber-700 text-xs"
                 }
               >
-                {product.stock} en stock
+                {product.initial_quantity} en stock
               </Badge>
               <span className="text-xs text-gray-500 ml-2 truncate">
-                {product.category}
+                {product.type}
               </span>
             </div>
           </div>
           <div className="text-right ml-2">
-            <div className="font-bold text-lg">${product.price.toFixed(2)}</div>
+            <div className="font-bold text-lg">
+              C$ {product.sales_price.toFixed(2)}
+            </div>
             {mode === "pharmacist" && (
               <div className="text-xs text-blue-600">Ver detalles</div>
             )}
           </div>
         </div>
-
-        {mode === "pharmacist" && (
-          <div className="bg-blue-50 px-3 py-2 text-xs text-blue-800">
-            <div className="flex justify-between">
-              <span>Requiere receta:</span>
-              <span>{Math.random() > 0.5 ? "Sí" : "No"}</span>
-            </div>
-            <div className="flex justify-between mt-1">
-              <span>Interacciones:</span>
-              <span>{Math.floor(Math.random() * 5)}</span>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
