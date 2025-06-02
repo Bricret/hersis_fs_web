@@ -8,8 +8,8 @@ import { useIsMobile } from "@/presentation/hooks/use-mobile";
 import { toast } from "sonner";
 import ModeToggle from "./mode-toggle";
 import QuickActions from "./quick-actions";
-import Header from "./headerPOS";
 import ProductCatalog from "./product-catalog";
+import { Header } from "../common/Header";
 
 export default function PosSection() {
   return (
@@ -33,16 +33,11 @@ function PosContent() {
   }, [isMobile]);
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen w-full">
       <Header
-        cartCount={cart.reduce(
-          (sum: any, item: { quantity: any }) => sum + item.quantity,
-          0
-        )}
-        onCartToggle={() => setIsCartOpen(!isCartOpen)}
-        isCartOpen={isCartOpen}
+        title="Punto de Venta"
+        subTitle="Maneja tus ventas de manera eficiente"
       />
-
       <ModeToggle currentMode={mode} onModeChange={setMode} />
 
       <div className="flex flex-1 relative overflow-hidden">
