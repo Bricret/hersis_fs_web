@@ -71,6 +71,25 @@ export class InventoryService {
     }
   }
 
+  async refillProduct(
+    id: bigint,
+    body: {
+      refill: number;
+      type: string;
+    }
+  ): Promise<{ message: string }> {
+    try {
+      const res = await this.repository.refillProduct(id, body);
+      return res;
+    } catch (error) {
+      console.error("Error en UserService.refillProduct:", error);
+      if (error instanceof Error) {
+        throw new Error(`Error al actualizar el stock: ${error.message}`);
+      }
+      throw new Error("Error desconocido al actualizar el stock");
+    }
+  }
+
   async disableInventory(id: string): Promise<IGenericResponse> {
     try {
       const response = await this.repository.deleteInventory(id);

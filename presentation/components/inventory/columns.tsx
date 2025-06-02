@@ -33,6 +33,7 @@ import {
   TooltipTrigger,
 } from "@/presentation/components/ui/tooltip";
 import { ProductDialog } from "./product-dialog";
+import { RefillDialog } from "./refill-dialog";
 
 const myCustomFilterFn: FilterFn<Inventory> = (
   row: Row<Inventory>,
@@ -347,7 +348,7 @@ export const columns: ColumnDef<Inventory>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <ProductDialog product={product} />
-            <DropdownMenuItem>Reabastecer</DropdownMenuItem>
+            <RefillDialog product={product} />
             <DropdownMenuItem>Cambiar Precio</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Editar</DropdownMenuItem>

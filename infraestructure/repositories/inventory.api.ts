@@ -75,4 +75,15 @@ export class InventoryApiRepository implements IInventoryRepository {
     >(`/products?page=${page}&limit=${limit}&search=${search}`);
     return response;
   }
+
+  async refillProduct(
+    id: bigint,
+    body: { refill: number; type: string }
+  ): Promise<{ message: string }> {
+    const res = await this.http.patch<{ message: string }>(
+      `/products/refill/${id}`,
+      { refill: body.refill, type: body.type }
+    );
+    return res;
+  }
 }

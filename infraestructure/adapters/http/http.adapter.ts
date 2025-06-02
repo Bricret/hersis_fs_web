@@ -18,10 +18,5 @@ export abstract class HttpAdapter {
     tk?: string
   ): Promise<T>;
 
-  abstract patch<T>(
-    url: string,
-    body: Record<string, unknown>,
-    options?: Record<string, unknown>,
-    tk?: string
-  ): Promise<T>;
+  abstract patch<T>(url: string, body: Record<string, unknown>): Promise<T>;
 }

@@ -17,7 +17,7 @@ interface BaseInventoryRegister {
 }
 
 interface BaseInventory {
-  id: number;
+  id: bigint;
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
@@ -33,7 +33,7 @@ interface BaseInventory {
   expiration_date: string;
 }
 
-export interface MedicineInventory extends BaseInventoryRegister {
+export interface MedicineInventory extends BaseInventory {
   active_name: string;
   dosage: string;
   prescription: boolean;
@@ -43,7 +43,7 @@ export interface MedicineInventory extends BaseInventoryRegister {
   category: string;
 }
 
-export interface GeneralInventory extends BaseInventoryRegister {
+export interface GeneralInventory extends BaseInventory {
   brand: string;
   model: string;
 }

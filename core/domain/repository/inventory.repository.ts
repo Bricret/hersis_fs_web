@@ -29,4 +29,12 @@ export interface IInventoryRepository {
     inventory: MedicineInventorySchema | GeneralInventorySchema,
     id: string
   ): Promise<IGenericResponse>;
+
+  refillProduct(
+    id: bigint,
+    body: {
+      refill: number;
+      type: string;
+    }
+  ): Promise<{ message: string }>;
 }
