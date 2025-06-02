@@ -210,7 +210,7 @@ export function DataTable<TData, TValue>({
               variant="destructive"
               onClick={() => {
                 const ids = table.getSelectedRowModel().rows.map((row) => {
-                  return (row.original as Inventory).id;
+                  return (row.original as Inventory).name;
                 });
 
                 console.log(ids);

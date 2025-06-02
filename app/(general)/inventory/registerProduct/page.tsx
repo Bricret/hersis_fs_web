@@ -70,6 +70,7 @@ import React, { useRef, useState } from "react";
 import { toast } from "sonner";
 import { ProductState } from "@/infraestructure/schema/inventory.schema";
 import { GeneralInventory } from "@/core/domain/entity/inventory.entity";
+import { createInventory } from "@/presentation/services/server/inventory.server";
 
 // Datos de ejemplo para los selectores
 const categorias = [
@@ -908,16 +909,20 @@ function FormularioMultiple() {
       return;
     }
 
-    // Log para depuración
-    console.log("Productos a guardar:", productos);
-
-    setIsSubmitting(true);
-
-    // Simulamos el guardado en la base de datos
-    setTimeout(() => {
+    try {
+      console.log(productos);
+      setIsSubmitting(true);
+      const response = await createInventory(productos);
       setIsSubmitting(false);
       setShowSuccessDialog(true);
-    }, 2000);
+      toast.success(response.message);
+    } catch (error) {
+      setIsSubmitting(false);
+      toast.error("Error al guardar los productos", {
+        description: "Intente nuevamente",
+        duration: 1500,
+      });
+    }
   };
 
   return (

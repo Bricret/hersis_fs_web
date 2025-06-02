@@ -16,6 +16,23 @@ interface BaseInventoryRegister {
   expiration_date: string;
 }
 
+interface BaseInventory {
+  id: number;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+  name: string;
+  description: string;
+  sales_price: number;
+  purchase_price: number;
+  initial_quantity: number;
+  barCode: string;
+  type: ProductState;
+  units_per_box: number;
+  lot_number: string;
+  expiration_date: string;
+}
+
 export interface MedicineInventory extends BaseInventoryRegister {
   active_name: string;
   dosage: string;

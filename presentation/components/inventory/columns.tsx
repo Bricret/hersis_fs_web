@@ -16,12 +16,24 @@ import {
 import { Checkbox } from "@/presentation/components/ui/checkbox";
 
 import { toast } from "sonner";
-import { Products, ProductState } from "@/core/domain/entity/inventory.entity";
-import { ChevronDownIcon, ChevronUpIcon, Ellipsis } from "lucide-react";
+import { Inventory } from "@/core/domain/entity/inventory.entity";
+import {
+  Bird,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  Ellipsis,
+  Pill,
+} from "lucide-react";
 import { format } from "@formkit/tempo";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/presentation/components/ui/tooltip";
 
-const myCustomFilterFn: FilterFn<Products> = (
-  row: Row<Products>,
+const myCustomFilterFn: FilterFn<Inventory> = (
+  row: Row<Inventory>,
   columnId: string,
   filterValue: string,
   addMeta: (meta: any) => void
@@ -29,8 +41,9 @@ const myCustomFilterFn: FilterFn<Products> = (
   filterValue = filterValue.toLowerCase();
 
   const filterParts = filterValue.split(" ");
-  const rowValues =
-    `${row.original.name} ${row.original.barCode} ${row.original.category}`.toLowerCase();
+  const rowValues = `${row.original.name} ${row.original.barCode} ${
+    "category" in row.original ? row.original.category : ""
+  }`.toLowerCase();
 
   return filterParts.every((part) => rowValues.includes(part));
 };
@@ -47,9 +60,7 @@ const SortedIcon = ({ isSorted }: { isSorted: false | SortDirection }) => {
   return null;
 };
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export const columns: ColumnDef<Products>[] = [
+export const columns: ColumnDef<Inventory>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -86,9 +97,14 @@ export const columns: ColumnDef<Products>[] = [
         </Button>
       );
     },
+    cell: ({ row }) => {
+      const name = row.getValue("name") as boolean;
+
+      return <div className="flex justify-center items-center">{name}</div>;
+    },
   },
   {
-    accessorKey: "state",
+    accessorKey: "is_active",
     header: ({ column }) => {
       return (
         <Button
@@ -102,25 +118,20 @@ export const columns: ColumnDef<Products>[] = [
       );
     },
     cell: ({ row }) => {
-      const status = row.getValue("state") as string;
-      const variant =
-        {
-          ALTO: "success",
-          CRITICO: "destructive",
-          MEDIO: "alert",
-        }[status] ?? ("default" as any);
+      const status = row.getValue("is_active") as boolean;
+      const variant = status ? "success" : "destructive";
 
       return (
         <div className="flex justify-center items-center">
           <Badge variant={variant} className="capitalize">
-            {status}
+            {status ? "Activo" : "Inactivo"}
           </Badge>
         </div>
       );
     },
   },
   {
-    accessorKey: "quantity",
+    accessorKey: "initial_quantity",
     filterFn: myCustomFilterFn,
     header: ({ column }) => {
       return (
@@ -135,13 +146,50 @@ export const columns: ColumnDef<Products>[] = [
       );
     },
     cell: ({ row }) => {
-      const quantity = row.getValue("quantity") as number;
+      const quantity = row.getValue("initial_quantity") as number;
 
-      return <div className="text-center">{quantity}</div>;
+      // Definir los umbrales para los diferentes estados
+      const criticalThreshold = 5;
+      const lowThreshold = 15;
+
+      // Determinar el estado del stock
+      let stockStatus: "critical" | "low" | "good" = "good";
+      let statusColor = "text-green-500";
+      let statusMessage = "Stock adecuado";
+
+      if (quantity <= criticalThreshold) {
+        stockStatus = "critical";
+        statusColor = "text-red-500";
+        statusMessage = "Stock crítico";
+      } else if (quantity <= lowThreshold) {
+        stockStatus = "low";
+        statusColor = "text-yellow-500";
+        statusMessage = "Stock bajo";
+      }
+
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className="w-full">
+              <div
+                className={`flex items-center justify-center gap-2 ${
+                  stockStatus === "critical" ? "animate-pulse" : ""
+                }`}
+              >
+                <div className={`w-2 h-2 rounded-full ${statusColor}`} />
+                <span className={`font-medium ${statusColor}`}>{quantity}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{statusMessage}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
     },
   },
   {
-    accessorKey: "price",
+    accessorKey: "purchase_price",
     header: ({ column }) => {
       return (
         <div className="text-right">
@@ -158,7 +206,7 @@ export const columns: ColumnDef<Products>[] = [
     },
     // header: () => <div className="text-right">Amount</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("price"));
+      const amount = parseFloat(row.getValue("purchase_price"));
       const formatted = new Intl.NumberFormat("es-NI", {
         style: "currency",
         currency: "NIO",
@@ -183,12 +231,50 @@ export const columns: ColumnDef<Products>[] = [
       );
     },
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("barCode"));
-      return <div className="text-center font-medium">{amount}</div>;
+      const barCode = row.getValue("barCode") as string;
+      return <div className="text-center font-medium">{barCode}</div>;
     },
   },
   {
-    accessorKey: "expirationDate",
+    accessorKey: "type",
+    filterFn: myCustomFilterFn,
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          className="w-full"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Tipo de Producto
+          <SortedIcon isSorted={column.getIsSorted()} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const type = row.getValue("type") as string;
+      if (type === "medicine") {
+        return (
+          <div className="flex justify-center items-center">
+            <Badge variant="outline">
+              <Pill className="w-5 h-5 mr-1" />
+              Medicina
+            </Badge>
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex justify-center items-center">
+          <Badge variant="success">
+            <Bird className="w-5 h-5 mr-1" />
+            General
+          </Badge>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "expiration_date",
     filterFn: myCustomFilterFn,
     header: ({ column }) => {
       return (
@@ -203,10 +289,40 @@ export const columns: ColumnDef<Products>[] = [
       );
     },
     cell: ({ row }) => {
-      const date = new Date(row.getValue("expirationDate"));
+      const date = new Date(row.getValue("expiration_date"));
       const formatted = format(date, "medium");
+      const today = new Date();
+      const diffTime = date.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      return <div className="text-center">{formatted}</div>;
+      let variant: "default" | "destructive" | "alert" = "default";
+      let tooltipMessage = "";
+
+      if (diffDays < 0) {
+        variant = "destructive";
+        tooltipMessage = `Caducado hace ${Math.abs(diffDays)} días`;
+      } else if (diffDays === 0) {
+        variant = "destructive";
+        tooltipMessage = "Caduca hoy";
+      } else if (diffDays <= 15) {
+        variant = "alert";
+        tooltipMessage = `Caduca en ${diffDays} días`;
+      }
+
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className="flex justify-center items-center w-full">
+              <Badge variant={variant} className="text-center">
+                {formatted}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{tooltipMessage || "Fecha válida"}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
     },
   },
 
