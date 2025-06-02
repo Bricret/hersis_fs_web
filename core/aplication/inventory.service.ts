@@ -90,6 +90,25 @@ export class InventoryService {
     }
   }
 
+  async updatePriceProduct(
+    id: bigint,
+    body: {
+      newPrice: number;
+      type: string;
+    }
+  ): Promise<{ message: string }> {
+    try {
+      const res = await this.repository.updatePriceProduct(id, body);
+      return res;
+    } catch (error) {
+      console.error("Error en UserService.updatePriceProduct:", error);
+      if (error instanceof Error) {
+        throw new Error(`Error al actualizar el precio: ${error.message}`);
+      }
+      throw new Error("Error desconocido al actualizar el precio");
+    }
+  }
+
   async disableInventory(id: string): Promise<IGenericResponse> {
     try {
       const response = await this.repository.deleteInventory(id);

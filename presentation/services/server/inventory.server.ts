@@ -42,3 +42,12 @@ export async function refillProduct(
   revalidatePath("/inventory");
   return response;
 }
+
+export async function updatePriceProduct(
+  id: bigint,
+  body: { newPrice: number; type: string }
+): Promise<{ message: string }> {
+  const response = await inventoryService.updatePriceProduct(id, body);
+  revalidatePath("/inventory");
+  return response;
+}

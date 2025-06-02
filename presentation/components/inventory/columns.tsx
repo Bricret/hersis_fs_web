@@ -34,6 +34,7 @@ import {
 } from "@/presentation/components/ui/tooltip";
 import { ProductDialog } from "./product-dialog";
 import { RefillDialog } from "./refill-dialog";
+import { UpdatePriceDialog } from "./update-price-dialog";
 
 const myCustomFilterFn: FilterFn<Inventory> = (
   row: Row<Inventory>,
@@ -192,7 +193,7 @@ export const columns: ColumnDef<Inventory>[] = [
     },
   },
   {
-    accessorKey: "purchase_price",
+    accessorKey: "sales_price",
     header: ({ column }) => {
       return (
         <div className="text-right">
@@ -209,7 +210,7 @@ export const columns: ColumnDef<Inventory>[] = [
     },
     // header: () => <div className="text-right">Amount</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("purchase_price"));
+      const amount = parseFloat(row.getValue("sales_price"));
       const formatted = new Intl.NumberFormat("es-NI", {
         style: "currency",
         currency: "NIO",
@@ -349,11 +350,11 @@ export const columns: ColumnDef<Inventory>[] = [
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <ProductDialog product={product} />
             <RefillDialog product={product} />
-            <DropdownMenuItem>Cambiar Precio</DropdownMenuItem>
+            <UpdatePriceDialog product={product} />
             <DropdownMenuSeparator />
             <DropdownMenuItem>Editar</DropdownMenuItem>
             <DropdownMenuItem>
-              <p className="text-destructive">Borrar</p>
+              <p className="text-destructive">Desactivar</p>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

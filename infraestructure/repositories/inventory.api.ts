@@ -86,4 +86,15 @@ export class InventoryApiRepository implements IInventoryRepository {
     );
     return res;
   }
+
+  async updatePriceProduct(
+    id: bigint,
+    body: { newPrice: number; type: string }
+  ): Promise<{ message: string }> {
+    const res = await this.http.patch<{ message: string }>(
+      `/products/updatePrice/${id}`,
+      { newPrice: body.newPrice, type: body.type }
+    );
+    return res;
+  }
 }

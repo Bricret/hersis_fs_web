@@ -37,4 +37,12 @@ export interface IInventoryRepository {
       type: string;
     }
   ): Promise<{ message: string }>;
+
+  updatePriceProduct(
+    id: bigint,
+    body: {
+      newPrice: number;
+      type: string;
+    }
+  ): Promise<{ message: string }>;
 }
