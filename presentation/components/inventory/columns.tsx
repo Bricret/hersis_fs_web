@@ -23,6 +23,7 @@ import {
   ChevronUpIcon,
   Ellipsis,
   Pill,
+  Tablets,
 } from "lucide-react";
 import { format } from "@formkit/tempo";
 import {
@@ -31,6 +32,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/presentation/components/ui/tooltip";
+import { ProductDialog } from "./product-dialog";
 
 const myCustomFilterFn: FilterFn<Inventory> = (
   row: Row<Inventory>,
@@ -255,8 +257,11 @@ export const columns: ColumnDef<Inventory>[] = [
       if (type === "medicine") {
         return (
           <div className="flex justify-center items-center">
-            <Badge variant="outline">
-              <Pill className="w-5 h-5 mr-1" />
+            <Badge
+              variant="outline"
+              className="bg-blue-200/50 border border-blue-400 text-blue-700"
+            >
+              <Tablets className="w-5 h-5 mr-1" />
               Medicina
             </Badge>
           </div>
@@ -295,7 +300,7 @@ export const columns: ColumnDef<Inventory>[] = [
       const diffTime = date.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      let variant: "default" | "destructive" | "alert" = "default";
+      let variant: "success" | "destructive" | "alert" = "success";
       let tooltipMessage = "";
 
       if (diffDays < 0) {
@@ -329,7 +334,7 @@ export const columns: ColumnDef<Inventory>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const payment = row.original;
+      const product = row.original;
 
       return (
         <DropdownMenu>
@@ -341,7 +346,7 @@ export const columns: ColumnDef<Inventory>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem>Ver mas</DropdownMenuItem>
+            <ProductDialog product={product} />
             <DropdownMenuItem>Reabastecer</DropdownMenuItem>
             <DropdownMenuItem>Cambiar Precio</DropdownMenuItem>
             <DropdownMenuSeparator />
