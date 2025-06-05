@@ -263,7 +263,7 @@ export function ClosingDetailsDialog({
                           Número de ventas:
                         </span>
                         <span className="font-medium">
-                          {summary.estadisticas?.numero_ventas || 0}
+                          {summary.cantidad_ventas || 0}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -271,9 +271,7 @@ export function ClosingDetailsDialog({
                           Promedio por venta:
                         </span>
                         <span className="font-medium">
-                          {formatCurrency(
-                            summary.estadisticas?.promedio_venta || 0
-                          )}
+                          {summary.porcentaje_diferencia || 0}%
                         </span>
                       </div>
                     </div>
