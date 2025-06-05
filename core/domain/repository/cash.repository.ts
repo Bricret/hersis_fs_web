@@ -25,7 +25,7 @@ export interface ICashRepository {
   ): Promise<PaginatedResponse<Cash>>;
 
   // GET /cash/active/{branchId} - Caja activa de una sucursal
-  getActiveCash(branchId: string): Promise<ICashResponse>;
+  getActiveCash(branchId: string): Promise<Cash>;
 
   // GET /cash/{id} - Detalle de una caja
   getCashById(id: string): Promise<ICashResponse>;

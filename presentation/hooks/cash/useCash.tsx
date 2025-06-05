@@ -56,11 +56,7 @@ export function useCash({
         );
         return response;
       } else {
-        const response = await cashService.getAllCash(
-          currentPage,
-          ITEMS_PER_PAGE,
-          searchTerm
-        );
+        const response = await cashService.getAllCash();
         return response;
       }
     },
@@ -187,7 +183,7 @@ export function useActiveCash(branchId: string) {
   });
 
   return {
-    activeCash: activeCash?.data || null,
+    activeCash: activeCash,
     isLoading,
     error,
     refetch,

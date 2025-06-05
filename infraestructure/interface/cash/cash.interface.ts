@@ -2,8 +2,7 @@ import { Cash } from "@/core/domain/entity/cash.entity";
 import { Sale } from "@/core/domain/entity/sale.entity";
 
 export interface ICashResponse {
-  message: string;
-  data: Cash;
+  cash: Cash;
 }
 
 export interface ICashListResponse {

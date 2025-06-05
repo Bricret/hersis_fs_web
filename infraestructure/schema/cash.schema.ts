@@ -10,6 +10,7 @@ export const openCashSchema = z.object({
 });
 
 export const closeCashSchema = z.object({
+  user_cierre_id: z.string().min(1, "El usuario de cierre es obligatorio"),
   monto_final: z.number().min(0, "El monto final debe ser mayor o igual a 0"),
   observaciones: z.string().optional(),
 });

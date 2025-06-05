@@ -47,10 +47,8 @@ export class CashApiRepository implements ICashRepository {
     return response;
   }
 
-  async getActiveCash(branchId: string): Promise<ICashResponse> {
-    const response = await this.http.get<ICashResponse>(
-      `/cash/active/${branchId}`
-    );
+  async getActiveCash(branchId: string): Promise<Cash> {
+    const response = await this.http.get<Cash>(`/cash/active/${branchId}`);
     return response;
   }
 
@@ -81,23 +79,19 @@ export class CashApiRepository implements ICashRepository {
   }
 
   async openCash(data: OpenCashSchema): Promise<ICashResponse> {
-    const token = this.getToken();
     const response = await this.http.post<ICashResponse>(
       "/cash",
       data,
-      undefined,
-      token
+      undefined
     );
     return response;
   }
 
   async closeCash(id: string, data: CloseCashSchema): Promise<ICashResponse> {
-    const token = this.getToken();
     const response = await this.http.post<ICashResponse>(
       `/cash/${id}/close`,
       data,
-      undefined,
-      token
+      undefined
     );
     return response;
   }

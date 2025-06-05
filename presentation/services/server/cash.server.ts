@@ -32,7 +32,7 @@ export async function getCashByBranch(
   return await cashService.getCashByBranch(branchId, page, limit);
 }
 
-export async function getActiveCash(branchId: string): Promise<ICashResponse> {
+export async function getActiveCash(branchId: string): Promise<Cash> {
   return await cashService.getActiveCash(branchId);
 }
 

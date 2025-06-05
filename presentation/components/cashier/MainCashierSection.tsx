@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowDown,
   Calendar,
@@ -59,12 +60,14 @@ import { toast } from "sonner";
 import { Header } from "@/presentation/components/common/Header";
 import type { DateRange } from "react-day-picker";
 
-// Hooks e imports de la API
+// Server actions
 import {
-  useActiveCash,
-  useCash,
-  useCashSummary,
-} from "@/presentation/hooks/cash/useCash";
+  getActiveCash,
+  getCashSummary,
+  openCash,
+  closeCash,
+} from "@/presentation/services/server/cash.server";
+
 import { useAuthStore } from "@/presentation/store/auth.store";
 import type {
   OpenCashSchema,
@@ -72,6 +75,7 @@ import type {
 } from "@/infraestructure/schema/cash.schema";
 import type { Cash } from "@/core/domain/entity/cash.entity";
 import { CashStatus } from "@/core/domain/entity/cash.entity";
+import type { ICashSummary } from "@/infraestructure/interface/cash/cash.interface";
 
 // Función para formatear moneda
 const formatCurrency = (amount: number) => {
@@ -88,6 +92,12 @@ const formatDateTime = (date: Date | string) => {
     dateStyle: "long",
     timeStyle: "short",
   });
+};
+
+// Función helper para convertir montos a número
+const parseAmount = (amount: any): number => {
+  if (typeof amount === "number") return amount;
+  return parseFloat(amount || "0");
 };
 
 // Componente para apertura de caja
@@ -224,15 +234,17 @@ function CloseCashRegisterDialog({
   onClose: () => void;
   onCloseCashRegister: (id: string, data: CloseCashSchema) => void;
   activeCash: Cash | null;
-  cashSummary: any;
+  cashSummary: ICashSummary | null;
 }) {
   const [finalAmount, setFinalAmount] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuthStore();
 
   useEffect(() => {
     if (open && cashSummary) {
-      setFinalAmount(cashSummary.monto_esperado?.toFixed(2) || "0.00");
+      const montoEsperado = parseAmount(cashSummary.monto_esperado);
+      setFinalAmount(montoEsperado.toFixed(2) || "0.00");
       setNotes("");
     }
   }, [open, cashSummary]);
@@ -249,6 +261,7 @@ function CloseCashRegisterDialog({
     setIsSubmitting(true);
 
     const closingData: CloseCashSchema = {
+      user_cierre_id: user?.sub || "",
       monto_final: parsedFinalAmount,
       observaciones: notes.trim() || undefined,
     };
@@ -259,8 +272,8 @@ function CloseCashRegisterDialog({
 
   if (!activeCash || !cashSummary) return null;
 
-  const difference =
-    Number.parseFloat(finalAmount) - (cashSummary.monto_esperado || 0);
+  const montoEsperadoNumerico = parseAmount(cashSummary.monto_esperado);
+  const difference = Number.parseFloat(finalAmount) - montoEsperadoNumerico;
 
   return (
     <Dialog
@@ -292,13 +305,13 @@ function CloseCashRegisterDialog({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Ventas totales:</span>
                 <span className="font-medium">
-                  {formatCurrency(cashSummary.ventas_totales || 0)}
+                  {formatCurrency(parseAmount(cashSummary.ventas_totales))}
                 </span>
               </div>
               <Separator className="my-1" />
               <div className="flex justify-between font-medium">
                 <span>Monto esperado en caja:</span>
-                <span>{formatCurrency(cashSummary.monto_esperado || 0)}</span>
+                <span>{formatCurrency(montoEsperadoNumerico)}</span>
               </div>
             </div>
           </div>
@@ -382,13 +395,13 @@ function ClosingDetailsDialog({
   open,
   onClose,
   closing,
+  summary,
 }: {
   open: boolean;
   onClose: () => void;
   closing: Cash | null;
+  summary: ICashSummary | null;
 }) {
-  const { summary } = useCashSummary(closing?.id || "", !!closing && open);
-
   if (!closing) return null;
 
   return (
@@ -494,7 +507,7 @@ function ClosingDetailsDialog({
                       Ventas totales:
                     </span>
                     <span className="font-medium">
-                      {formatCurrency(closing.ventas_totales)}
+                      {formatCurrency(parseAmount(closing.ventas_totales))}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -502,7 +515,7 @@ function ClosingDetailsDialog({
                       Monto esperado:
                     </span>
                     <span className="font-medium">
-                      {formatCurrency(closing.monto_esperado)}
+                      {formatCurrency(parseAmount(closing.monto_esperado))}
                     </span>
                   </div>
                   {closing.monto_final !== undefined && (
@@ -645,74 +658,106 @@ function ClosingDetailsDialog({
 }
 
 // Componente principal
-export default function MainCashierSection({ cash }: { cash: Cash[] }) {
-  const { user } = useAuthStore();
-  const branchId = user?.sub || ""; // Usando el ID del usuario como branch_id temporal
+export default function MainCashierSection({
+  cash,
+  initialActiveCash,
+  initialSummary,
+}: {
+  cash: Cash[];
+  initialActiveCash: Cash | null;
+  initialSummary: ICashSummary | null;
+}) {
+  const branchId = "dcdfcc7a-b5fa-444f-b6c1-bcff84365f64";
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   // Estados para diálogos
   const [showOpenDialog, setShowOpenDialog] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [selectedClosing, setSelectedClosing] = useState<Cash | null>(null);
   const [showClosingDetails, setShowClosingDetails] = useState(false);
+  const [selectedClosingSummary, setSelectedClosingSummary] =
+    useState<ICashSummary | null>(null);
 
   // Estados para filtros
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [isExporting, setIsExporting] = useState(false);
 
-  // Hooks de la API
-  const {
-    activeCash,
-    isLoading: isLoadingActive,
-    refetch: refetchActive,
-  } = useActiveCash(branchId);
-  const { isLoading, openCashMutation, closeCashMutation } = useCash({
-    branchId,
-  });
-  const { summary: activeCashSummary } = useCashSummary(
-    activeCash?.id || "",
-    !!activeCash
-  );
+  // Estados para datos
+  const [activeCash, setActiveCash] = useState<Cash | null>(initialActiveCash);
+  const [activeCashSummary, setActiveCashSummary] =
+    useState<ICashSummary | null>(initialSummary);
+  const [isLoadingActive, setIsLoadingActive] = useState(false);
+
+  // Refrescar datos de la caja activa
+  const refreshActiveCash = async () => {
+    setIsLoadingActive(true);
+    try {
+      const [newActiveCash, newSummary] = await Promise.all([
+        getActiveCash(branchId).catch(() => null),
+        activeCash?.id
+          ? getCashSummary(activeCash.id).catch(() => null)
+          : Promise.resolve(null),
+      ]);
+      setActiveCash(newActiveCash);
+      setActiveCashSummary(newSummary);
+    } catch (error) {
+      console.error("Error al refrescar datos de caja:", error);
+    } finally {
+      setIsLoadingActive(false);
+    }
+  };
 
   // Manejar apertura de caja
-  const handleOpenCashRegister = (data: OpenCashSchema) => {
-    openCashMutation.mutate(data, {
-      onSuccess: () => {
+  const handleOpenCashRegister = async (data: OpenCashSchema) => {
+    startTransition(async () => {
+      try {
+        await openCash(data);
         toast.success("Caja abierta correctamente");
         setShowOpenDialog(false);
-        refetchActive();
-      },
-      onError: (error) => {
+        await refreshActiveCash();
+        router.refresh();
+      } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Error al abrir la caja"
         );
-      },
+      }
     });
   };
 
   // Manejar cierre de caja
-  const handleCloseCashRegister = (id: string, data: CloseCashSchema) => {
-    closeCashMutation.mutate(
-      { id, data },
-      {
-        onSuccess: () => {
-          toast.success("Caja cerrada correctamente");
-          setShowCloseDialog(false);
-          refetchActive();
-        },
-        onError: (error) => {
-          toast.error(
-            error instanceof Error ? error.message : "Error al cerrar la caja"
-          );
-        },
+  const handleCloseCashRegister = async (id: string, data: CloseCashSchema) => {
+    startTransition(async () => {
+      try {
+        await closeCash(id, data);
+        toast.success("Caja cerrada correctamente");
+        setShowCloseDialog(false);
+        await refreshActiveCash();
+        router.refresh();
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Error al cerrar la caja"
+        );
       }
-    );
+    });
   };
 
   // Ver detalles de cierre
-  const handleViewClosingDetails = (cash: Cash) => {
+  const handleViewClosingDetails = async (cash: Cash) => {
     setSelectedClosing(cash);
+    setSelectedClosingSummary(null);
     setShowClosingDetails(true);
+
+    // Cargar el summary para este cierre
+    if (cash.id) {
+      try {
+        const summary = await getCashSummary(cash.id);
+        setSelectedClosingSummary(summary);
+      } catch (error) {
+        console.error("Error al cargar resumen:", error);
+      }
+    }
   };
 
   // Exportar reportes
@@ -742,7 +787,7 @@ export default function MainCashierSection({ cash }: { cash: Cash[] }) {
     return matchesSearch && matchesDateFrom && matchesDateTo;
   });
 
-  if (isLoadingActive) {
+  if (isLoadingActive && !activeCash) {
     return (
       <div className="flex flex-col flex-1 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -764,18 +809,47 @@ export default function MainCashierSection({ cash }: { cash: Cash[] }) {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   Estado de Caja
-                  <Badge variant={activeCash ? "default" : "secondary"}>
-                    {activeCash ? "Abierta" : "Cerrada"}
+                  <Badge
+                    variant={
+                      activeCash?.estado === CashStatus.CERRADA
+                        ? "default"
+                        : "success"
+                    }
+                  >
+                    {activeCash?.estado === CashStatus.CERRADA
+                      ? "Cerrada"
+                      : "Abierta"}
                   </Badge>
                 </CardTitle>
                 <CardDescription>
-                  {activeCash
-                    ? "La caja está actualmente abierta y lista para registrar operaciones"
-                    : "La caja está cerrada. Abra la caja para comenzar a registrar operaciones"}
+                  {activeCash?.estado === CashStatus.CERRADA
+                    ? "La caja está cerrada. Abra la caja para comenzar a registrar operaciones"
+                    : "La caja está actualmente abierta y lista para registrar operaciones"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {activeCash && activeCashSummary ? (
+                {!activeCash || activeCash.estado === CashStatus.CERRADA ? (
+                  <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8">
+                    <LockIcon className="mb-2 h-10 w-10 text-muted-foreground" />
+                    <h3 className="text-lg font-medium">Caja Cerrada</h3>
+                    <p className="mt-1 text-center text-sm text-muted-foreground">
+                      La caja está actualmente cerrada. Haga clic en "Abrir
+                      Caja" para iniciar operaciones.
+                    </p>
+                    <Button
+                      onClick={() => setShowOpenDialog(true)}
+                      className="mt-4 gap-2"
+                      disabled={isPending}
+                    >
+                      {isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <UnlockIcon className="h-4 w-4" />
+                      )}
+                      Abrir Caja
+                    </Button>
+                  </div>
+                ) : (
                   <div className="grid gap-6 md:grid-cols-2">
                     <div className="space-y-4">
                       <div>
@@ -788,25 +862,25 @@ export default function MainCashierSection({ cash }: { cash: Cash[] }) {
                               Fecha de apertura:
                             </div>
                             <div className="font-medium">
-                              {formatDateTime(activeCash.fecha_apertura)}
+                              {formatDateTime(activeCash?.fecha_apertura || "")}
                             </div>
                             <div className="text-muted-foreground">
                               Usuario:
                             </div>
                             <div className="font-medium">
-                              {activeCash.user_apertura.name}
+                              {activeCash?.user_apertura.name}
                             </div>
                             <div className="text-muted-foreground">
                               Sucursal:
                             </div>
                             <div className="font-medium">
-                              {activeCash.branch.name}
+                              {activeCash?.branch.name}
                             </div>
                             <div className="text-muted-foreground">
                               Monto inicial:
                             </div>
                             <div className="font-medium">
-                              {formatCurrency(activeCash.monto_inicial)}
+                              {formatCurrency(activeCash?.monto_inicial || 0)}
                             </div>
                           </div>
                         </div>
@@ -824,7 +898,7 @@ export default function MainCashierSection({ cash }: { cash: Cash[] }) {
                               </span>
                               <span className="font-medium">
                                 {formatCurrency(
-                                  activeCashSummary.ventas_totales || 0
+                                  parseAmount(activeCashSummary?.ventas_totales)
                                 )}
                               </span>
                             </div>
@@ -834,7 +908,7 @@ export default function MainCashierSection({ cash }: { cash: Cash[] }) {
                               </span>
                               <span className="font-medium">
                                 {formatCurrency(
-                                  activeCashSummary.monto_esperado || 0
+                                  parseAmount(activeCashSummary?.monto_esperado)
                                 )}
                               </span>
                             </div>
@@ -843,35 +917,27 @@ export default function MainCashierSection({ cash }: { cash: Cash[] }) {
                                 Número de ventas:
                               </span>
                               <span className="font-medium">
-                                {activeCashSummary.estadisticas
+                                {activeCashSummary?.estadisticas
                                   ?.numero_ventas || 0}
                               </span>
                             </div>
                           </div>
                         </div>
                       </div>
+                      <Button
+                        onClick={() => setShowCloseDialog(true)}
+                        className="w-full gap-2"
+                        variant="destructive"
+                        disabled={isPending}
+                      >
+                        {isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <LockIcon className="h-4 w-4" />
+                        )}
+                        Cerrar Caja
+                      </Button>
                     </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8">
-                    <LockIcon className="mb-2 h-10 w-10 text-muted-foreground" />
-                    <h3 className="text-lg font-medium">Caja Cerrada</h3>
-                    <p className="mt-1 text-center text-sm text-muted-foreground">
-                      La caja está actualmente cerrada. Haga clic en "Abrir
-                      Caja" para iniciar operaciones.
-                    </p>
-                    <Button
-                      onClick={() => setShowOpenDialog(true)}
-                      className="mt-4 gap-2"
-                      disabled={openCashMutation.isPending}
-                    >
-                      {openCashMutation.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <UnlockIcon className="h-4 w-4" />
-                      )}
-                      Abrir Caja
-                    </Button>
                   </div>
                 )}
               </CardContent>
@@ -1006,7 +1072,7 @@ export default function MainCashierSection({ cash }: { cash: Cash[] }) {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {isLoading ? (
+                        {isPending ? (
                           <TableRow>
                             <TableCell colSpan={7} className="h-24 text-center">
                               <Loader2 className="mx-auto h-6 w-6 animate-spin" />
@@ -1114,6 +1180,7 @@ export default function MainCashierSection({ cash }: { cash: Cash[] }) {
         open={showClosingDetails}
         onClose={() => setShowClosingDetails(false)}
         closing={selectedClosing}
+        summary={selectedClosingSummary}
       />
     </div>
   );

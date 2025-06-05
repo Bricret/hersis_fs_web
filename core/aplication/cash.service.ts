@@ -51,7 +51,7 @@ export class CashService {
     }
   }
 
-  async getActiveCash(branchId: string): Promise<ICashResponse> {
+  async getActiveCash(branchId: string): Promise<Cash> {
     try {
       const response = await this.repository.getActiveCash(branchId);
       return response;
