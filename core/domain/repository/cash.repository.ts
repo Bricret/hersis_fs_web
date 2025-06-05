@@ -7,7 +7,6 @@ import {
 } from "@/infraestructure/schema/cash.schema";
 import {
   ICashResponse,
-  ICashListResponse,
   ICashSummary,
   ICashSalesResponse,
 } from "@/infraestructure/interface/cash/cash.interface";

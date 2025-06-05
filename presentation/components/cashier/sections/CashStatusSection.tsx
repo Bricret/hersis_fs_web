@@ -36,6 +36,8 @@ export function CashStatusSection({
   onOpenCash,
   onCloseCash,
 }: CashStatusSectionProps) {
+  console.log(activeCashSummary);
+
   return (
     <Card>
       <CardHeader>
@@ -56,28 +58,7 @@ export function CashStatusSection({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {!activeCash || activeCash.estado === CashStatus.ABIERTA ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8">
-            <LockIcon className="mb-2 h-10 w-10 text-muted-foreground" />
-            <h3 className="text-lg font-medium">Caja Cerrada</h3>
-            <p className="mt-1 text-center text-sm text-muted-foreground">
-              La caja está actualmente cerrada. Haga clic en "Abrir Caja" para
-              iniciar operaciones.
-            </p>
-            <Button
-              onClick={onOpenCash}
-              className="mt-4 gap-2"
-              disabled={isPending}
-            >
-              {isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <UnlockIcon className="h-4 w-4" />
-              )}
-              Abrir Caja
-            </Button>
-          </div>
-        ) : (
+        {activeCash?.estado === CashStatus.ABIERTA ? (
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-4">
               <div>
@@ -92,10 +73,12 @@ export function CashStatusSection({
                     </div>
                     <div className="text-muted-foreground">Usuario:</div>
                     <div className="font-medium">
-                      {activeCash?.user_apertura.name}
+                      {activeCash?.user_apertura?.name}
                     </div>
                     <div className="text-muted-foreground">Sucursal:</div>
-                    <div className="font-medium">{activeCash?.branch.name}</div>
+                    <div className="font-medium">
+                      {activeCash?.branch?.name}
+                    </div>
                     <div className="text-muted-foreground">Monto inicial:</div>
                     <div className="font-medium">
                       {formatCurrency(activeCash?.monto_inicial || 0)}
@@ -135,7 +118,7 @@ export function CashStatusSection({
                         Número de ventas:
                       </span>
                       <span className="font-medium">
-                        {activeCashSummary?.estadisticas?.numero_ventas || 0}
+                        {activeCashSummary?.cantidad_ventas || 0}
                       </span>
                     </div>
                   </div>
@@ -155,6 +138,27 @@ export function CashStatusSection({
                 Cerrar Caja
               </Button>
             </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8">
+            <LockIcon className="mb-2 h-10 w-10 text-muted-foreground" />
+            <h3 className="text-lg font-medium">Caja Cerrada</h3>
+            <p className="mt-1 text-center text-sm text-muted-foreground">
+              La caja está actualmente cerrada. Haga clic en "Abrir Caja" para
+              iniciar operaciones.
+            </p>
+            <Button
+              onClick={onOpenCash}
+              className="mt-4 gap-2"
+              disabled={isPending}
+            >
+              {isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <UnlockIcon className="h-4 w-4" />
+              )}
+              Abrir Caja
+            </Button>
           </div>
         )}
       </CardContent>

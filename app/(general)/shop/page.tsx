@@ -57,10 +57,10 @@ export default async function POSPage() {
             </p>
             <div className="flex gap-2">
               <Button variant="outline" asChild>
-                <Link href="/dashboard">Volver al Dashboard</Link>
+                <Link href="/">Volver al Dashboard</Link>
               </Button>
               <Button asChild>
-                <Link href="/cash">Gestionar Cajas</Link>
+                <Link href="/cashier">Gestionar Cajas</Link>
               </Button>
             </div>
           </div>

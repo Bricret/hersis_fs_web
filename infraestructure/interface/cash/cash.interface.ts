@@ -47,12 +47,8 @@ export interface ICashSummary {
     transferencia: number;
     otro: number;
   };
-  estadisticas: {
-    numero_ventas: number;
-    promedio_venta: number;
-    porcentaje_efectivo: number;
-    porcentaje_electronico: number;
-  };
+  cantidad_ventas: number;
+  porcentaje_diferencia: number;
 }
 
 export interface ICashSummaryResponse {
