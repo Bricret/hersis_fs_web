@@ -7,4 +7,5 @@ export interface SaleDetail {
   subtotal: number;
   sale: Sale;
   productId: number;
+  product_type: "medicine" | "general";
 }

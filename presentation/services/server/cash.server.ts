@@ -55,6 +55,7 @@ export async function getCashSales(
 export async function openCash(data: OpenCashSchema): Promise<ICashResponse> {
   const response = await cashService.openCash(data);
   revalidatePath("/cashier");
+  revalidatePath("/shop");
   return response;
 }
 

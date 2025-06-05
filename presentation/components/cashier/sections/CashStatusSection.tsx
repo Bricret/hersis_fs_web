@@ -43,20 +43,20 @@ export function CashStatusSection({
           Estado de Caja
           <Badge
             variant={
-              activeCash?.estado === CashStatus.CERRADA ? "default" : "success"
+              activeCash?.estado === CashStatus.ABIERTA ? "success" : "default"
             }
           >
-            {activeCash?.estado === CashStatus.CERRADA ? "Cerrada" : "Abierta"}
+            {activeCash?.estado === CashStatus.ABIERTA ? "Abierta" : "Cerrada"}
           </Badge>
         </CardTitle>
         <CardDescription>
-          {activeCash?.estado === CashStatus.CERRADA
-            ? "La caja está cerrada. Abra la caja para comenzar a registrar operaciones"
-            : "La caja está actualmente abierta y lista para registrar operaciones"}
+          {activeCash?.estado === CashStatus.ABIERTA
+            ? "La caja está abierta. Cierre la caja para finalizar las operaciones"
+            : "La caja está actualmente cerrada. Haga clic en 'Abrir Caja' para iniciar operaciones"}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {!activeCash || activeCash.estado === CashStatus.CERRADA ? (
+        {!activeCash || activeCash.estado === CashStatus.ABIERTA ? (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8">
             <LockIcon className="mb-2 h-10 w-10 text-muted-foreground" />
             <h3 className="text-lg font-medium">Caja Cerrada</h3>

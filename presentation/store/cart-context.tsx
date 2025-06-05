@@ -7,6 +7,9 @@ type CartItem = {
   name: string;
   price: number;
   quantity: number;
+  productId: number;
+  product_type: "medicine" | "general";
+  subtotal: number;
 };
 
 type CartContextType = {
@@ -15,6 +18,7 @@ type CartContextType = {
   updateQuantity: (id: string, quantity: number) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
+  getTotal: () => number;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -31,20 +35,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
         // Update quantity if product already in cart
         return prevCart.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+                subtotal: (item.quantity + 1) * item.price,
+              }
             : item
         );
       } else {
         // Add new product to cart
-        return [
-          ...prevCart,
-          {
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            quantity: 1,
-          },
-        ];
+        const newItem: CartItem = {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+          productId: Number(product.id),
+          product_type:
+            product.category === "medicine" ? "medicine" : "general",
+          subtotal: product.price,
+        };
+
+        return [...prevCart, newItem];
       }
     });
   };
@@ -56,7 +67,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     setCart((prevCart) =>
-      prevCart.map((item) => (item.id === id ? { ...item, quantity } : item))
+      prevCart.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              quantity,
+              subtotal: quantity * item.price,
+            }
+          : item
+      )
     );
   };
 
@@ -68,9 +87,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCart([]);
   };
 
+  const getTotal = () => {
+    return cart.reduce((total, item) => total + item.subtotal, 0);
+  };
+
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, updateQuantity, removeFromCart, clearCart }}
+      value={{
+        cart,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        clearCart,
+        getTotal,
+      }}
     >
       {children}
     </CartContext.Provider>
