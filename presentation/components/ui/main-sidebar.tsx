@@ -62,7 +62,7 @@ const data = {
     },
     {
       title: "Caja",
-      url: "/cashRegister",
+      url: "/cashier",
       icon: WalletCards,
     },
     {

@@ -1,13 +1,5 @@
-import type { IUserRepository } from "../domain/repository/user.repository";
-import type { User, PaginatedResponse } from "../domain/entity/user.entity";
-import {
-  EditUserSchema,
-  UserSchema,
-} from "@/infraestructure/schema/users.schema";
-import {
-  IGenericResponse,
-  IResetPasswordResponse,
-} from "@/infraestructure/interface/users/resMethod.interface";
+import type { PaginatedResponse } from "../domain/entity/user.entity";
+import type { IGenericResponse } from "@/infraestructure/interface/users/resMethod.interface";
 import { IInventoryRepository } from "../domain/repository/inventory.repository";
 import {
   GeneralInventory,
@@ -18,7 +10,6 @@ import {
 import {
   GeneralInventorySchema,
   MedicineInventorySchema,
-  ProductState,
 } from "@/infraestructure/schema/inventory.schema";
 
 export class InventoryService {

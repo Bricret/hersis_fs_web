@@ -5,6 +5,7 @@ export interface IUserAuth {
 }
 
 export interface IUserAuthData {
+  id: string;
   email: string;
   sub: string;
   role: string;
