@@ -1,5 +1,5 @@
 import { InventoryService } from "@/core/aplication/inventory.service";
-import { Inventory } from "@/core/domain/entity/inventory.entity";
+import { GeneralInventory, Inventory, MedicineInventory, RegisterInventoryRes } from "@/core/domain/entity/inventory.entity";
 import {
   ITEMS_PER_PAGE,
   PaginatedResponse,
@@ -68,7 +68,7 @@ export function useInventory({
   const createInventoryMutation = useMutation({
     mutationFn: async (
       inventory: MedicineInventorySchema | GeneralInventorySchema
-    ): Promise<Inventory> => await inventoryService.createInventory(inventory),
+    ): Promise<RegisterInventoryRes> => await inventoryService.createInventory(inventory as unknown as MedicineInventory[] | GeneralInventory[]),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventory"] });
     },

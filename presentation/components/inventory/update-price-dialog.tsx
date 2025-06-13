@@ -50,7 +50,7 @@ export function UpdatePriceDialog({ product }: UpdatePriceDialogProps) {
 
     try {
       toast.promise(
-        updatePriceProduct(product.id, {
+        updatePriceProduct(product.id as bigint, {
           newPrice: salesPriceNum,
           type: product.type,
         }),

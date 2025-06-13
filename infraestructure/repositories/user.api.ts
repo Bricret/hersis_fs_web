@@ -54,8 +54,6 @@ export class UserApiRepository implements IUserRepository {
       const response = await this.http.patch<IGenericResponse>(
         `/users/${id}`,
         data,
-        undefined,
-        token
       );
       return response;
     } catch (error) {
@@ -94,8 +92,6 @@ export class UserApiRepository implements IUserRepository {
     const response = await this.http.patch<IResetPasswordResponse>(
       `/users/resetPassword/${id}`,
       {},
-      undefined,
-      token
     );
     return response;
   }

@@ -17,7 +17,7 @@ interface BaseInventoryRegister {
 }
 
 interface BaseInventory {
-  id: bigint;
+  id?: bigint;
   is_active: boolean;
   created_at: Date;
   updated_at: Date;

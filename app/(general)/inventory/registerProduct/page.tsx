@@ -391,7 +391,7 @@ function FormularioMedicamento({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="space-y-2">
-          <Label htmlFor="sales_price">Precio de compra (C$)</Label>
+          <Label htmlFor="sales_price">Precio de venta (C$)</Label>
           <Input
             id="sales_price"
             type="number"
@@ -405,7 +405,7 @@ function FormularioMedicamento({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="purchase_price">Precio de venta (C$)</Label>
+          <Label htmlFor="purchase_price">Precio de compra (C$)</Label>
           <Input
             id="purchase_price"
             type="number"

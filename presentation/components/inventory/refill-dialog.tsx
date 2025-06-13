@@ -35,7 +35,7 @@ export function RefillDialog({ product }: RefillDialogProps) {
     });
     try {
       toast.promise(
-        refillProduct(product.id, {
+        refillProduct(product.id as bigint, {
           refill: quantity,
           type: product.type,
         }),

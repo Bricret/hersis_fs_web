@@ -22,7 +22,10 @@ export function DeactivateProductDialog({
   product,
 }: DeactivateProductDialogProps) {
   const handleDeactivate = async () => {
-    console.log(product.id, product.type);
+    if (!product.id) {
+      toast.error("ID del producto no válido");
+      return;
+    }
     try {
       toast.promise(disableProduct(product.id, product.type), {
         loading: "Desactivando producto...",

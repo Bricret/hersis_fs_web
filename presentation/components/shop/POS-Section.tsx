@@ -12,6 +12,10 @@ import { Inventory } from "@/core/domain/entity/inventory.entity";
 import { ProductType } from "@/core/data/sales/DataSales";
 
 function adaptInventoryToProductType(inventory: Inventory): ProductType {
+  if (!inventory.id) {
+    throw new Error("El ID del inventario es requerido");
+  }
+  
   return {
     id: inventory.id.toString(),
     code: inventory.barCode,
