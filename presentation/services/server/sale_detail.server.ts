@@ -46,6 +46,9 @@ export async function updateSaleDetail(
   const response = await saleDetailService.updateSaleDetail(id, data);
   revalidatePath("/sale-detail");
   revalidatePath(`/sale-detail/${id}`);
+  revalidatePath("/cashier");
+  revalidatePath("/shop");
+  revalidatePath("/sales");
   return response;
 }
 
@@ -54,5 +57,8 @@ export async function deleteSaleDetail(
 ): Promise<ISaleDetailDeleteResponse> {
   const response = await saleDetailService.deleteSaleDetail(id);
   revalidatePath("/sale-detail");
+  revalidatePath("/cashier");
+  revalidatePath("/shop");
+  revalidatePath("/sales");
   return response;
 }

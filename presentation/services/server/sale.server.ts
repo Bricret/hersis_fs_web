@@ -28,6 +28,8 @@ export async function createSale(
 ): Promise<ISaleResponse> {
   const response = await saleService.createSale(data);
   revalidatePath("/sales");
+  revalidatePath("/cashier");
+  revalidatePath("/shop");
   return response;
 }
 
@@ -102,5 +104,7 @@ export async function cancelSale(
   const response = await saleService.cancelSale(id, data);
   revalidatePath("/sales");
   revalidatePath(`/sales/${id}`);
+  revalidatePath("/cashier");
+  revalidatePath("/shop");
   return response;
 }

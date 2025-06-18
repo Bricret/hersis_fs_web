@@ -65,7 +65,7 @@ export class InventoryApiRepository implements IInventoryRepository {
   ): Promise<PaginatedResponse<MedicineInventory | GeneralInventory>> {
     const response = await this.http.get<
       PaginatedResponse<MedicineInventory | GeneralInventory>
-    >(`/products?page=${page}&limit=${limit}&search=${search}`);
+    >(`/products`);
     return response;
   }
 
