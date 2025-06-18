@@ -65,6 +65,7 @@ export async function closeCash(
 ): Promise<ICashResponse> {
   const response = await cashService.closeCash(id, data);
   revalidatePath("/cashier");
+  revalidatePath("/shop");
   return response;
 }
 
