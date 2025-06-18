@@ -32,6 +32,7 @@ export async function createInventory(
 ): Promise<RegisterInventoryRes> {
   const res = await inventoryService.createInventory(inventory);
   revalidatePath("/inventory");
+  revalidatePath("/shop");
   return res;
 }
 
@@ -41,6 +42,7 @@ export async function refillProduct(
 ): Promise<{ message: string }> {
   const response = await inventoryService.refillProduct(id, body);
   revalidatePath("/inventory");
+  revalidatePath("/shop");
   return response;
 }
 
@@ -50,6 +52,7 @@ export async function updatePriceProduct(
 ): Promise<{ message: string }> {
   const response = await inventoryService.updatePriceProduct(id, body);
   revalidatePath("/inventory");
+  revalidatePath("/shop");
   return response;
 }
 
@@ -59,5 +62,6 @@ export async function disableProduct(
 ): Promise<IGenericResponse> {
   const res = await inventoryRepository.disableProduct(id, type);
   revalidatePath("/inventory");
+  revalidatePath("/shop");
   return res;
 }
