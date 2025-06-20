@@ -129,7 +129,8 @@ export default function ProductCatalog({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 bg-white border-b sticky top-0 z-10 space-y-3">
+      {/* Header de búsqueda y filtros - FIJO */}
+      <div className="flex-shrink-0 p-4 bg-white border-b sticky top-0 z-10 space-y-3">
         <div className="relative flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -207,30 +208,33 @@ export default function ProductCatalog({
         </ScrollArea>
       </div>
 
-      <ScrollArea className="flex-1" ref={scrollContainerRef}>
-        <div
-          className={`p-4 grid grid-cols-1 ${
-            isMobile ? "" : "sm:grid-cols-2 lg:grid-cols-3"
-          } gap-3`}
-        >
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onSelect={onProductSelect}
-                mode={mode}
-              />
-            ))
-          ) : (
-            <div className="col-span-full flex flex-col items-center justify-center py-10 text-gray-500">
-              <Search className="h-10 w-10 mb-2 text-gray-300" />
-              <p>No se encontraron productos</p>
-              <p className="text-sm">Intenta con otra búsqueda</p>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
+      {/* Área de productos con scroll */}
+      <div className="flex-1 min-h-0">
+        <ScrollArea className="h-full" ref={scrollContainerRef}>
+          <div
+            className={`p-4 grid grid-cols-1 ${
+              isMobile ? "" : "sm:grid-cols-2 lg:grid-cols-3"
+            } gap-3`}
+          >
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onSelect={onProductSelect}
+                  mode={mode}
+                />
+              ))
+            ) : (
+              <div className="col-span-full flex flex-col items-center justify-center py-10 text-gray-500">
+                <Search className="h-10 w-10 mb-2 text-gray-300" />
+                <p>No se encontraron productos</p>
+                <p className="text-sm">Intenta con otra búsqueda</p>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 }

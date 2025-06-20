@@ -10,17 +10,33 @@ import {
 } from "@/core/domain/entity/inventory.entity";
 import { InventoryService } from "@/core/aplication/inventory.service";
 import { InventoryApiRepository } from "@/infraestructure/repositories/inventory.api";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { IGenericResponse } from "@/infraestructure/interface/users/resMethod.interface";
+import {
+  revalidateAfterInventoryCreation,
+  revalidateAfterInventoryUpdate,
+} from "@/infraestructure/utils/revalidateCache";
 
 const inventoryRepository = new InventoryApiRepository(APIFetcher);
 const inventoryService = new InventoryService(inventoryRepository);
 
 export async function getInventory(
   page = 1,
-  limit = 5
+  limit = 5,
+  search = ""
 ): Promise<PaginatedResponse<Inventory>> {
-  return await inventoryService.getAllInventory(page, limit);
+  return await inventoryService.getAllInventory(page, limit, search);
+}
+
+// Función para obtener inventario fresco sin cache (para después de crear productos)
+export async function getFreshInventory(
+  page = 1,
+  limit = 100,
+  search = ""
+): Promise<PaginatedResponse<Inventory>> {
+  // Forzamos una nueva consulta sin cache
+  const freshData = await inventoryService.getAllInventory(page, limit, search);
+  return freshData;
 }
 
 export async function getUserById(id: string): Promise<Inventory> {
@@ -31,8 +47,10 @@ export async function createInventory(
   inventory: MedicineInventory[] | GeneralInventory[]
 ): Promise<RegisterInventoryRes> {
   const res = await inventoryService.createInventory(inventory);
-  revalidatePath("/inventory");
-  revalidatePath("/shop");
+
+  // Usar la nueva utilidad de revalidación
+  await revalidateAfterInventoryCreation();
+
   return res;
 }
 
@@ -41,8 +59,10 @@ export async function refillProduct(
   body: { refill: number; type: string }
 ): Promise<{ message: string }> {
   const response = await inventoryService.refillProduct(id, body);
-  revalidatePath("/inventory");
-  revalidatePath("/shop");
+
+  // Usar la nueva utilidad de revalidación
+  await revalidateAfterInventoryUpdate();
+
   return response;
 }
 
@@ -51,8 +71,10 @@ export async function updatePriceProduct(
   body: { newPrice: number; type: string }
 ): Promise<{ message: string }> {
   const response = await inventoryService.updatePriceProduct(id, body);
-  revalidatePath("/inventory");
-  revalidatePath("/shop");
+
+  // Usar la nueva utilidad de revalidación
+  await revalidateAfterInventoryUpdate();
+
   return response;
 }
 
@@ -61,7 +83,9 @@ export async function disableProduct(
   type: string
 ): Promise<IGenericResponse> {
   const res = await inventoryRepository.disableProduct(id, type);
-  revalidatePath("/inventory");
-  revalidatePath("/shop");
+
+  // Usar la nueva utilidad de revalidación
+  await revalidateAfterInventoryUpdate();
+
   return res;
 }

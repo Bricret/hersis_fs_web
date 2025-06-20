@@ -64,11 +64,15 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onSearch?: (searchTerm: string) => void;
+  initialSearch?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onSearch,
+  initialSearch = "",
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -137,11 +141,19 @@ export function DataTable<TData, TValue>({
         <article className="flex gap-x-4">
           <Input
             placeholder="Busca por nombre del producto o código de barras"
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            value={
+              onSearch
+                ? initialSearch
+                : (table.getColumn("name")?.getFilterValue() as string) ?? ""
+            }
             onChange={(event) => {
               setCurrentStatus("all");
-              table.getColumn("name")?.setFilterValue(event.target.value);
-              table.getColumn("barCode")?.setFilterValue(event.target.value);
+              if (onSearch) {
+                onSearch(event.target.value);
+              } else {
+                table.getColumn("name")?.setFilterValue(event.target.value);
+                table.getColumn("barCode")?.setFilterValue(event.target.value);
+              }
             }}
             className="w-sm shadow-sm"
           />

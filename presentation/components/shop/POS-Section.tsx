@@ -15,7 +15,7 @@ function adaptInventoryToProductType(inventory: Inventory): ProductType {
   if (!inventory.id) {
     throw new Error("El ID del inventario es requerido");
   }
-  
+
   return {
     id: inventory.id.toString(),
     code: inventory.barCode,
@@ -34,6 +34,13 @@ function adaptInventoryToProductType(inventory: Inventory): ProductType {
 export default function PosSection({ products }: { products: Inventory[] }) {
   const [mode, setMode] = useState<"cashier" | "pharmacist">("cashier");
   const { addToCart } = useCart();
+
+  // Ordenar productos del más nuevo al más viejo
+  const sortedProducts = [...products].sort((a, b) => {
+    const dateA = new Date(a.created_at);
+    const dateB = new Date(b.created_at);
+    return dateB.getTime() - dateA.getTime(); // Orden descendente
+  });
 
   const handleProductSelect = (product: Inventory) => {
     const adaptedProduct = adaptInventoryToProductType(product);
@@ -55,25 +62,30 @@ export default function PosSection({ products }: { products: Inventory[] }) {
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
-      <Header
-        title="Punto de Venta"
-        subTitle="Maneja tus ventas de manera eficiente"
-      >
-        <div className="flex items-center gap-2">
-          <SalesHistory />
-        </div>
-      </Header>
-      <ModeToggle currentMode={mode} onModeChange={setMode} />
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        <div className="flex-1 overflow-hidden">
+    <div className="flex flex-col h-screen w-full">
+      {/* Header fijo */}
+      <div className="flex-shrink-0">
+        <Header
+          title="Punto de Venta"
+          subTitle="Maneja tus ventas de manera eficiente"
+        >
+          <div className="flex items-center gap-2">
+            <SalesHistory />
+          </div>
+        </Header>
+        <ModeToggle currentMode={mode} onModeChange={setMode} />
+      </div>
+
+      {/* Contenido principal con scroll solo en productos */}
+      <div className="flex-1 flex flex-col md:flex-row min-h-0">
+        <div className="flex-1 flex flex-col min-h-0">
           <ProductCatalog
-            products={products}
+            products={sortedProducts}
             mode={mode}
             onProductSelect={handleProductSelect}
           />
         </div>
-        <div className="w-full md:w-96 border-l">
+        <div className="w-full md:w-96 border-l flex-shrink-0">
           <CartPanel />
         </div>
       </div>

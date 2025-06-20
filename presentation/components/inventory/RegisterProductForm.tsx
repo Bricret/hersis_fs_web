@@ -71,6 +71,7 @@ import { toast } from "sonner";
 import { ProductState } from "@/infraestructure/schema/inventory.schema";
 import { GeneralInventory } from "@/core/domain/entity/inventory.entity";
 import { createInventory } from "@/presentation/services/server/inventory.server";
+import { refreshInventoryData } from "@/presentation/utils/clientRevalidation";
 
 // Props del componente
 interface RegisterProductFormProps {
@@ -913,6 +914,22 @@ export default function RegisterProductForm({
       setIsSubmitting(false);
       setShowSuccessDialog(true);
       toast.success(response.message);
+
+      // Mostrar notificación de actualización
+      toast.info("Actualizando datos...", {
+        description: "Los productos se están actualizando en todas las páginas",
+        duration: 2000,
+      });
+
+      // Usar la nueva utilidad de revalidación del cliente
+      await refreshInventoryData();
+
+      // Notificación de éxito
+      toast.success("¡Datos actualizados!", {
+        description:
+          "Los productos ya están disponibles en inventario y tienda",
+        duration: 3000,
+      });
     } catch (error) {
       setIsSubmitting(false);
       toast.error("Error al guardar los productos", {
@@ -1091,10 +1108,10 @@ export default function RegisterProductForm({
                           </TableCell>
                           <TableCell>{med.dosage}</TableCell>
                           <TableCell>{med.administration_route}</TableCell>
-                          <TableCell>${med.sales_price.toFixed(2)}</TableCell>
                           <TableCell>
-                            ${med.purchase_price.toFixed(2)}
+                            C${med.purchase_price.toFixed(2)}
                           </TableCell>
+                          <TableCell>C${med.sales_price.toFixed(2)}</TableCell>
                           <TableCell>{med.initial_quantity}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">

@@ -63,9 +63,18 @@ export class InventoryApiRepository implements IInventoryRepository {
     limit: number,
     search?: string
   ): Promise<PaginatedResponse<MedicineInventory | GeneralInventory>> {
+    // Construir los query parameters
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+
+    if (search && search.trim()) {
+      params.append("search", search.trim());
+    }
+
     const response = await this.http.get<
       PaginatedResponse<MedicineInventory | GeneralInventory>
-    >(`/products`);
+    >(`/products?${params.toString()}`);
     return response;
   }
 

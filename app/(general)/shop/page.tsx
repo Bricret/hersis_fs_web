@@ -6,64 +6,36 @@ import { LockIcon, AlertTriangle } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import Link from "next/link";
 
-export default async function POSPage() {
-  let products, activeCash;
+export default async function ShopPage() {
+  // Obtener datos frescos del servidor sin cache
+  const inventoryData = await getInventory(1, 1000); // Aumentamos el límite para obtener todos los productos
 
+  // Obtener caja activa
+  let activeCash;
   try {
-    // Cargar productos e información de caja en paralelo
-    [products, activeCash] = await Promise.all([
-      getInventory(),
-      getActiveCash("dcdfcc7a-b5fa-444f-b6c1-bcff84365f64"),
-    ]);
+    activeCash = await getActiveCash("dcdfcc7a-b5fa-444f-b6c1-bcff84365f64");
   } catch (error) {
-    console.error("Error loading POS data:", error);
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background mx-auto">
-        <div className="p-8 max-w-md w-full mx-4">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="p-6 rounded-full bg-red-100">
-              <AlertTriangle className="h-16 w-16 text-red-600" />
-            </div>
-            <h3 className="text-4xl font-semibold tracking-tight">
-              Error de Conexión
-            </h3>
-            <p className="text-center text-xl text-muted-foreground leading-relaxed">
-              No se pudo conectar con el servidor. Por favor, verifica tu
-              conexión e intenta nuevamente.
-            </p>
-            <Button asChild>
-              <Link href="/dashboard">Volver al Dashboard</Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    activeCash = null;
   }
 
+  // Verificar si hay caja activa
   if (!activeCash) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background mx-auto">
-        <div className="p-8 max-w-md w-full mx-4">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="p-6 rounded-full bg-yellow-100">
-              <LockIcon className="h-16 w-16 text-yellow-600" />
-            </div>
-            <h3 className="text-4xl font-semibold tracking-tight">
-              Caja Cerrada
-            </h3>
-            <p className="text-center text-xl text-muted-foreground leading-relaxed">
-              La caja está cerrada. Solicite al administrador que abra la caja
-              para iniciar las operaciones de venta.
-            </p>
-            <div className="flex gap-2">
-              <Button variant="outline" asChild>
-                <Link href="/">Volver al Dashboard</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/cashier">Gestionar Cajas</Link>
-              </Button>
-            </div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-lg text-center">
+          <div className="mb-4">
+            <LockIcon className="h-12 w-12 text-red-500 mx-auto" />
           </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Caja cerrada
+          </h2>
+          <p className="text-gray-600 mb-6">
+            No hay una caja activa. Necesitas abrir la caja para realizar
+            ventas.
+          </p>
+          <Link href="/cashier">
+            <Button className="w-full">Ir a gestión de caja</Button>
+          </Link>
         </div>
       </div>
     );
@@ -71,7 +43,7 @@ export default async function POSPage() {
 
   return (
     <CartProvider>
-      <PosSection products={products.data} />
+      <PosSection products={inventoryData.data || []} />
     </CartProvider>
   );
 }
