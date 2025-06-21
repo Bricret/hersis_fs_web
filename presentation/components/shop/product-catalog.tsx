@@ -274,9 +274,7 @@ function ProductCard({ product, onSelect, mode }: ProductCardProps) {
             </div>
           </div>
           <div className="text-right ml-2">
-            <div className="font-bold text-lg">
-              C$ {product.sales_price.toFixed(2)}
-            </div>
+            <div className="font-bold text-lg">C$ {product.sales_price}</div>
             {mode === "pharmacist" && (
               <div className="text-xs text-blue-600">Ver detalles</div>
             )}
