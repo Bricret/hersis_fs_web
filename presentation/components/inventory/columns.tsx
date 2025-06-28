@@ -297,8 +297,61 @@ export const columns: ColumnDef<Inventory>[] = [
       );
     },
     cell: ({ row }) => {
-      const date = new Date(row.getValue("expiration_date"));
-      const formatted = format(date, "medium");
+      const expirationDateValue = row.getValue("expiration_date") as string;
+
+      // Validar si la fecha es válida
+      if (
+        !expirationDateValue ||
+        expirationDateValue === "" ||
+        expirationDateValue === null
+      ) {
+        return (
+          <div className="flex justify-center items-center">
+            <Badge variant="outline" className="text-gray-500">
+              Sin fecha
+            </Badge>
+          </div>
+        );
+      }
+
+      // Intentar crear un objeto Date válido
+      let date: Date;
+      try {
+        date = new Date(expirationDateValue);
+
+        // Verificar si la fecha es válida
+        if (isNaN(date.getTime())) {
+          return (
+            <div className="flex justify-center items-center">
+              <Badge variant="outline" className="text-gray-500">
+                Fecha inválida
+              </Badge>
+            </div>
+          );
+        }
+      } catch (error) {
+        return (
+          <div className="flex justify-center items-center">
+            <Badge variant="outline" className="text-gray-500">
+              Error de fecha
+            </Badge>
+          </div>
+        );
+      }
+
+      // Formatear la fecha de manera segura
+      let formatted: string;
+      try {
+        formatted = format(date, "medium");
+      } catch (error) {
+        // Si el formateo falla, usar un formato básico
+        formatted = date.toLocaleDateString("es-NI", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      }
+
       const today = new Date();
       const diffTime = date.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
