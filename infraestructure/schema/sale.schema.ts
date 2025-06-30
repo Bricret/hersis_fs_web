@@ -11,6 +11,7 @@ export const saleDetailSchema = z.object({
 
 export const createSaleSchema = z.object({
   branch_id: z.string().uuid("ID de sucursal inválido"),
+  user_id: z.string().uuid("ID de usuario inválido"),
   total: z.number().min(0.01, "El total debe ser mayor a 0").optional(),
   saleDetails: z
     .array(saleDetailSchema)

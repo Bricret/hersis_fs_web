@@ -16,6 +16,7 @@ import { cn } from "@/infraestructure/lib/utils";
 import { logOutFn } from "@/infraestructure/utils/logOutFn";
 import { useRouter } from "next/navigation";
 import { useAuthFetch } from "@/presentation/hooks/auth/useAuthFetch";
+import { UserProfileDialog } from "./UserProfileDialog";
 
 export const Header = ({
   className,
@@ -39,6 +40,8 @@ export const Header = ({
   if (!user) {
     return;
   }
+
+  console.log(user);
 
   const handleLogOut = () => {
     logOutFn();
@@ -76,10 +79,14 @@ export const Header = ({
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              Perfil
-            </DropdownMenuItem>
+            <UserProfileDialog
+              trigger={
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <User className="mr-2 h-4 w-4" />
+                  Perfil
+                </DropdownMenuItem>
+              }
+            />
             <DropdownMenuItem>
               <Settings className="mr-2 h-4 w-4" />
               Configuración

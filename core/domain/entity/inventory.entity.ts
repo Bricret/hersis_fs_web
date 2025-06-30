@@ -40,6 +40,7 @@ export interface MedicineInventory extends BaseInventory {
   laboratory: string;
   administration_route: string;
   presentation: string;
+  pharmaceutical_form: string;
   category: string;
 }
 

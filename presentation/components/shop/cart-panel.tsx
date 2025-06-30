@@ -34,6 +34,7 @@ import {
 import { toast } from "sonner";
 import { createSale } from "@/presentation/services/server/sale.server";
 import type { CreateSaleSchema } from "@/infraestructure/schema/sale.schema";
+import { useAuthFetch } from "@/presentation/hooks/auth/useAuthFetch";
 
 interface CartItem {
   id: string;
@@ -52,6 +53,7 @@ export default function CartPanel() {
   const [isProcessing, setIsProcessing] = useState(false);
   const { cart, updateQuantity, removeFromCart, clearCart, getTotal } =
     useCart();
+  const { getUserAuth } = useAuthFetch();
   const isMobile = useIsMobile();
 
   // Calculate cart total
@@ -69,6 +71,15 @@ export default function CartPanel() {
 
     if (cart.length === 0) {
       toast.error("El carrito está vacío");
+      return;
+    }
+
+    // Obtener el usuario autenticado
+    const currentUser = getUserAuth();
+    if (!currentUser) {
+      toast.error("Error de autenticación", {
+        description: "No se pudo obtener la información del usuario",
+      });
       return;
     }
 
@@ -90,6 +101,7 @@ export default function CartPanel() {
       // Preparar los datos para la venta
       const saleData: CreateSaleSchema = {
         branch_id: "dcdfcc7a-b5fa-444f-b6c1-bcff84365f64", // ID de sucursal hardcodeado
+        user_id: currentUser.sub, // UUID del usuario que realiza la venta
         total: Number(total.toFixed(2)), // Asegurar que sea un número con 2 decimales
         saleDetails: cart.map((item) => ({
           quantity: Number(item.quantity),

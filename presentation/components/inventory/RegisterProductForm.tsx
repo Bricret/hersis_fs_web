@@ -108,6 +108,7 @@ const medicamentoVacio: MedicineInventory = {
   active_name: "",
   dosage: "",
   presentation: "",
+  pharmaceutical_form: "",
   sales_price: 0,
   purchase_price: 0,
   units_per_box: 1,
@@ -350,8 +351,8 @@ function FormularioMedicamento({
         <div className="space-y-2">
           <Label htmlFor="forma_farmaceutica">Forma farmacéutica</Label>
           <Select
-            value={medicamento.presentation}
-            onValueChange={(value) => onChange("presentation", value)}
+            value={medicamento.pharmaceutical_form}
+            onValueChange={(value) => onChange("pharmaceutical_form", value)}
             required
           >
             <SelectTrigger id="forma_farmaceutica">
@@ -1081,6 +1082,7 @@ export default function RegisterProductForm({
                       <>
                         <TableHead>Categoría</TableHead>
                         <TableHead>Dosis</TableHead>
+                        <TableHead>Forma farmacéutica</TableHead>
                         <TableHead>Administración</TableHead>
                       </>
                     ) : (
@@ -1107,6 +1109,7 @@ export default function RegisterProductForm({
                             <Badge variant="outline">{med.category}</Badge>
                           </TableCell>
                           <TableCell>{med.dosage}</TableCell>
+                          <TableCell>{med.pharmaceutical_form}</TableCell>
                           <TableCell>{med.administration_route}</TableCell>
                           <TableCell>
                             C${med.purchase_price.toFixed(2)}

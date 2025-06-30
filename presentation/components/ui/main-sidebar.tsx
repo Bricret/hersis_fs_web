@@ -12,7 +12,6 @@ import {
   PieChart,
   Settings2,
   ShoppingCart,
-  SquareTerminal,
   Store,
   Users,
   WalletCards,
@@ -28,6 +27,7 @@ import {
   SidebarRail,
 } from "@/presentation/components/ui/sidebar";
 import { useIsMobile } from "@/presentation/hooks/use-mobile";
+import { useAuthFetch } from "@/presentation/hooks/auth/useAuthFetch";
 
 // This is sample data.
 const data = {
@@ -92,7 +92,7 @@ const data = {
       icon: CreditCard,
     },
     {
-      title: "Estadísticas",
+      title: "Estadísticas",
       url: "/stats",
       icon: PieChart,
       isActive: true,
@@ -110,7 +110,7 @@ const data = {
   ],
   navManage: [
     {
-      title: "Configuracion",
+      title: "Configuración",
       url: "/settings",
       icon: Settings2,
       isActive: true,
@@ -122,6 +122,15 @@ export function MainSideBar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const isMobile = useIsMobile();
+  const { hasRouteAccess } = useAuthFetch();
+
+  // Filtrar las rutas según el rol del usuario
+  const filteredNavMain = data.navMain.filter((item) =>
+    hasRouteAccess(item.url)
+  );
+  const filteredNavManage = data.navManage.filter((item) =>
+    hasRouteAccess(item.url)
+  );
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -129,10 +138,10 @@ export function MainSideBar({
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent className="bg-quaternary-background-color">
-        <NavMain items={data.navMain} />
+        <NavMain items={filteredNavMain} />
       </SidebarContent>
       <SidebarFooter className="bg-quaternary-background-color">
-        <NavMain items={data.navManage} />
+        <NavMain items={filteredNavManage} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

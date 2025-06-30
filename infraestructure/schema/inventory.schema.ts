@@ -33,7 +33,11 @@ export const medicineInventorySchema = baseInventorySchema.extend({
   administration_route: z
     .string()
     .min(1, "La ruta de administración es obligatoria"),
-  presentation_id: z.number().min(1, "La presentación es obligatoria"),
+  presentation: z.string().min(1, "La presentación es obligatoria"),
+  pharmaceutical_form: z
+    .string()
+    .min(1, "La forma farmacéutica es obligatoria"),
+  category: z.string().min(1, "La categoría es obligatoria"),
 });
 
 export const generalInventorySchema = baseInventorySchema.extend({
