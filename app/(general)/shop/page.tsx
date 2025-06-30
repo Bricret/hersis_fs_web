@@ -21,7 +21,7 @@ export default async function ShopPage() {
   // Verificar si hay caja activa
   if (!activeCash) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 w-full">
         <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-lg text-center">
           <div className="mb-4">
             <LockIcon className="h-12 w-12 text-red-500 mx-auto" />

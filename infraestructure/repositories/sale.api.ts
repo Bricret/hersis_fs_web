@@ -15,14 +15,9 @@ import type {
   ISaleAnalyticsResponse,
   ICancelSaleResponse,
 } from "../interface/sale/sale.interface";
-import Cookies from "js-cookie";
 
 export class SaleApiRepository implements ISaleRepository {
   constructor(private readonly http: HttpAdapter) {}
-
-  private getToken(): string | undefined {
-    return Cookies.get("authToken");
-  }
 
   async createSale(data: CreateSaleSchema): Promise<ISaleResponse> {
     const response = await this.http.post<ISaleResponse>(

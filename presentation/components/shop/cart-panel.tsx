@@ -75,18 +75,31 @@ export default function CartPanel() {
     setIsProcessing(true);
 
     try {
+      // Validar que todos los productos tengan precios válidos
+      const invalidProducts = cart.filter(
+        (item) => !item.price || item.price <= 0 || isNaN(item.price)
+      );
+
+      if (invalidProducts.length > 0) {
+        toast.error("Error en los precios", {
+          description: "Algunos productos no tienen precios válidos",
+        });
+        return;
+      }
+
       // Preparar los datos para la venta
       const saleData: CreateSaleSchema = {
         branch_id: "dcdfcc7a-b5fa-444f-b6c1-bcff84365f64", // ID de sucursal hardcodeado
-        total: total,
+        total: Number(total.toFixed(2)), // Asegurar que sea un número con 2 decimales
         saleDetails: cart.map((item) => ({
-          quantity: item.quantity,
-          unit_price: item.price,
-          productId: item.productId,
+          quantity: Number(item.quantity),
+          unit_price: Number(item.price.toFixed(2)), // Asegurar que sea un número con 2 decimales
+          productId: Number(item.productId),
           product_type: item.product_type,
         })),
       };
 
+      console.log("saleData", saleData);
       // Crear la venta usando el servicio del servidor
       const response = await createSale(saleData);
 

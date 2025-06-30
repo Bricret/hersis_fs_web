@@ -38,7 +38,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             ? {
                 ...item,
                 quantity: item.quantity + 1,
-                subtotal: (item.quantity + 1) * item.price,
+                subtotal: Number(((item.quantity + 1) * item.price).toFixed(2)),
               }
             : item
         );
@@ -47,12 +47,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const newItem: CartItem = {
           id: product.id,
           name: product.name,
-          price: product.price,
+          price: Number(product.price.toFixed(2)),
           quantity: 1,
           productId: Number(product.id),
           product_type:
             product.category === "medicine" ? "medicine" : "general",
-          subtotal: product.price,
+          subtotal: Number(product.price.toFixed(2)),
         };
 
         return [...prevCart, newItem];
@@ -72,7 +72,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           ? {
               ...item,
               quantity,
-              subtotal: quantity * item.price,
+              subtotal: Number((quantity * item.price).toFixed(2)),
             }
           : item
       )
@@ -88,7 +88,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const getTotal = () => {
-    return cart.reduce((total, item) => total + item.subtotal, 0);
+    return Number(
+      cart.reduce((total, item) => total + item.subtotal, 0).toFixed(2)
+    );
   };
 
   return (

@@ -2,9 +2,7 @@ import { z } from "zod";
 
 export const saleDetailSchema = z.object({
   quantity: z.number().min(1, "La cantidad debe ser mayor a 0"),
-  unit_price: z
-    .number()
-    .min(0, "El precio unitario debe ser mayor o igual a 0"),
+  unit_price: z.number().min(0.01, "El precio unitario debe ser mayor a 0"),
   productId: z.number().min(1, "El ID del producto es obligatorio"),
   product_type: z.enum(["medicine", "general"], {
     required_error: "El tipo de producto es obligatorio",
@@ -13,7 +11,7 @@ export const saleDetailSchema = z.object({
 
 export const createSaleSchema = z.object({
   branch_id: z.string().uuid("ID de sucursal inválido"),
-  total: z.number().min(0, "El total debe ser mayor o igual a 0").optional(),
+  total: z.number().min(0.01, "El total debe ser mayor a 0").optional(),
   saleDetails: z
     .array(saleDetailSchema)
     .min(1, "Debe incluir al menos un detalle de venta"),
@@ -23,7 +21,7 @@ export const updateSaleDetailSchema = z.object({
   quantity: z.number().min(1, "La cantidad debe ser mayor a 0").optional(),
   unit_price: z
     .number()
-    .min(0, "El precio unitario debe ser mayor o igual a 0")
+    .min(0.01, "El precio unitario debe ser mayor a 0")
     .optional(),
 });
 

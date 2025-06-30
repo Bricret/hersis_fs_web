@@ -16,15 +16,20 @@ function adaptInventoryToProductType(inventory: Inventory): ProductType {
     throw new Error("El ID del inventario es requerido");
   }
 
+  // Asegurar que los precios sean números válidos con 2 decimales
+  const salesPrice = Number(inventory.sales_price) || 0;
+  const unitsPerBox = Number(inventory.units_per_box) || 1;
+  const pricePerUnit = Number((salesPrice / unitsPerBox).toFixed(2));
+
   return {
     id: inventory.id.toString(),
     code: inventory.barCode,
     name: inventory.name,
     category: inventory.type,
-    price: inventory.sales_price,
-    pricePerUnit: inventory.sales_price / inventory.units_per_box,
+    price: Number(salesPrice.toFixed(2)),
+    pricePerUnit: pricePerUnit,
     unit: "Unidad",
-    unitsPerBox: inventory.units_per_box,
+    unitsPerBox: unitsPerBox,
     stock: inventory.initial_quantity,
     popular: false,
     image: "/placeholder.svg?height=80&width=80",
@@ -49,6 +54,18 @@ export default function PosSection({ products }: { products: Inventory[] }) {
     if (product.initial_quantity <= 0) {
       toast.error("Producto sin stock", {
         description: `${product.name} no tiene stock disponible`,
+      });
+      return;
+    }
+
+    // Validar que el producto tenga un precio válido
+    if (
+      !adaptedProduct.price ||
+      adaptedProduct.price <= 0 ||
+      isNaN(adaptedProduct.price)
+    ) {
+      toast.error("Precio inválido", {
+        description: `${product.name} no tiene un precio válido`,
       });
       return;
     }
