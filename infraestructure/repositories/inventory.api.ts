@@ -119,7 +119,6 @@ export class InventoryApiRepository implements IInventoryRepository {
       user_delete: string;
     }
   ): Promise<{ message: string }> {
-    console.log(body, "body");
     const response = await this.http.delete<{ message: string }>(
       `/products/${id}`,
       body

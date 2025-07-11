@@ -32,7 +32,6 @@ export function DeleteProductDialog({ product }: DeleteProductDialogProps) {
   const handleDelete = async () => {
     try {
       const user = getUserAuth();
-      console.log("user", user);
       if (!user) {
         toast.error("Usuario no autenticado");
         return;

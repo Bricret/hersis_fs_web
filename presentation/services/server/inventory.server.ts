@@ -27,7 +27,7 @@ const inventoryService = new InventoryService(inventoryRepository);
 
 export async function getInventory(
   page = 1,
-  limit = 5,
+  limit = 5000,
   search = ""
 ): Promise<PaginatedResponse<Inventory>> {
   return await inventoryService.getAllInventory(page, limit, search);

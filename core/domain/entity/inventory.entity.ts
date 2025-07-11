@@ -31,6 +31,7 @@ interface BaseInventory {
   units_per_box: number;
   lot_number: string;
   expiration_date: string;
+  user_create: string;
 }
 
 export interface MedicineInventory extends BaseInventory {

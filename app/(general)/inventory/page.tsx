@@ -11,8 +11,7 @@ export default async function InventoryPage({
   const params = await searchParams;
   const search = params.search || "";
   const page = parseInt(params.page || "1", 10);
-
-  const inventoryData = await getInventory(page, 100, search);
+  const inventoryData = await getInventory(page, 5000, search);
   const categories = await getCategories();
 
   return (

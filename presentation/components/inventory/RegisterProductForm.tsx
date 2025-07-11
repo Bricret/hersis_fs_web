@@ -72,6 +72,7 @@ import { ProductState } from "@/infraestructure/schema/inventory.schema";
 import { GeneralInventory } from "@/core/domain/entity/inventory.entity";
 import { createInventory } from "@/presentation/services/server/inventory.server";
 import { refreshInventoryData } from "@/presentation/utils/clientRevalidation";
+import { useAuthFetch } from "@/presentation/hooks/auth/useAuthFetch";
 
 // Props del componente
 interface RegisterProductFormProps {
@@ -124,6 +125,7 @@ const medicamentoVacio: MedicineInventory = {
   is_active: true,
   created_at: new Date(),
   updated_at: new Date(),
+  user_create: "",
 };
 
 const productoGeneralVacio: GeneralInventory = {
@@ -142,9 +144,9 @@ const productoGeneralVacio: GeneralInventory = {
   is_active: true,
   created_at: new Date(),
   updated_at: new Date(),
+  user_create: "",
 };
 
-// Componente para la plantilla de Excel
 function PlantillaExcel() {
   const descargarPlantilla = () => {
     // En una implementación real, esto generaría un archivo CSV o Excel
@@ -678,6 +680,7 @@ function FormularioProductoGeneral({
 export default function RegisterProductForm({
   categorias,
 }: RegisterProductFormProps) {
+  const { getUserAuth } = useAuthFetch();
   const [medicamentos, setMedicamentos] = useState<MedicineInventory[]>([]);
   const [productosGenerales, setProductosGenerales] = useState<
     GeneralInventory[]
@@ -895,6 +898,12 @@ export default function RegisterProductForm({
 
   // Guardar todos los productos
   const onSaveAll = async () => {
+    const user = getUserAuth();
+    if (!user) {
+      toast.error("Usuario no autenticado");
+      return;
+    }
+
     const productos =
       tipoProducto === ProductState.MEDICINE
         ? medicamentos
@@ -908,10 +917,28 @@ export default function RegisterProductForm({
       return;
     }
 
+    // Agregar user_create a todos los productos
+    let productosConUserCreate: MedicineInventory[] | GeneralInventory[];
+    if (tipoProducto === ProductState.MEDICINE) {
+      productosConUserCreate = (medicamentos as MedicineInventory[]).map(
+        (producto) => ({
+          ...producto,
+          user_create: user.sub,
+        })
+      );
+    } else {
+      productosConUserCreate = (productosGenerales as GeneralInventory[]).map(
+        (producto) => ({
+          ...producto,
+          user_create: user.sub,
+        })
+      );
+    }
+
     try {
-      console.log(productos);
+      console.log(productosConUserCreate);
       setIsSubmitting(true);
-      const response = await createInventory(productos);
+      const response = await createInventory(productosConUserCreate);
       setIsSubmitting(false);
       setShowSuccessDialog(true);
       toast.success(response.message);

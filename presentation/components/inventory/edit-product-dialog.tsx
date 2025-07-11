@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { updateInventoryProduct } from "@/presentation/services/server/inventory.server";
 import { refreshInventoryData } from "@/presentation/utils/clientRevalidation";
 import type { Category } from "@/core/domain/entity/categories.entity";
+import { useAuthFetch } from "@/presentation/hooks/auth/useAuthFetch";
 
 interface EditProductDialogProps {
   product: Inventory;
@@ -40,6 +41,7 @@ export function EditProductDialog({
 }: EditProductDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { getUserAuth } = useAuthFetch();
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
@@ -148,6 +150,15 @@ export function EditProductDialog({
       Object.keys(updateData).forEach(
         (key) => updateData[key] === undefined && delete updateData[key]
       );
+
+      // Agregar user_create con el UUID del usuario autenticado
+      const user = getUserAuth();
+      if (!user) {
+        toast.error("Usuario no autenticado");
+        setIsLoading(false);
+        return;
+      }
+      updateData.user_create = user.sub;
 
       await updateInventoryProduct(product.id?.toString() || "", updateData);
 
