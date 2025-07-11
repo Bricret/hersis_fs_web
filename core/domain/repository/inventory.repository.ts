@@ -5,8 +5,6 @@ import {
   RegisterInventoryRes,
 } from "../entity/inventory.entity";
 import {
-  GeneralInventorySchema,
-  MedicineInventorySchema,
   MedicineInventoryUpdateSchema,
   GeneralInventoryUpdateSchema,
 } from "@/infraestructure/schema/inventory.schema";
@@ -45,6 +43,24 @@ export interface IInventoryRepository {
     body: {
       newPrice: number;
       type: string;
+    }
+  ): Promise<{ message: string }>;
+
+  deleteProduct(
+    id: string,
+    body: {
+      type: string;
+      user_delete: string;
+    }
+  ): Promise<{ message: string }>;
+
+  deleteBulkProducts(
+    userId: string,
+    body: {
+      products: Array<{
+        id: string;
+        type: string;
+      }>;
     }
   ): Promise<{ message: string }>;
 }

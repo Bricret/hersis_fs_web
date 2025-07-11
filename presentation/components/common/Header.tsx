@@ -41,8 +41,6 @@ export const Header = ({
     return;
   }
 
-  console.log(user);
-
   const handleLogOut = () => {
     logOutFn();
     router.push("/login");

@@ -109,3 +109,33 @@ export async function updateInventoryProduct(
 
   return response;
 }
+
+export async function deleteProduct(
+  productId: string,
+  productType: string,
+  userId: string
+): Promise<{ message: string }> {
+  const response = await inventoryService.deleteProduct(productId, {
+    type: productType,
+    user_delete: userId,
+  });
+
+  // Usar la nueva utilidad de revalidación
+  await revalidateAfterInventoryUpdate();
+
+  return response;
+}
+
+export async function deleteBulkProducts(
+  userId: string,
+  products: Array<{ id: string; type: string }>
+): Promise<{ message: string }> {
+  const response = await inventoryService.deleteBulkProducts(userId, {
+    products,
+  });
+
+  // Usar la nueva utilidad de revalidación
+  await revalidateAfterInventoryUpdate();
+
+  return response;
+}

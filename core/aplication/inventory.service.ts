@@ -112,4 +112,44 @@ export class InventoryService {
       throw new Error("Error desconocido al desactivar el producto");
     }
   }
+
+  async deleteProduct(
+    id: string,
+    body: {
+      type: string;
+      user_delete: string;
+    }
+  ): Promise<{ message: string }> {
+    try {
+      const response = await this.repository.deleteProduct(id, body);
+      return response;
+    } catch (error) {
+      console.error("Error en InventoryService.deleteProduct:", error);
+      if (error instanceof Error) {
+        throw new Error(`Error al eliminar el producto: ${error.message}`);
+      }
+      throw new Error("Error desconocido al eliminar el producto");
+    }
+  }
+
+  async deleteBulkProducts(
+    userId: string,
+    body: {
+      products: Array<{
+        id: string;
+        type: string;
+      }>;
+    }
+  ): Promise<{ message: string }> {
+    try {
+      const response = await this.repository.deleteBulkProducts(userId, body);
+      return response;
+    } catch (error) {
+      console.error("Error en InventoryService.deleteBulkProducts:", error);
+      if (error instanceof Error) {
+        throw new Error(`Error al eliminar los productos: ${error.message}`);
+      }
+      throw new Error("Error desconocido al eliminar los productos");
+    }
+  }
 }

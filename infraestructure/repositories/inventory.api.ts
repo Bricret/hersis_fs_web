@@ -111,4 +111,35 @@ export class InventoryApiRepository implements IInventoryRepository {
     );
     return res;
   }
+
+  async deleteProduct(
+    id: string,
+    body: {
+      type: string;
+      user_delete: string;
+    }
+  ): Promise<{ message: string }> {
+    console.log(body, "body");
+    const response = await this.http.delete<{ message: string }>(
+      `/products/${id}`,
+      body
+    );
+    return response;
+  }
+
+  async deleteBulkProducts(
+    userId: string,
+    body: {
+      products: Array<{
+        id: string;
+        type: string;
+      }>;
+    }
+  ): Promise<{ message: string }> {
+    const response = await this.http.delete<{ message: string }>(
+      `/products/deletebulk/${userId}`,
+      body
+    );
+    return response;
+  }
 }

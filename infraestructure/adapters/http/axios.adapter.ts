@@ -57,10 +57,17 @@ export class axiosAdapter implements HttpAdapter {
 
   async delete<T>(
     url: string,
+    body?: Record<string, unknown>,
     options?: Record<string, unknown> | undefined
   ): Promise<T> {
     try {
-      const { data } = await this.axiosInstance.delete<T>(url, options);
+      // Configurar la petición DELETE con body si se proporciona
+      const config = {
+        ...options,
+        ...(body && { data: body }),
+      };
+
+      const { data } = await this.axiosInstance.delete<T>(url, config);
       return data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {

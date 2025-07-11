@@ -58,6 +58,7 @@ import Link from "next/link";
 import { ButtonBackgroundShine } from "../ui/button-bg-shine";
 import { InventoryState } from "@/core/domain/entity/inventory.entity";
 import type { Category } from "@/core/domain/entity/categories.entity";
+import { BulkDeleteDialog } from "./bulk-delete-dialog";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -223,6 +224,18 @@ export function DataTable<TData, TValue>({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Botón de eliminación múltiple cuando hay productos seleccionados */}
+          {Object.keys(rowSelection).length > 0 && (
+            <BulkDeleteDialog
+              selectedProducts={table
+                .getSelectedRowModel()
+                .rows.map((row) => row.original as any)}
+              onDeleteComplete={() => {
+                setRowSelection({});
+              }}
+            />
+          )}
         </article>
         <Link href="/inventory/registerProduct" passHref>
           <ButtonBackgroundShine className="bg-main-background-color">

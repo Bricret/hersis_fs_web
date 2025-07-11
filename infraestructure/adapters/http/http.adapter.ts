@@ -14,6 +14,7 @@ export abstract class HttpAdapter {
 
   abstract delete<T>(
     url: string,
+    body?: Record<string, unknown>,
     options?: Record<string, unknown>,
     tk?: string
   ): Promise<T>;

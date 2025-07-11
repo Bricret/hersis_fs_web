@@ -37,6 +37,7 @@ import { RefillDialog } from "./refill-dialog";
 import { UpdatePriceDialog } from "./update-price-dialog";
 import { DeactivateProductDialog } from "./deactivate-product-dialog";
 import { EditProductDialog } from "./edit-product-dialog";
+import { DeleteProductDialog } from "./delete-product-dialog";
 import type { Category } from "@/core/domain/entity/categories.entity";
 
 const myCustomFilterFn: FilterFn<Inventory> = (
@@ -431,6 +432,8 @@ export const getColumns = (categories: Category[]): ColumnDef<Inventory>[] => [
             <DropdownMenuSeparator />
             <EditProductDialog product={product} categories={categories} />
             <DeactivateProductDialog product={product} />
+            <DropdownMenuSeparator />
+            <DeleteProductDialog product={product} />
           </DropdownMenuContent>
         </DropdownMenu>
       );

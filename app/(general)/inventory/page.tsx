@@ -8,13 +8,11 @@ export default async function InventoryPage({
 }: {
   searchParams: Promise<{ search?: string; page?: string }>;
 }) {
-  // Obtener parámetros de búsqueda
   const params = await searchParams;
   const search = params.search || "";
   const page = parseInt(params.page || "1", 10);
 
-  // Obtener datos frescos del servidor sin cache
-  const inventoryData = await getInventory(page, 100, search); // Aumentamos el límite para mostrar más productos
+  const inventoryData = await getInventory(page, 100, search);
   const categories = await getCategories();
 
   return (
