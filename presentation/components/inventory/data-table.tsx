@@ -56,16 +56,15 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ButtonBackgroundShine } from "../ui/button-bg-shine";
-import {
-  Inventory,
-  InventoryState,
-} from "@/core/domain/entity/inventory.entity";
+import { InventoryState } from "@/core/domain/entity/inventory.entity";
+import type { Category } from "@/core/domain/entity/categories.entity";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onSearch?: (searchTerm: string) => void;
   initialSearch?: string;
+  categories?: Category[];
 }
 
 export function DataTable<TData, TValue>({
@@ -73,6 +72,7 @@ export function DataTable<TData, TValue>({
   data,
   onSearch,
   initialSearch = "",
+  categories = [],
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -151,8 +151,15 @@ export function DataTable<TData, TValue>({
               if (onSearch) {
                 onSearch(event.target.value);
               } else {
-                table.getColumn("name")?.setFilterValue(event.target.value);
-                table.getColumn("barCode")?.setFilterValue(event.target.value);
+                // Aplicar el filtro a todas las columnas que tienen filterFn personalizado
+                const searchValue = event.target.value.toLowerCase();
+                table.getColumn("name")?.setFilterValue(searchValue);
+                table.getColumn("barCode")?.setFilterValue(searchValue);
+                table.getColumn("type")?.setFilterValue(searchValue);
+                table
+                  .getColumn("initial_quantity")
+                  ?.setFilterValue(searchValue);
+                table.getColumn("expiration_date")?.setFilterValue(searchValue);
               }
             }}
             className="w-sm shadow-sm"
@@ -216,21 +223,6 @@ export function DataTable<TData, TValue>({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          {isDeleteVisible && (
-            <Button
-              className="ml-2"
-              variant="destructive"
-              onClick={() => {
-                const ids = table.getSelectedRowModel().rows.map((row) => {
-                  return (row.original as Inventory).name;
-                });
-
-                console.log(ids);
-              }}
-            >
-              Delete
-            </Button>
-          )}
         </article>
         <Link href="/inventory/registerProduct" passHref>
           <ButtonBackgroundShine className="bg-main-background-color">

@@ -6,16 +6,14 @@ import {
   Trash2,
   Plus,
   Minus,
-  X,
   CreditCard,
   Loader2,
 } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
-import { Card, CardContent } from "@/presentation/components/ui/card";
 import { ScrollArea } from "@/presentation/components/ui/scroll-area";
 import { useCart } from "@/presentation/store/cart-context";
 import { useIsMobile } from "@/presentation/hooks/use-mobile";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Input } from "@/presentation/components/ui/input";
 import { Label } from "@/presentation/components/ui/label";
 import {
@@ -54,7 +52,6 @@ export default function CartPanel() {
   const { cart, updateQuantity, removeFromCart, clearCart, getTotal } =
     useCart();
   const { getUserAuth } = useAuthFetch();
-  const isMobile = useIsMobile();
 
   // Calculate cart total
   const total = getTotal();

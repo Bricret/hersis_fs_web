@@ -96,6 +96,7 @@ export default function ProductCatalog({
           }
           toast.success("Producto agregado al carrito", {
             description: `${product.name} ha sido añadido al carrito`,
+            position: "top-right",
           });
         } else {
           toast.error("Producto no encontrado");

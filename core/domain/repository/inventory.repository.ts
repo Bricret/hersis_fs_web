@@ -7,6 +7,8 @@ import {
 import {
   GeneralInventorySchema,
   MedicineInventorySchema,
+  MedicineInventoryUpdateSchema,
+  GeneralInventoryUpdateSchema,
 } from "@/infraestructure/schema/inventory.schema";
 import { IGenericResponse } from "@/infraestructure/interface/users/resMethod.interface";
 
@@ -24,7 +26,7 @@ export interface IInventoryRepository {
   ): Promise<PaginatedResponse<MedicineInventory | GeneralInventory>>;
 
   updateInventory(
-    inventory: MedicineInventorySchema | GeneralInventorySchema,
+    inventory: MedicineInventoryUpdateSchema | GeneralInventoryUpdateSchema,
     id: string
   ): Promise<IGenericResponse>;
 

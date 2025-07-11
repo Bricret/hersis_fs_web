@@ -36,6 +36,8 @@ import { ProductDialog } from "./product-dialog";
 import { RefillDialog } from "./refill-dialog";
 import { UpdatePriceDialog } from "./update-price-dialog";
 import { DeactivateProductDialog } from "./deactivate-product-dialog";
+import { EditProductDialog } from "./edit-product-dialog";
+import type { Category } from "@/core/domain/entity/categories.entity";
 
 const myCustomFilterFn: FilterFn<Inventory> = (
   row: Row<Inventory>,
@@ -43,14 +45,35 @@ const myCustomFilterFn: FilterFn<Inventory> = (
   filterValue: string,
   addMeta: (meta: any) => void
 ) => {
-  filterValue = filterValue.toLowerCase();
+  if (!filterValue || filterValue.trim() === "") {
+    return true;
+  }
 
-  const filterParts = filterValue.split(" ");
-  const rowValues = `${row.original.name} ${row.original.barCode} ${
-    "category" in row.original ? row.original.category : ""
-  }`.toLowerCase();
+  const searchTerm = filterValue.toLowerCase().trim();
+  const searchParts = searchTerm.split(" ").filter((part) => part.length > 0);
 
-  return filterParts.every((part) => rowValues.includes(part));
+  // Crear un string con todos los valores de la fila para buscar
+  const rowValues = [
+    row.original.name || "",
+    row.original.barCode || "",
+    row.original.type || "",
+    String(row.original.initial_quantity || ""),
+    row.original.expiration_date || "",
+    // Incluir categoría si existe
+    "category" in row.original && row.original.category
+      ? row.original.category
+      : "",
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  // Si no hay partes de búsqueda, mostrar todo
+  if (searchParts.length === 0) {
+    return true;
+  }
+
+  // Verificar que todas las partes de la búsqueda estén presentes
+  return searchParts.every((part) => rowValues.includes(part));
 };
 
 const SortedIcon = ({ isSorted }: { isSorted: false | SortDirection }) => {
@@ -65,7 +88,7 @@ const SortedIcon = ({ isSorted }: { isSorted: false | SortDirection }) => {
   return null;
 };
 
-export const columns: ColumnDef<Inventory>[] = [
+export const getColumns = (categories: Category[]): ColumnDef<Inventory>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -90,6 +113,7 @@ export const columns: ColumnDef<Inventory>[] = [
   },
   {
     accessorKey: "name",
+    filterFn: myCustomFilterFn,
     header: ({ column }) => {
       return (
         <Button
@@ -391,7 +415,6 @@ export const columns: ColumnDef<Inventory>[] = [
     id: "actions",
     cell: ({ row }) => {
       const product = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -406,7 +429,7 @@ export const columns: ColumnDef<Inventory>[] = [
             <RefillDialog product={product} />
             <UpdatePriceDialog product={product} />
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Editar</DropdownMenuItem>
+            <EditProductDialog product={product} categories={categories} />
             <DeactivateProductDialog product={product} />
           </DropdownMenuContent>
         </DropdownMenu>

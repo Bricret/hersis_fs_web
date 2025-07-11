@@ -128,15 +128,6 @@ export function ProductDialog({ product }: ProductDialogProps) {
                   <Separator />
                   <div className="grid grid-cols-3 items-center gap-4">
                     <span className="font-medium text-gray-600">
-                      Presentación:
-                    </span>
-                    <span className="col-span-2 font-medium">
-                      {product.presentation}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="grid grid-cols-3 items-center gap-4">
-                    <span className="font-medium text-gray-600">
                       Laboratorio:
                     </span>
                     <span className="col-span-2 font-medium">
@@ -194,15 +185,6 @@ export function ProductDialog({ product }: ProductDialogProps) {
                 </span>
                 <span className="col-span-2 font-medium">
                   {product.units_per_box}
-                </span>
-              </div>
-              <Separator />
-              <div className="grid grid-cols-3 items-center gap-4">
-                <span className="font-medium text-gray-600">
-                  Número de Lote:
-                </span>
-                <span className="col-span-2 font-medium">
-                  {product.lot_number}
                 </span>
               </div>
               <Separator />

@@ -8,9 +8,14 @@ import {
   MedicineInventory,
   RegisterInventoryRes,
 } from "@/core/domain/entity/inventory.entity";
+import {
+  MedicineInventorySchema,
+  GeneralInventorySchema,
+  MedicineInventoryUpdateSchema,
+  GeneralInventoryUpdateSchema,
+} from "@/infraestructure/schema/inventory.schema";
 import { InventoryService } from "@/core/aplication/inventory.service";
 import { InventoryApiRepository } from "@/infraestructure/repositories/inventory.api";
-import { revalidatePath, revalidateTag } from "next/cache";
 import { IGenericResponse } from "@/infraestructure/interface/users/resMethod.interface";
 import {
   revalidateAfterInventoryCreation,
@@ -88,4 +93,19 @@ export async function disableProduct(
   await revalidateAfterInventoryUpdate();
 
   return res;
+}
+
+export async function updateInventoryProduct(
+  id: string,
+  inventory: MedicineInventoryUpdateSchema | GeneralInventoryUpdateSchema
+): Promise<IGenericResponse> {
+  const response = await inventoryService.updateInventory({
+    inventory,
+    id,
+  });
+
+  // Usar la nueva utilidad de revalidación
+  await revalidateAfterInventoryUpdate();
+
+  return response;
 }

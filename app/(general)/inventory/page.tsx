@@ -1,6 +1,7 @@
 import { Header } from "@/presentation/components/common/Header";
 import { InventoryManagae } from "@/presentation/components/inventory/InventoryManagae";
 import { getInventory } from "@/presentation/services/server/inventory.server";
+import { getCategories } from "@/presentation/services/server/category.server";
 
 export default async function InventoryPage({
   searchParams,
@@ -14,6 +15,7 @@ export default async function InventoryPage({
 
   // Obtener datos frescos del servidor sin cache
   const inventoryData = await getInventory(page, 100, search); // Aumentamos el límite para mostrar más productos
+  const categories = await getCategories();
 
   return (
     <main className="flex flex-col flex-1 overflow-hidden bg-white">
@@ -24,6 +26,7 @@ export default async function InventoryPage({
       <InventoryManagae
         DataProducts={inventoryData.data || []}
         initialSearch={search}
+        categories={categories}
       />
     </main>
   );

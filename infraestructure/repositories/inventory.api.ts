@@ -10,6 +10,8 @@ import {
 import {
   GeneralInventorySchema,
   MedicineInventorySchema,
+  MedicineInventoryUpdateSchema,
+  GeneralInventoryUpdateSchema,
 } from "../schema/inventory.schema";
 import { IGenericResponse } from "../interface/users/resMethod.interface";
 
@@ -39,7 +41,7 @@ export class InventoryApiRepository implements IInventoryRepository {
   }
 
   async updateInventory(
-    inventory: MedicineInventorySchema | GeneralInventorySchema,
+    inventory: MedicineInventoryUpdateSchema | GeneralInventoryUpdateSchema,
     id: string
   ): Promise<IGenericResponse> {
     const response = await this.http.patch<IGenericResponse>(

@@ -66,6 +66,7 @@ export default function PosSection({ products }: { products: Inventory[] }) {
     ) {
       toast.error("Precio inválido", {
         description: `${product.name} no tiene un precio válido`,
+        position: "top-right",
       });
       return;
     }
@@ -75,6 +76,7 @@ export default function PosSection({ products }: { products: Inventory[] }) {
     toast.success("Producto añadido", {
       description: `${product.name} ha sido añadido al carrito`,
       duration: 2000,
+      position: "top-right",
     });
   };
 

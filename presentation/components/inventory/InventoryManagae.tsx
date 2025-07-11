@@ -1,17 +1,20 @@
 "use client";
 
 import { Inventory } from "@/core/domain/entity/inventory.entity";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 import { DataTable } from "./data-table";
 import { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import type { Category } from "@/core/domain/entity/categories.entity";
 
 export const InventoryManagae = ({
   DataProducts,
   initialSearch = "",
+  categories = [],
 }: {
   DataProducts: Inventory[];
   initialSearch?: string;
+  categories?: Category[];
 }) => {
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const router = useRouter();
@@ -30,13 +33,28 @@ export const InventoryManagae = ({
 
     // Aplicar filtro de búsqueda si existe
     if (searchTerm.trim()) {
-      const searchLower = searchTerm.toLowerCase();
-      products = products.filter(
-        (product) =>
-          product.name.toLowerCase().includes(searchLower) ||
-          product.barCode.toLowerCase().includes(searchLower) ||
-          (product.type && product.type.toLowerCase().includes(searchLower))
-      );
+      const searchLower = searchTerm.toLowerCase().trim();
+      const searchParts = searchLower
+        .split(" ")
+        .filter((part) => part.length > 0);
+
+      products = products.filter((product) => {
+        // Crear un string con todos los valores del producto para buscar
+        const productValues = [
+          product.name || "",
+          product.barCode || "",
+          product.type || "",
+          String(product.initial_quantity || ""),
+          product.expiration_date || "",
+          // Incluir categoría si existe
+          "category" in product && product.category ? product.category : "",
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        // Verificar que todas las partes de la búsqueda estén presentes
+        return searchParts.every((part) => productValues.includes(part));
+      });
     }
 
     return products;
@@ -59,10 +77,11 @@ export const InventoryManagae = ({
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-6">
       <DataTable
-        columns={columns}
+        columns={getColumns(categories)}
         data={filteredProducts}
         onSearch={handleSearch}
         initialSearch={searchTerm}
+        categories={categories}
       />
     </div>
   );
