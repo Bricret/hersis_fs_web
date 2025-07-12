@@ -9,8 +9,6 @@ import {
   RegisterInventoryRes,
 } from "@/core/domain/entity/inventory.entity";
 import {
-  MedicineInventorySchema,
-  GeneralInventorySchema,
   MedicineInventoryUpdateSchema,
   GeneralInventoryUpdateSchema,
 } from "@/infraestructure/schema/inventory.schema";

@@ -10,6 +10,7 @@ import { Header } from "../common/Header";
 import SalesHistory from "./sales-history";
 import { Inventory } from "@/core/domain/entity/inventory.entity";
 import { ProductType } from "@/core/data/sales/DataSales";
+import ProductSelectionDialog from "./product-selection-dialog";
 
 function adaptInventoryToProductType(inventory: Inventory): ProductType {
   if (!inventory.id) {
@@ -19,15 +20,16 @@ function adaptInventoryToProductType(inventory: Inventory): ProductType {
   // Asegurar que los precios sean números válidos con 2 decimales
   const salesPrice = Number(inventory.sales_price) || 0;
   const unitsPerBox = Number(inventory.units_per_box) || 1;
-  const pricePerUnit = Number((salesPrice / unitsPerBox).toFixed(2));
+  const pricePerUnit = Number(salesPrice.toFixed(2));
+  const pricePerBox = Number((salesPrice * unitsPerBox).toFixed(2));
 
   return {
     id: inventory.id.toString(),
     code: inventory.barCode,
     name: inventory.name,
     category: inventory.type,
-    price: Number(salesPrice.toFixed(2)),
-    pricePerUnit: pricePerUnit,
+    price: pricePerBox, // Precio por caja
+    pricePerUnit: pricePerUnit, // Precio por unidad
     unit: "Unidad",
     unitsPerBox: unitsPerBox,
     stock: inventory.initial_quantity,
@@ -38,6 +40,10 @@ function adaptInventoryToProductType(inventory: Inventory): ProductType {
 
 export default function PosSection({ products }: { products: Inventory[] }) {
   const [mode, setMode] = useState<"cashier" | "pharmacist">("cashier");
+  const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
+    null
+  );
+  const [isSelectionDialogOpen, setIsSelectionDialogOpen] = useState(false);
   const { addToCart } = useCart();
 
   // Ordenar productos del más nuevo al más viejo
@@ -71,11 +77,27 @@ export default function PosSection({ products }: { products: Inventory[] }) {
       return;
     }
 
-    addToCart(adaptedProduct);
+    // Abrir diálogo de selección
+    setSelectedProduct(adaptedProduct);
+    setIsSelectionDialogOpen(true);
+  };
+
+  const handleProductConfirm = (sellByUnit: boolean, quantity: number) => {
+    if (!selectedProduct) return;
+
+    // Agregar al carrito con la opción seleccionada
+    for (let i = 0; i < quantity; i++) {
+      addToCart(selectedProduct, sellByUnit);
+    }
+
+    const unitText = sellByUnit ? "unidades" : "cajas";
+    const totalUnits = sellByUnit
+      ? quantity
+      : quantity * selectedProduct.unitsPerBox;
 
     toast.success("Producto añadido", {
-      description: `${product.name} ha sido añadido al carrito`,
-      duration: 2000,
+      description: `${quantity} ${unitText} de ${selectedProduct.name} (${totalUnits} unidades total)`,
+      duration: 3000,
       position: "top-right",
     });
   };
@@ -108,6 +130,14 @@ export default function PosSection({ products }: { products: Inventory[] }) {
           <CartPanel />
         </div>
       </div>
+
+      {/* Diálogo de selección de producto */}
+      <ProductSelectionDialog
+        isOpen={isSelectionDialogOpen}
+        onClose={() => setIsSelectionDialogOpen(false)}
+        product={selectedProduct}
+        onConfirm={handleProductConfirm}
+      />
     </div>
   );
 }

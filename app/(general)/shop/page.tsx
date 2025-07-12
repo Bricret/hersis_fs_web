@@ -10,6 +10,11 @@ export default async function ShopPage() {
   // Obtener datos frescos del servidor sin cache
   const inventoryData = await getInventory(1, 1000); // Aumentamos el límite para obtener todos los productos
 
+  // Filtrar solo productos activos
+  const activeProducts = inventoryData.data.filter(
+    (product) => product.is_active
+  );
+
   // Obtener caja activa
   let activeCash;
   try {
@@ -43,7 +48,7 @@ export default async function ShopPage() {
 
   return (
     <CartProvider>
-      <PosSection products={inventoryData.data || []} />
+      <PosSection products={activeProducts} />
     </CartProvider>
   );
 }

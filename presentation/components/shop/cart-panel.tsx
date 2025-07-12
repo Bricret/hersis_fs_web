@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   ShoppingCart,
   Trash2,
@@ -38,7 +38,10 @@ interface CartItem {
   id: string;
   name: string;
   price: number;
+  pricePerUnit: number;
   quantity: number;
+  unitsPerBox: number;
+  sellByUnit: boolean;
   productId: number;
   product_type: "medicine" | "general";
   subtotal: number;
@@ -100,12 +103,23 @@ export default function CartPanel() {
         branch_id: "dcdfcc7a-b5fa-444f-b6c1-bcff84365f64", // ID de sucursal hardcodeado
         user_id: currentUser.sub, // UUID del usuario que realiza la venta
         total: Number(total.toFixed(2)), // Asegurar que sea un número con 2 decimales
-        saleDetails: cart.map((item) => ({
-          quantity: Number(item.quantity),
-          unit_price: Number(item.price.toFixed(2)), // Asegurar que sea un número con 2 decimales
-          productId: Number(item.productId),
-          product_type: item.product_type,
-        })),
+        saleDetails: cart.map((item) => {
+          // Calcular la cantidad total de unidades
+          const totalUnits = item.sellByUnit
+            ? item.quantity
+            : item.quantity * item.unitsPerBox;
+          // Usar el precio por unidad para el cálculo
+          const unitPrice = item.sellByUnit
+            ? item.pricePerUnit
+            : item.price / item.unitsPerBox;
+
+          return {
+            quantity: Number(totalUnits),
+            unit_price: Number(unitPrice.toFixed(2)),
+            productId: Number(item.productId),
+            product_type: item.product_type,
+          };
+        }),
       };
 
       console.log("saleData", saleData);
@@ -158,7 +172,13 @@ export default function CartPanel() {
         </h2>
         {cart.length > 0 && (
           <p className="text-sm text-gray-500 mt-1">
-            {cart.reduce((sum, item) => sum + item.quantity, 0)} productos
+            {cart.reduce((sum, item) => {
+              const totalUnits = item.sellByUnit
+                ? item.quantity
+                : item.quantity * item.unitsPerBox;
+              return sum + totalUnits;
+            }, 0)}{" "}
+            unidades total
           </p>
         )}
       </div>
@@ -318,6 +338,42 @@ function CartItemComponent({
   onRemove: () => void;
   formatCurrency: (amount: number) => string;
 }) {
+  const [inputQuantity, setInputQuantity] = useState(item.quantity.toString());
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Actualizar el input cuando cambie la cantidad desde los botones
+  React.useEffect(() => {
+    setInputQuantity(item.quantity.toString());
+  }, [item.quantity]);
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputQuantity(value);
+  };
+
+  const handleQuantityBlur = () => {
+    const newQuantity = parseInt(inputQuantity, 10);
+    if (isNaN(newQuantity) || newQuantity < 1) {
+      setInputQuantity(item.quantity.toString());
+      setIsEditing(false);
+      return;
+    }
+
+    if (newQuantity !== item.quantity) {
+      onUpdateQuantity(newQuantity);
+    }
+    setIsEditing(false);
+  };
+
+  const handleQuantityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleQuantityBlur();
+    } else if (e.key === "Escape") {
+      setInputQuantity(item.quantity.toString());
+      setIsEditing(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -330,12 +386,22 @@ function CartItemComponent({
           <h4 className="font-medium text-sm leading-tight">{item.name}</h4>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs text-gray-500">
-              {formatCurrency(item.price)} × {item.quantity}
+              {item.sellByUnit
+                ? `${formatCurrency(item.pricePerUnit)} c/u × ${item.quantity}`
+                : `${formatCurrency(item.price)} caja × ${item.quantity}`}
             </span>
             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+              {item.sellByUnit ? "Unidad" : "Caja"}
+            </span>
+            <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
               {item.product_type === "medicine" ? "Medicina" : "General"}
             </span>
           </div>
+          {!item.sellByUnit && (
+            <div className="text-xs text-gray-600 mt-1">
+              Total: {item.quantity * item.unitsPerBox} unidades
+            </div>
+          )}
         </div>
         <Button
           variant="ghost"
@@ -358,7 +424,28 @@ function CartItemComponent({
           >
             <Minus className="h-3 w-3" />
           </Button>
-          <span className="w-8 text-center font-medium">{item.quantity}</span>
+
+          {isEditing ? (
+            <Input
+              type="number"
+              value={inputQuantity}
+              onChange={handleQuantityChange}
+              onBlur={handleQuantityBlur}
+              onKeyDown={handleQuantityKeyDown}
+              className="w-16 h-8 text-center text-sm"
+              min="1"
+              autoFocus
+            />
+          ) : (
+            <span
+              className="w-8 text-center font-medium cursor-pointer hover:bg-gray-100 px-1 py-1 rounded"
+              onClick={() => setIsEditing(true)}
+              title="Haz clic para editar cantidad"
+            >
+              {item.quantity}
+            </span>
+          )}
+
           <Button
             variant="outline"
             size="sm"
