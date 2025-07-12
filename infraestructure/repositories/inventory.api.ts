@@ -14,6 +14,7 @@ import {
   GeneralInventoryUpdateSchema,
 } from "../schema/inventory.schema";
 import { IGenericResponse } from "../interface/users/resMethod.interface";
+import { normalizeText } from "../lib/utils";
 
 export class InventoryApiRepository implements IInventoryRepository {
   constructor(private readonly http: HttpAdapter) {}
@@ -71,7 +72,9 @@ export class InventoryApiRepository implements IInventoryRepository {
     params.append("limit", limit.toString());
 
     if (search && search.trim()) {
-      params.append("search", search.trim());
+      // Normalizar el término de búsqueda antes de enviarlo al servidor
+      const normalizedSearch = normalizeText(search.trim());
+      params.append("search", normalizedSearch);
     }
 
     const response = await this.http.get<

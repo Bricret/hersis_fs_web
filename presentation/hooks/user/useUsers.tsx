@@ -13,6 +13,7 @@ import {
   EditUserSchema,
   UserSchema,
 } from "@/infraestructure/schema/users.schema";
+import { normalizeText } from "@/infraestructure/lib/utils";
 
 const userRepository = new UserApiRepository(APIFetcher);
 const userService = new UserService(userRepository);
@@ -114,7 +115,7 @@ export function useUsers({
       const matchesSearch =
         searchTerm === ""
           ? true
-          : user.name.toLowerCase().includes(searchTerm.toLowerCase());
+          : normalizeText(user.name).includes(normalizeText(searchTerm));
 
       const matchesStatus =
         selectedTab === "todos"

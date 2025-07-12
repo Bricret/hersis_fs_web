@@ -39,6 +39,7 @@ import { DeactivateProductDialog } from "./deactivate-product-dialog";
 import { EditProductDialog } from "./edit-product-dialog";
 import { DeleteProductDialog } from "./delete-product-dialog";
 import type { Category } from "@/core/domain/entity/categories.entity";
+import { normalizeText } from "@/infraestructure/lib/utils";
 
 const myCustomFilterFn: FilterFn<Inventory> = (
   row: Row<Inventory>,
@@ -50,7 +51,7 @@ const myCustomFilterFn: FilterFn<Inventory> = (
     return true;
   }
 
-  const searchTerm = filterValue.toLowerCase().trim();
+  const searchTerm = normalizeText(filterValue.trim());
   const searchParts = searchTerm.split(" ").filter((part) => part.length > 0);
 
   // Crear un string con todos los valores de la fila para buscar
@@ -68,13 +69,16 @@ const myCustomFilterFn: FilterFn<Inventory> = (
     .join(" ")
     .toLowerCase();
 
+  // Normalizar los valores de la fila
+  const normalizedRowValues = normalizeText(rowValues);
+
   // Si no hay partes de búsqueda, mostrar todo
   if (searchParts.length === 0) {
     return true;
   }
 
   // Verificar que todas las partes de la búsqueda estén presentes
-  return searchParts.every((part) => rowValues.includes(part));
+  return searchParts.every((part) => normalizedRowValues.includes(part));
 };
 
 const SortedIcon = ({ isSorted }: { isSorted: false | SortDirection }) => {

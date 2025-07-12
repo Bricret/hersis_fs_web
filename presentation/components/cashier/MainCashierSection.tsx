@@ -22,6 +22,7 @@ import type {
 } from "@/infraestructure/schema/cash.schema";
 import type { Cash } from "@/core/domain/entity/cash.entity";
 import type { ICashSummary } from "@/infraestructure/interface/cash/cash.interface";
+import { normalizeText } from "@/infraestructure/lib/utils";
 
 // Componentes
 import {
@@ -151,10 +152,10 @@ export default function MainCashierSection({
   const filteredCash = cash.filter((cashItem) => {
     const matchesSearch =
       searchTerm === "" ||
-      cashItem.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cashItem.user_apertura.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      normalizeText(cashItem.id).includes(normalizeText(searchTerm)) ||
+      normalizeText(cashItem.user_apertura.name).includes(
+        normalizeText(searchTerm)
+      );
 
     const cashDate = new Date(cashItem.fecha_apertura);
     const matchesDateFrom = !dateRange.from || cashDate >= dateRange.from;

@@ -8,8 +8,8 @@ import {
   RegisterInventoryRes,
 } from "../domain/entity/inventory.entity";
 import {
-  GeneralInventorySchema,
-  MedicineInventorySchema,
+  GeneralInventoryUpdateSchema,
+  MedicineInventoryUpdateSchema,
 } from "@/infraestructure/schema/inventory.schema";
 
 export class InventoryService {
@@ -44,7 +44,7 @@ export class InventoryService {
     inventory,
     id,
   }: {
-    inventory: MedicineInventorySchema | GeneralInventorySchema;
+    inventory: MedicineInventoryUpdateSchema | GeneralInventoryUpdateSchema;
     id: string;
   }): Promise<IGenericResponse> {
     try {

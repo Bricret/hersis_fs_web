@@ -26,6 +26,7 @@ import {
 import { useIsMobile } from "@/presentation/hooks/use-mobile";
 import { Inventory } from "@/core/domain/entity/inventory.entity";
 import { toast } from "sonner";
+import { normalizeText } from "@/infraestructure/lib/utils";
 
 interface ProductCatalogProps {
   mode: "cashier" | "pharmacist";
@@ -108,9 +109,13 @@ export default function ProductCatalog({
 
   // Filter products based on search query and category
   const filteredProducts = products.filter((product) => {
+    const normalizedSearchQuery = normalizeText(searchQuery);
+    const normalizedProductName = normalizeText(product.name);
+    const normalizedBarCode = normalizeText(product.barCode);
+
     const matchesSearch =
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.barCode.includes(searchQuery);
+      normalizedProductName.includes(normalizedSearchQuery) ||
+      normalizedBarCode.includes(normalizedSearchQuery);
 
     if (activeCategory === "all") return matchesSearch;
     return matchesSearch && product.type === activeCategory;

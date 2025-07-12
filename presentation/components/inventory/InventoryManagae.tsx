@@ -6,6 +6,7 @@ import { DataTable } from "./data-table";
 import { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Category } from "@/core/domain/entity/categories.entity";
+import { normalizeText } from "@/infraestructure/lib/utils";
 
 export const InventoryManagae = ({
   DataProducts,
@@ -33,7 +34,7 @@ export const InventoryManagae = ({
 
     // Aplicar filtro de búsqueda si existe
     if (searchTerm.trim()) {
-      const searchLower = searchTerm.toLowerCase().trim();
+      const searchLower = normalizeText(searchTerm.trim());
       const searchParts = searchLower
         .split(" ")
         .filter((part) => part.length > 0);
@@ -52,8 +53,13 @@ export const InventoryManagae = ({
           .join(" ")
           .toLowerCase();
 
+        // Normalizar los valores del producto
+        const normalizedProductValues = normalizeText(productValues);
+
         // Verificar que todas las partes de la búsqueda estén presentes
-        return searchParts.every((part) => productValues.includes(part));
+        return searchParts.every((part) =>
+          normalizedProductValues.includes(part)
+        );
       });
     }
 

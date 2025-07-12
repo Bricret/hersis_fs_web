@@ -61,6 +61,7 @@ import {
 } from "@/presentation/components/ui/table";
 import { toast } from "sonner";
 import { Header } from "@/presentation/components/common/Header";
+import { normalizeText } from "@/infraestructure/lib/utils";
 
 // Tipos de datos
 type EventType =
@@ -786,20 +787,20 @@ export default function ReportesPage() {
     // Filtro por término de búsqueda
     const matchesSearch =
       searchTerm === "" ||
-      event.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      normalizeText(event.details).includes(normalizeText(searchTerm)) ||
+      normalizeText(event.user.name).includes(normalizeText(searchTerm)) ||
       (event.metadata.invoiceId &&
-        event.metadata.invoiceId
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())) ||
+        normalizeText(event.metadata.invoiceId).includes(
+          normalizeText(searchTerm)
+        )) ||
       (event.metadata.productName &&
-        event.metadata.productName
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())) ||
+        normalizeText(event.metadata.productName).includes(
+          normalizeText(searchTerm)
+        )) ||
       (event.metadata.orderId &&
-        event.metadata.orderId
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()));
+        normalizeText(event.metadata.orderId).includes(
+          normalizeText(searchTerm)
+        ));
 
     // Filtro por tipo de evento
     const matchesEventType =

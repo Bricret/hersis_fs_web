@@ -107,6 +107,7 @@ export class CashApiRepository implements ICashRepository {
     const response = await this.http.delete<{ message: string }>(
       `/cash/${id}`,
       undefined,
+      undefined,
       token
     );
     return response;

@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import type { ProductType } from "@/core/data/sales/DataSales";
 import { productsData } from "@/core/data/sales/DataSales";
+import { normalizeText } from "@/infraestructure/lib/utils";
 
 export const useSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,7 +13,7 @@ export const useSearch = () => {
 
   const addProductByBarcode = (code: string) => {
     return productsData.find(
-      (p) => p.code.toLowerCase() === code.toLowerCase()
+      (p) => normalizeText(p.code) === normalizeText(code)
     );
   };
 

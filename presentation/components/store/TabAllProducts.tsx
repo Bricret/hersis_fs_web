@@ -14,6 +14,7 @@ import {
 } from "../ui/table";
 import { Button } from "../ui/button";
 import { productsData } from "@/core/data/sales/DataSales";
+import { normalizeText } from "@/infraestructure/lib/utils";
 
 interface Props {
   selectedCategory: string;
@@ -31,13 +32,13 @@ export const TabAllProducts = ({
   const filteredProducts = productsData.filter((product) => {
     const matchesCategory =
       selectedCategory === "all" ||
-      product.category.toLowerCase() === selectedCategory.toLowerCase();
+      normalizeText(product.category) === normalizeText(selectedCategory);
 
     const matchesSearch =
       searchTerm === "" ||
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase());
+      normalizeText(product.name).includes(normalizeText(searchTerm)) ||
+      normalizeText(product.code).includes(normalizeText(searchTerm)) ||
+      normalizeText(product.category).includes(normalizeText(searchTerm));
 
     return matchesCategory && matchesSearch;
   });

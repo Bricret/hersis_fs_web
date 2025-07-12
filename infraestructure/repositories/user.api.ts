@@ -7,6 +7,7 @@ import {
   IGenericResponse,
   IResetPasswordResponse,
 } from "../interface/users/resMethod.interface";
+import { normalizeText } from "../lib/utils";
 
 export class UserApiRepository implements IUserRepository {
   constructor(private readonly http: HttpAdapter) {}
@@ -26,8 +27,10 @@ export class UserApiRepository implements IUserRepository {
     limit = 5,
     search = ""
   ): Promise<PaginatedResponse<User>> {
+    // Normalizar el término de búsqueda antes de enviarlo al servidor
+    const normalizedSearch = search ? normalizeText(search) : "";
     const response = await this.http.get<PaginatedResponse<User>>(
-      `/users/allUsers?page=${page}&limit=${limit}&search=${search}`
+      `/users/allUsers?page=${page}&limit=${limit}&search=${normalizedSearch}`
     );
     return response;
   }
@@ -53,7 +56,7 @@ export class UserApiRepository implements IUserRepository {
       const data = (this.userRecord = { ...filteredUser });
       const response = await this.http.patch<IGenericResponse>(
         `/users/${id}`,
-        data,
+        data
       );
       return response;
     } catch (error) {
@@ -72,8 +75,8 @@ export class UserApiRepository implements IUserRepository {
     }
     const response = await this.http.delete<void>(
       `/users/${id}`,
-      undefined,
-      token
+      {},
+      { Authorization: `Bearer ${token}` }
     );
     console.log("deleteUser", response);
     return response;
@@ -91,7 +94,7 @@ export class UserApiRepository implements IUserRepository {
     }
     const response = await this.http.patch<IResetPasswordResponse>(
       `/users/resetPassword/${id}`,
-      {},
+      {}
     );
     return response;
   }

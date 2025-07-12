@@ -102,6 +102,7 @@ import {
 import { toast } from "sonner";
 import { Header } from "@/presentation/components/common/Header";
 import { cn } from "@/infraestructure/lib/utils";
+import { normalizeText } from "@/infraestructure/lib/utils";
 // Tipos de datos
 type TransactionStatus = "pagado" | "pendiente" | "cancelado";
 type TransactionType = "pedido" | "gasto";
@@ -1583,15 +1584,17 @@ export default function TransaccionesPage() {
     // Filtro por término de búsqueda
     const matchesSearch =
       searchTerm === "" ||
-      transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      normalizeText(transaction.id).includes(normalizeText(searchTerm)) ||
       (transaction.type === "pedido" &&
-        transaction.supplier?.name
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())) ||
+        transaction.supplier?.name &&
+        normalizeText(transaction.supplier.name).includes(
+          normalizeText(searchTerm)
+        )) ||
       (transaction.type === "gasto" &&
-        transaction.recipient
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase()));
+        transaction.recipient &&
+        normalizeText(transaction.recipient).includes(
+          normalizeText(searchTerm)
+        ));
 
     // Filtro por tipo
     const matchesType =

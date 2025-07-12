@@ -2,6 +2,7 @@ import { productsData, type ProductType } from "@/core/data/sales/DataSales";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
+import { normalizeText } from "@/infraestructure/lib/utils";
 
 interface Props {
   showProductDialog: (product: ProductType) => void;
@@ -24,8 +25,8 @@ export default function TabFavoriteProducts({
       const suggestions = productsData
         .filter(
           (product) =>
-            product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.code.toLowerCase().includes(searchTerm.toLowerCase())
+            normalizeText(product.name).includes(normalizeText(searchTerm)) ||
+            normalizeText(product.code).includes(normalizeText(searchTerm))
         )
         .slice(0, 5);
 
