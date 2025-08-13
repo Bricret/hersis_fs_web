@@ -38,7 +38,17 @@ function adaptInventoryToProductType(inventory: Inventory): ProductType {
   };
 }
 
-export default function PosSection({ products }: { products: Inventory[] }) {
+export default function PosSection({
+  products,
+  totalPages,
+  currentPage,
+  totalItems,
+}: {
+  products: Inventory[];
+  totalPages: number;
+  currentPage: number;
+  totalItems: number;
+}) {
   const [mode, setMode] = useState<"cashier" | "pharmacist">("cashier");
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
     null
@@ -124,6 +134,9 @@ export default function PosSection({ products }: { products: Inventory[] }) {
             products={sortedProducts}
             mode={mode}
             onProductSelect={handleProductSelect}
+            totalPages={totalPages}
+            currentPage={currentPage}
+            totalItems={totalItems}
           />
         </div>
         <div className="w-full md:w-96 border-l flex-shrink-0">

@@ -2,25 +2,29 @@ import PosSection from "@/presentation/components/shop/POS-Section";
 import { getActiveCash } from "@/presentation/services/server/cash.server";
 import { getInventory } from "@/presentation/services/server/inventory.server";
 import { CartProvider } from "@/presentation/store/cart-context";
-import { LockIcon, AlertTriangle } from "lucide-react";
+import { LockIcon } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import Link from "next/link";
+import { Inventory } from "@/core/domain/entity/inventory.entity";
+import { PaginatedResponse } from "@/core/domain/entity/user.entity";
 
 export default async function ShopPage() {
-  // Obtener datos frescos del servidor sin cache
-  const inventoryData = await getInventory(1, 1000); // Aumentamos el límite para obtener todos los productos
+  // Obtener datos del servidor
+  let inventoryData: PaginatedResponse<Inventory> | null = null;
+  let activeCash: any = null;
 
-  // Filtrar solo productos activos
-  const activeProducts = inventoryData.data.filter(
-    (product) => product.is_active
-  );
-
-  // Obtener caja activa
-  let activeCash;
   try {
-    activeCash = await getActiveCash("dcdfcc7a-b5fa-444f-b6c1-bcff84365f64");
+    // Obtener datos frescos del servidor sin cache
+    inventoryData = await getInventory(1, 10); // 20 productos por página
+
+    // Obtener caja activa
+    try {
+      activeCash = await getActiveCash("dcdfcc7a-b5fa-444f-b6c1-bcff84365f64");
+    } catch (error) {
+      activeCash = null;
+    }
   } catch (error) {
-    activeCash = null;
+    console.error("Error al cargar datos:", error);
   }
 
   // Verificar si hay caja activa
@@ -46,9 +50,18 @@ export default async function ShopPage() {
     );
   }
 
+  // Filtrar solo productos activos
+  const activeProducts =
+    inventoryData?.data.filter((product) => product.is_active) || [];
+
   return (
     <CartProvider>
-      <PosSection products={activeProducts} />
+      <PosSection
+        products={activeProducts}
+        totalPages={inventoryData?.meta.totalPages || 1}
+        currentPage={inventoryData?.meta.page || 1}
+        totalItems={inventoryData?.meta.total || 0}
+      />
     </CartProvider>
   );
 }
