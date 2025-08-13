@@ -3,10 +3,11 @@
 import { Inventory } from "@/core/domain/entity/inventory.entity";
 import { getColumns } from "./columns";
 import { DataTable } from "./data-table";
-import { useState, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useCallback } from "react";
 import type { Category } from "@/core/domain/entity/categories.entity";
 import { normalizeText } from "@/infraestructure/lib/utils";
+import { useUrlSearch } from "@/presentation/hooks/common/useUrlSearch";
+import { revalidateInventoryCache } from "@/infraestructure/utils/revalidateCache";
 
 export const InventoryManagae = ({
   DataProducts,
@@ -17,11 +18,27 @@ export const InventoryManagae = ({
   initialSearch?: string;
   categories?: Category[];
 }) => {
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  // Callback para manejar búsquedas que requieren solicitud al servidor
+  const handleServerSearch = useCallback(async (searchTerm: string) => {
+    try {
+      // Revalidar el cache para obtener nuevos datos del servidor
+      await revalidateInventoryCache();
+    } catch (error) {
+      console.error("Error al revalidar el cache del inventario:", error);
+    }
+  }, []);
 
-  // Filtrar y ordenar productos localmente
+  // Hook para manejar búsquedas con debounce y sincronización con URL
+  const { searchTerm, debouncedSearchTerm, setSearch, isSearching } =
+    useUrlSearch({
+      paramName: "search",
+      debounceDelay: 500,
+      initialValue: initialSearch,
+      onSearchChange: handleServerSearch,
+      updateUrl: true,
+    });
+
+  // Filtrar y ordenar productos localmente usando el término de búsqueda con debounce
   const filteredProducts = useMemo(() => {
     let products = [...DataProducts];
 
@@ -32,9 +49,9 @@ export const InventoryManagae = ({
       return dateB.getTime() - dateA.getTime(); // Orden descendente
     });
 
-    // Aplicar filtro de búsqueda si existe
-    if (searchTerm.trim()) {
-      const searchLower = normalizeText(searchTerm.trim());
+    // Aplicar filtro de búsqueda si existe (usar debouncedSearchTerm para evitar filtros excesivos)
+    if (debouncedSearchTerm.trim()) {
+      const searchLower = normalizeText(debouncedSearchTerm.trim());
       const searchParts = searchLower
         .split(" ")
         .filter((part) => part.length > 0);
@@ -64,21 +81,15 @@ export const InventoryManagae = ({
     }
 
     return products;
-  }, [DataProducts, searchTerm]);
+  }, [DataProducts, debouncedSearchTerm]);
 
-  // Función para actualizar la búsqueda en la URL
-  const handleSearch = (newSearchTerm: string) => {
-    setSearchTerm(newSearchTerm);
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (newSearchTerm.trim()) {
-      params.set("search", newSearchTerm);
-    } else {
-      params.delete("search");
-    }
-
-    router.push(`/inventory?${params.toString()}`);
-  };
+  // Función para actualizar la búsqueda (ahora delegada al hook)
+  const handleSearch = useCallback(
+    (newSearchTerm: string) => {
+      setSearch(newSearchTerm);
+    },
+    [setSearch]
+  );
 
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-6">
@@ -88,6 +99,7 @@ export const InventoryManagae = ({
         onSearch={handleSearch}
         initialSearch={searchTerm}
         categories={categories}
+        isSearching={isSearching}
       />
     </div>
   );

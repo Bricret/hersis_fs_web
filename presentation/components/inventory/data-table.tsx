@@ -53,6 +53,8 @@ import {
   ChevronRightIcon,
   Columns2,
   Filter,
+  Search,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { ButtonBackgroundShine } from "../ui/button-bg-shine";
@@ -66,6 +68,7 @@ interface DataTableProps<TData, TValue> {
   onSearch?: (searchTerm: string) => void;
   initialSearch?: string;
   categories?: Category[];
+  isSearching?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -74,6 +77,7 @@ export function DataTable<TData, TValue>({
   onSearch,
   initialSearch = "",
   categories = [],
+  isSearching = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -140,31 +144,42 @@ export function DataTable<TData, TValue>({
     <main>
       <section className="flex items-center justify-between py-4">
         <article className="flex gap-x-4">
-          <Input
-            placeholder="Busca por nombre del producto o código de barras"
-            value={
-              onSearch
-                ? initialSearch
-                : (table.getColumn("name")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) => {
-              setCurrentStatus("all");
-              if (onSearch) {
-                onSearch(event.target.value);
-              } else {
-                // Aplicar el filtro a todas las columnas que tienen filterFn personalizado
-                const searchValue = event.target.value.toLowerCase();
-                table.getColumn("name")?.setFilterValue(searchValue);
-                table.getColumn("barCode")?.setFilterValue(searchValue);
-                table.getColumn("type")?.setFilterValue(searchValue);
-                table
-                  .getColumn("initial_quantity")
-                  ?.setFilterValue(searchValue);
-                table.getColumn("expiration_date")?.setFilterValue(searchValue);
+          <div className="relative">
+            <Input
+              placeholder="Busca por nombre del producto o código de barras"
+              value={
+                onSearch
+                  ? initialSearch
+                  : (table.getColumn("name")?.getFilterValue() as string) ?? ""
               }
-            }}
-            className="w-sm shadow-sm"
-          />
+              onChange={(event) => {
+                setCurrentStatus("all");
+                if (onSearch) {
+                  onSearch(event.target.value);
+                } else {
+                  // Aplicar el filtro a todas las columnas que tienen filterFn personalizado
+                  const searchValue = event.target.value.toLowerCase();
+                  table.getColumn("name")?.setFilterValue(searchValue);
+                  table.getColumn("barCode")?.setFilterValue(searchValue);
+                  table.getColumn("type")?.setFilterValue(searchValue);
+                  table
+                    .getColumn("initial_quantity")
+                    ?.setFilterValue(searchValue);
+                  table
+                    .getColumn("expiration_date")
+                    ?.setFilterValue(searchValue);
+                }
+              }}
+              className="w-sm shadow-sm pr-10"
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              {isSearching ? (
+                <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+              ) : (
+                <Search className="h-4 w-4 text-gray-400" />
+              )}
+            </div>
+          </div>
           <Select
             value={currentStatus}
             onValueChange={(value) => {
