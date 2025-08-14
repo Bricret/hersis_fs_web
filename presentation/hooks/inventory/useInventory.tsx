@@ -39,6 +39,14 @@ export function useInventory({
         return;
       }
 
+      // Si estamos cargando, evitar nueva búsqueda
+      if (loading) {
+        console.log(
+          `[useInventory] Búsqueda cancelada por estar cargando: ${searchKey}`
+        );
+        return;
+      }
+
       console.log(
         `[useInventory] Iniciando búsqueda - Término: "${searchTerm}", Página: ${page}`
       );
@@ -104,9 +112,26 @@ export function useInventory({
   // Función para cambiar de página (navegación simple sin búsqueda)
   const changePage = useCallback(
     async (newPage: number, searchTerm: string = "") => {
-      if (newPage < 1 || newPage > totalPages || newPage === currentPage) {
+      if (newPage < 1 || newPage > totalPages) {
         console.log(
           `[useInventory] No se puede cambiar a la página ${newPage} - Página actual: ${currentPage}, Total páginas: ${totalPages}`
+        );
+        return;
+      }
+
+      // Evitar cambio a la misma página con la misma búsqueda
+      const changeKey = `${searchTerm}-${newPage}`;
+      if (lastSearchRef.current === changeKey && newPage === currentPage) {
+        console.log(
+          `[useInventory] Cambio de página duplicado ignorado: ${changeKey}`
+        );
+        return;
+      }
+
+      // Si estamos cargando, evitar nuevo cambio
+      if (loading) {
+        console.log(
+          `[useInventory] Cambio de página cancelado por estar cargando: ${changeKey}`
         );
         return;
       }
@@ -215,6 +240,33 @@ export function useInventory({
   const clearSearch = useCallback(async () => {
     await searchProducts("", 1);
   }, [searchProducts]);
+
+  // Efecto para actualizar estado cuando cambian las props iniciales
+  useEffect(() => {
+    // Solo actualizar si realmente hay datos nuevos
+    if (
+      initialProducts.length > 0 ||
+      initialTotalPages !== totalPages ||
+      initialCurrentPage !== currentPage ||
+      initialTotalItems !== totalItems
+    ) {
+      console.log(
+        `[useInventory] Actualizando con datos del servidor - Productos: ${initialProducts.length}, Página: ${initialCurrentPage}, Total: ${initialTotalItems}`
+      );
+      setProducts(initialProducts);
+      setTotalPages(initialTotalPages);
+      setCurrentPage(initialCurrentPage);
+      setTotalItems(initialTotalItems);
+
+      // Actualizar las referencias para evitar búsquedas duplicadas
+      lastPageRef.current = initialCurrentPage;
+    }
+  }, [
+    initialProducts,
+    initialTotalPages,
+    initialCurrentPage,
+    initialTotalItems,
+  ]);
 
   // Cleanup del timeout al desmontar
   useEffect(() => {

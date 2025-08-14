@@ -29,7 +29,7 @@ import { useIsMobile } from "@/presentation/hooks/use-mobile";
 import { Inventory } from "@/core/domain/entity/inventory.entity";
 import { toast } from "sonner";
 import { normalizeText } from "@/infraestructure/lib/utils";
-import { useUrlSearch } from "@/presentation/hooks/common/useUrlSearch";
+import { useUrlParams } from "@/presentation/hooks/common/useUrlParams";
 import { useInventory } from "@/presentation/hooks/inventory/useInventory";
 
 interface ProductCatalogProps {
@@ -39,6 +39,7 @@ interface ProductCatalogProps {
   totalPages: number;
   currentPage: number;
   totalItems: number;
+  initialSearch?: string;
 }
 
 export default function ProductCatalog({
@@ -48,6 +49,7 @@ export default function ProductCatalog({
   totalPages: initialTotalPages,
   currentPage: initialCurrentPage,
   totalItems: initialTotalItems,
+  initialSearch = "",
 }: ProductCatalogProps) {
   const [activeCategory, setActiveCategory] = useState("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -55,6 +57,16 @@ export default function ProductCatalog({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const barcodeTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  // Hook para manejar parámetros de URL
+  const { params, setPage, setSearch, page, search } = useUrlParams({
+    initialParams: {
+      page: initialCurrentPage,
+      search: initialSearch,
+      limit: 20,
+    },
+    updateUrl: true,
+  });
 
   // Hook de inventario
   const {
@@ -74,18 +86,10 @@ export default function ProductCatalog({
     initialTotalItems,
   });
 
-  // Hook de búsqueda con debounce (solo para sincronización con URL)
-  const { searchTerm, setSearch, isSearching } = useUrlSearch({
-    paramName: "search",
-    debounceDelay: 500,
-    onSearchChange: undefined, // No ejecutar automáticamente
-    updateUrl: true,
-  });
-
   // Función para manejar cambios en la búsqueda
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearch(value);
+    setSearch(value); // Esto actualiza la URL automáticamente
 
     // Clear any existing timeout
     if (barcodeTimeoutRef.current) {
@@ -118,6 +122,59 @@ export default function ProductCatalog({
     }, 100); // Short timeout to detect barcode scanning or pasting
   };
 
+  // Estado para controlar si ya se inicializó con datos del servidor
+  const [isServerDataLoaded, setIsServerDataLoaded] = useState(false);
+
+  // Efecto para marcar que los datos del servidor ya están cargados
+  useEffect(() => {
+    if (initialProducts.length > 0 || initialTotalItems > 0) {
+      setIsServerDataLoaded(true);
+      console.log(
+        `[ProductCatalog] Datos del servidor cargados - Productos: ${initialProducts.length}, Total: ${initialTotalItems}`
+      );
+    }
+  }, [initialProducts, initialTotalItems]);
+
+  // Efecto para sincronizar cambios en URL con búsquedas (solo después de la carga inicial)
+  useEffect(() => {
+    // No ejecutar si no se han cargado los datos del servidor
+    if (!isServerDataLoaded) {
+      console.log(`[ProductCatalog] Esperando datos del servidor...`);
+      return;
+    }
+
+    // Verificar si realmente necesitamos hacer una nueva búsqueda
+    const needsNewSearch =
+      (page !== currentPage && page !== initialCurrentPage) ||
+      (search !== (initialSearch || "") && search.trim() !== "");
+
+    if (needsNewSearch) {
+      console.log(
+        `[ProductCatalog] URL cambió - Página: ${page}, Búsqueda: "${search}"`
+      );
+      console.log(
+        `[ProductCatalog] Estado actual - Página: ${currentPage}, Búsqueda inicial: "${initialSearch}"`
+      );
+
+      if (search.trim()) {
+        searchProducts(search, page);
+      } else if (page !== currentPage) {
+        changePage(page, "");
+      }
+    } else {
+      console.log(
+        `[ProductCatalog] No se necesita nueva búsqueda - usando datos del servidor`
+      );
+    }
+  }, [
+    page,
+    search,
+    isServerDataLoaded,
+    currentPage,
+    initialCurrentPage,
+    initialSearch,
+  ]);
+
   // Focus input on mount and after sale completion
   useEffect(() => {
     const focusInput = () => {
@@ -143,13 +200,15 @@ export default function ProductCatalog({
     if (newPage < 1 || newPage > totalPages || newPage === currentPage) return;
 
     try {
-      // Pasar el término de búsqueda actual (puede estar vacío)
-      const currentSearchTerm = searchTerm || "";
       console.log(
-        `[ProductCatalog] Cambiando a página ${newPage} con búsqueda: "${currentSearchTerm}"`
+        `[ProductCatalog] Cambiando a página ${newPage} con búsqueda: "${search}"`
       );
 
-      await changePage(newPage, currentSearchTerm);
+      // Actualizar la URL con la nueva página
+      setPage(newPage);
+
+      // Hacer la búsqueda con la nueva página
+      await changePage(newPage, search);
 
       // Scroll hacia arriba
       if (scrollContainerRef.current) {
@@ -200,12 +259,12 @@ export default function ProductCatalog({
               ref={searchInputRef}
               type="text"
               placeholder="Buscar productos o escanear código de barras..."
-              value={searchTerm}
+              value={search}
               onChange={handleSearchInputChange}
               className="pl-9"
               autoFocus
             />
-            {isSearching && (
+            {loading && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
               </div>
@@ -293,7 +352,7 @@ export default function ProductCatalog({
               isMobile ? "" : "sm:grid-cols-2 lg:grid-cols-3"
             } gap-3`}
           >
-            {loading ? (
+            {loading && products.length === 0 ? (
               // Skeleton loading
               Array.from({ length: 20 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden">
@@ -312,14 +371,31 @@ export default function ProductCatalog({
                 </Card>
               ))
             ) : filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onSelect={onProductSelect}
-                  mode={mode}
-                />
-              ))
+              <>
+                {filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onSelect={onProductSelect}
+                    mode={mode}
+                  />
+                ))}
+                {/* Indicador de carga para paginación */}
+                {loading && (
+                  <div className="col-span-full flex items-center justify-center py-4">
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+                      <span className="text-sm">Cargando más productos...</span>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : !isServerDataLoaded ? (
+              <div className="col-span-full flex flex-col items-center justify-center py-10 text-gray-500">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-4"></div>
+                <p>Cargando productos...</p>
+                <p className="text-sm">Obteniendo datos del servidor</p>
+              </div>
             ) : (
               <div className="col-span-full flex flex-col items-center justify-center py-10 text-gray-500">
                 <Search className="h-10 w-10 mb-2 text-gray-300" />

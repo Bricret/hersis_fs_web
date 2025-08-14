@@ -43,11 +43,13 @@ export default function PosSection({
   totalPages,
   currentPage,
   totalItems,
+  initialSearch = "",
 }: {
   products: Inventory[];
   totalPages: number;
   currentPage: number;
   totalItems: number;
+  initialSearch?: string;
 }) {
   const [mode, setMode] = useState<"cashier" | "pharmacist">("cashier");
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
@@ -137,6 +139,7 @@ export default function PosSection({
             totalPages={totalPages}
             currentPage={currentPage}
             totalItems={totalItems}
+            initialSearch={initialSearch}
           />
         </div>
         <div className="w-full md:w-96 border-l flex-shrink-0">

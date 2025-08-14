@@ -8,14 +8,42 @@ import Link from "next/link";
 import { Inventory } from "@/core/domain/entity/inventory.entity";
 import { PaginatedResponse } from "@/core/domain/entity/user.entity";
 
-export default async function ShopPage() {
+interface ShopPageProps {
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default async function ShopPage({ searchParams }: ShopPageProps) {
+  // Extraer parámetros de la URL
+  const pageParam = Array.isArray(searchParams.page)
+    ? searchParams.page[0]
+    : searchParams.page;
+  const searchParam = Array.isArray(searchParams.search)
+    ? searchParams.search[0]
+    : searchParams.search;
+  const limitParam = Array.isArray(searchParams.limit)
+    ? searchParams.limit[0]
+    : searchParams.limit;
+
+  // Parsear parámetros con valores por defecto
+  const page = pageParam ? parseInt(pageParam, 10) : 1;
+  const limit = limitParam ? parseInt(limitParam, 20) : 20;
+  const search = searchParam || "";
+
+  // Validar parámetros
+  const validPage = !isNaN(page) && page > 0 ? page : 1;
+  const validLimit = !isNaN(limit) && limit > 0 && limit <= 100 ? limit : 20;
+
+  console.log(
+    `[ShopPage] Parámetros URL - Página: ${validPage}, Límite: ${validLimit}, Búsqueda: "${search}"`
+  );
+
   // Obtener datos del servidor
   let inventoryData: PaginatedResponse<Inventory> | null = null;
   let activeCash: any = null;
 
   try {
-    // Obtener datos frescos del servidor sin cache
-    inventoryData = await getInventory(1, 10); // 20 productos por página
+    // Obtener datos con parámetros de la URL
+    inventoryData = await getInventory(validPage, validLimit, search);
 
     // Obtener caja activa
     try {
@@ -61,6 +89,7 @@ export default async function ShopPage() {
         totalPages={inventoryData?.meta.totalPages || 1}
         currentPage={inventoryData?.meta.page || 1}
         totalItems={inventoryData?.meta.total || 0}
+        initialSearch={search}
       />
     </CartProvider>
   );
