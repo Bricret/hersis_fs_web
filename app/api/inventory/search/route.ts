@@ -16,18 +16,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Log para debug
-    console.log(
-      `[API] Búsqueda de inventario - Página: ${page}, Límite: ${limit}, Búsqueda: "${search}"`
-    );
-
     // Obtener inventario usando el servicio existente
     const result = await getInventory(page, limit, search);
-
-    // Log para debug
-    console.log(
-      `[API] Resultado - Total: ${result.meta.total}, Páginas: ${result.meta.totalPages}, Productos en esta página: ${result.data.length}`
-    );
 
     return NextResponse.json(result);
   } catch (error) {

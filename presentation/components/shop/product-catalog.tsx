@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search,
   Pill,
   Heart,
-  Thermometer,
-  Droplet,
   Leaf,
   Filter,
   ChevronLeft,
@@ -28,9 +27,6 @@ import {
 import { useIsMobile } from "@/presentation/hooks/use-mobile";
 import { Inventory } from "@/core/domain/entity/inventory.entity";
 import { toast } from "sonner";
-import { normalizeText } from "@/infraestructure/lib/utils";
-import { useUrlParams } from "@/presentation/hooks/common/useUrlParams";
-import { useInventory } from "@/presentation/hooks/inventory/useInventory";
 
 interface ProductCatalogProps {
   mode: "cashier" | "pharmacist";
@@ -51,177 +47,130 @@ export default function ProductCatalog({
   totalItems: initialTotalItems,
   initialSearch = "",
 }: ProductCatalogProps) {
+  const router = useRouter();
+  const isMobile = useIsMobile();
+
+  // Estados locales simples
   const [activeCategory, setActiveCategory] = useState("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const isMobile = useIsMobile();
+  const [searchValue, setSearchValue] = useState(initialSearch);
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState(initialProducts);
+  const [currentPage, setCurrentPage] = useState(initialCurrentPage);
+  const [totalPages, setTotalPages] = useState(initialTotalPages);
+  const [totalItems, setTotalItems] = useState(initialTotalItems);
+
+  // Referencias
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const barcodeTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Hook para manejar parámetros de URL
-  const { params, setPage, setSearch, page, search } = useUrlParams({
-    initialParams: {
-      page: initialCurrentPage,
-      search: initialSearch,
-      limit: 20,
-    },
-    updateUrl: true,
-  });
-
-  // Hook de inventario
-  const {
-    products,
-    totalPages,
-    currentPage,
-    totalItems,
-    loading,
-    searchProducts,
-    searchWithDebounce,
-    changePage,
-    clearSearch,
-  } = useInventory({
-    initialProducts,
-    initialTotalPages,
-    initialCurrentPage,
-    initialTotalItems,
-  });
-
-  // Función para manejar cambios en la búsqueda
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value); // Esto actualiza la URL automáticamente
-
-    // Clear any existing timeout
-    if (barcodeTimeoutRef.current) {
-      clearTimeout(barcodeTimeoutRef.current);
-    }
-
-    // Set a new timeout to detect barcode scanning or pasting
-    barcodeTimeoutRef.current = setTimeout(() => {
-      // If the value is a barcode (assuming barcodes are numeric and at least 8 digits)
-      if (/^\d{8,}$/.test(value)) {
-        const product = products.find((p) => p.barCode === value);
-        if (product) {
-          onProductSelect(product);
-          setSearch("");
-          if (searchInputRef.current) {
-            searchInputRef.current.focus();
-          }
-          toast.success("Producto agregado al carrito", {
-            description: `${product.name} ha sido añadido al carrito`,
-            position: "top-right",
-          });
-        } else {
-          toast.error("Producto no encontrado");
-          setSearch("");
+  // Función para buscar productos
+  const searchProducts = useCallback(
+    async (searchTerm: string, page: number = 1) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        params.set("page", page.toString());
+        params.set("limit", "20");
+        if (searchTerm.trim()) {
+          params.set("search", searchTerm.trim());
         }
-      } else {
-        // Si no es un código de barras, hacer búsqueda con debounce
-        searchWithDebounce(value, 1);
+
+        const response = await fetch(
+          `/api/inventory/search?${params.toString()}`
+        );
+        if (!response.ok) throw new Error("Error en la búsqueda");
+
+        const result = await response.json();
+        const activeProducts = result.data.filter(
+          (product: Inventory) => product.is_active
+        );
+
+        setProducts(activeProducts);
+        setCurrentPage(result.meta.page);
+        setTotalPages(result.meta.totalPages);
+        setTotalItems(result.meta.total);
+      } catch (error) {
+        toast.error("Error al buscar productos");
+      } finally {
+        setLoading(false);
       }
-    }, 100); // Short timeout to detect barcode scanning or pasting
-  };
+    },
+    []
+  );
 
-  // Estado para controlar si ya se inicializó con datos del servidor
-  const [isServerDataLoaded, setIsServerDataLoaded] = useState(false);
+  // Manejar cambios en el input de búsqueda
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
 
-  // Efecto para marcar que los datos del servidor ya están cargados
-  useEffect(() => {
-    if (initialProducts.length > 0 || initialTotalItems > 0) {
-      setIsServerDataLoaded(true);
-      console.log(
-        `[ProductCatalog] Datos del servidor cargados - Productos: ${initialProducts.length}, Total: ${initialTotalItems}`
-      );
+    // Limpiar timeout anterior
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
-  }, [initialProducts, initialTotalItems]);
 
-  // Efecto para sincronizar cambios en URL con búsquedas (solo después de la carga inicial)
-  useEffect(() => {
-    // No ejecutar si no se han cargado los datos del servidor
-    if (!isServerDataLoaded) {
-      console.log(`[ProductCatalog] Esperando datos del servidor...`);
+    // Detectar código de barras (solo números, mínimo 8 dígitos)
+    if (/^\d{8,}$/.test(value)) {
+      const product = products.find((p) => p.barCode === value);
+      if (product) {
+        onProductSelect(product);
+        setSearchValue("");
+        searchInputRef.current?.focus();
+        toast.success("Producto agregado al carrito");
+      } else {
+        toast.error("Producto no encontrado");
+        setSearchValue("");
+      }
       return;
     }
 
-    // Verificar si realmente necesitamos hacer una nueva búsqueda
-    const needsNewSearch =
-      (page !== currentPage && page !== initialCurrentPage) ||
-      (search !== (initialSearch || "") && search.trim() !== "");
+    // Búsqueda con debounce
+    searchTimeoutRef.current = setTimeout(() => {
+      searchProducts(value, 1);
 
-    if (needsNewSearch) {
-      console.log(
-        `[ProductCatalog] URL cambió - Página: ${page}, Búsqueda: "${search}"`
-      );
-      console.log(
-        `[ProductCatalog] Estado actual - Página: ${currentPage}, Búsqueda inicial: "${initialSearch}"`
-      );
-
-      if (search.trim()) {
-        searchProducts(search, page);
-      } else if (page !== currentPage) {
-        changePage(page, "");
+      // Actualizar URL
+      const urlParams = new URLSearchParams();
+      if (value.trim()) {
+        urlParams.set("search", value.trim());
       }
-    } else {
-      console.log(
-        `[ProductCatalog] No se necesita nueva búsqueda - usando datos del servidor`
-      );
-    }
-  }, [
-    page,
-    search,
-    isServerDataLoaded,
-    currentPage,
-    initialCurrentPage,
-    initialSearch,
-  ]);
+      const newUrl = `${window.location.pathname}${
+        urlParams.toString() ? `?${urlParams.toString()}` : ""
+      }`;
+      window.history.replaceState({}, "", newUrl);
+    }, 300);
+  };
 
-  // Focus input on mount and after sale completion
+  // Cambiar página
+  const handlePageChange = async (newPage: number) => {
+    if (
+      newPage < 1 ||
+      newPage > totalPages ||
+      newPage === currentPage ||
+      loading
+    )
+      return;
+
+    await searchProducts(searchValue, newPage);
+    scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Focus automático en el input
   useEffect(() => {
-    const focusInput = () => {
-      if (searchInputRef.current) {
-        searchInputRef.current.focus();
-      }
-    };
-
-    // Focus on mount
+    const focusInput = () => searchInputRef.current?.focus();
     focusInput();
-
-    // Listen for sale completion
     window.addEventListener("saleCompleted", focusInput);
-
-    // Cleanup
-    return () => {
-      window.removeEventListener("saleCompleted", focusInput);
-    };
+    return () => window.removeEventListener("saleCompleted", focusInput);
   }, []);
 
-  // Función para cambiar de página
-  const handlePageChange = async (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages || newPage === currentPage) return;
-
-    try {
-      console.log(
-        `[ProductCatalog] Cambiando a página ${newPage} con búsqueda: "${search}"`
-      );
-
-      // Actualizar la URL con la nueva página
-      setPage(newPage);
-
-      // Hacer la búsqueda con la nueva página
-      await changePage(newPage, search);
-
-      // Scroll hacia arriba
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
-    } catch (error) {
-      console.error("Error al cambiar de página:", error);
-      // El error ya se maneja en el hook
-    }
-  };
+    };
+  }, []);
 
   // Categories with icons
   const categories = [
@@ -230,7 +179,7 @@ export default function ProductCatalog({
     { id: "general", name: "General", icon: <Leaf className="h-4 w-4" /> },
   ];
 
-  // Filter products based on category (la búsqueda ya se maneja con la API)
+  // Filter products based on category
   const filteredProducts = products.filter((product) => {
     if (activeCategory === "all") return true;
     return product.type === activeCategory;
@@ -239,13 +188,7 @@ export default function ProductCatalog({
   // Scroll to category
   const scrollToCategory = (categoryId: string) => {
     setActiveCategory(categoryId);
-
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    }
+    scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -259,8 +202,8 @@ export default function ProductCatalog({
               ref={searchInputRef}
               type="text"
               placeholder="Buscar productos o escanear código de barras..."
-              value={search}
-              onChange={handleSearchInputChange}
+              value={searchValue}
+              onChange={handleSearchChange}
               className="pl-9"
               autoFocus
             />
@@ -352,9 +295,9 @@ export default function ProductCatalog({
               isMobile ? "" : "sm:grid-cols-2 lg:grid-cols-3"
             } gap-3`}
           >
-            {loading && products.length === 0 ? (
+            {loading && filteredProducts.length === 0 ? (
               // Skeleton loading
-              Array.from({ length: 20 }).map((_, index) => (
+              Array.from({ length: 12 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden">
                   <CardContent className="p-0">
                     <div className="flex items-center p-3">
@@ -371,31 +314,14 @@ export default function ProductCatalog({
                 </Card>
               ))
             ) : filteredProducts.length > 0 ? (
-              <>
-                {filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onSelect={onProductSelect}
-                    mode={mode}
-                  />
-                ))}
-                {/* Indicador de carga para paginación */}
-                {loading && (
-                  <div className="col-span-full flex items-center justify-center py-4">
-                    <div className="flex items-center gap-2 text-gray-500">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-                      <span className="text-sm">Cargando más productos...</span>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : !isServerDataLoaded ? (
-              <div className="col-span-full flex flex-col items-center justify-center py-10 text-gray-500">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-4"></div>
-                <p>Cargando productos...</p>
-                <p className="text-sm">Obteniendo datos del servidor</p>
-              </div>
+              filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onSelect={onProductSelect}
+                  mode={mode}
+                />
+              ))
             ) : (
               <div className="col-span-full flex flex-col items-center justify-center py-10 text-gray-500">
                 <Search className="h-10 w-10 mb-2 text-gray-300" />

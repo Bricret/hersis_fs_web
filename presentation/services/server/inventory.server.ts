@@ -28,17 +28,7 @@ export async function getInventory(
   limit = 5000,
   search = ""
 ): Promise<PaginatedResponse<Inventory>> {
-  // Log para debug
-  console.log(
-    `[Server] getInventory - Página: ${page}, Límite: ${limit}, Búsqueda: "${search}"`
-  );
-
   const result = await inventoryService.getAllInventory(page, limit, search);
-
-  // Log para debug
-  console.log(
-    `[Server] Resultado - Total: ${result.meta.total}, Páginas: ${result.meta.totalPages}, Productos en esta página: ${result.data.length}`
-  );
 
   return result;
 }

@@ -23,6 +23,10 @@ interface UseUrlParamsProps {
    * Si true, actualiza la URL automáticamente cuando cambian los parámetros
    */
   updateUrl?: boolean;
+  /**
+   * Si true, actualiza la URL inmediatamente para la búsqueda (sin debounce)
+   */
+  immediateUrlUpdate?: boolean;
 }
 
 /**
@@ -102,10 +106,22 @@ export function useUrlParams({
 
   // Función para actualizar solo la búsqueda
   const setSearch = useCallback(
-    (search: string) => {
+    (search: string, immediate: boolean = false) => {
       updateParams({ search }, true); // Resetear página cuando se busca
+
+      // Si immediateUrlUpdate es true, actualizar la URL inmediatamente
+      if (immediate) {
+        const urlParams = new URLSearchParams();
+        if (search.trim()) {
+          urlParams.set("search", search.trim());
+        }
+        const newUrl = `${window.location.pathname}${
+          urlParams.toString() ? `?${urlParams.toString()}` : ""
+        }`;
+        router.push(newUrl);
+      }
     },
-    [updateParams]
+    [updateParams, router]
   );
 
   // Función para limpiar la búsqueda

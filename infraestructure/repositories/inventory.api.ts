@@ -66,11 +66,6 @@ export class InventoryApiRepository implements IInventoryRepository {
     limit: number,
     search?: string
   ): Promise<PaginatedResponse<MedicineInventory | GeneralInventory>> {
-    // Log para debug
-    console.log(
-      `[Repository] getAllInventory - Página: ${page}, Límite: ${limit}, Búsqueda: "${search}"`
-    );
-
     // Construir los query parameters
     const params = new URLSearchParams();
     params.append("page", page.toString());
@@ -80,24 +75,13 @@ export class InventoryApiRepository implements IInventoryRepository {
       // Normalizar el término de búsqueda antes de enviarlo al servidor
       const normalizedSearch = normalizeText(search.trim());
       params.append("search", normalizedSearch);
-      console.log(
-        `[Repository] Agregando término de búsqueda: "${normalizedSearch}"`
-      );
-    } else {
-      console.log(`[Repository] Sin término de búsqueda`);
     }
 
     const url = `/products?${params.toString()}`;
-    console.log(`[Repository] URL final: ${url}`);
 
     const response = await this.http.get<
       PaginatedResponse<MedicineInventory | GeneralInventory>
     >(url);
-
-    // Log para debug
-    console.log(
-      `[Repository] Respuesta - Total: ${response.meta.total}, Páginas: ${response.meta.totalPages}, Productos en esta página: ${response.data.length}`
-    );
 
     return response;
   }

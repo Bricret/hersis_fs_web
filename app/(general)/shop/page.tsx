@@ -9,48 +9,32 @@ import { Inventory } from "@/core/domain/entity/inventory.entity";
 import { PaginatedResponse } from "@/core/domain/entity/user.entity";
 
 interface ShopPageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
-  // Extraer parámetros de la URL
-  const pageParam = Array.isArray(searchParams.page)
-    ? searchParams.page[0]
-    : searchParams.page;
-  const searchParam = Array.isArray(searchParams.search)
-    ? searchParams.search[0]
-    : searchParams.search;
-  const limitParam = Array.isArray(searchParams.limit)
-    ? searchParams.limit[0]
-    : searchParams.limit;
+  const resolvedSearchParams = await searchParams;
 
-  // Parsear parámetros con valores por defecto
-  const page = pageParam ? parseInt(pageParam, 10) : 1;
-  const limit = limitParam ? parseInt(limitParam, 20) : 20;
+  // Extraer y validar parámetros
+  const pageParam = Array.isArray(resolvedSearchParams.page)
+    ? resolvedSearchParams.page[0]
+    : resolvedSearchParams.page;
+  const searchParam = Array.isArray(resolvedSearchParams.search)
+    ? resolvedSearchParams.search[0]
+    : resolvedSearchParams.search;
+
+  const page = pageParam ? Math.max(1, parseInt(pageParam, 10) || 1) : 1;
   const search = searchParam || "";
-
-  // Validar parámetros
-  const validPage = !isNaN(page) && page > 0 ? page : 1;
-  const validLimit = !isNaN(limit) && limit > 0 && limit <= 100 ? limit : 20;
-
-  console.log(
-    `[ShopPage] Parámetros URL - Página: ${validPage}, Límite: ${validLimit}, Búsqueda: "${search}"`
-  );
 
   // Obtener datos del servidor
   let inventoryData: PaginatedResponse<Inventory> | null = null;
   let activeCash: any = null;
 
   try {
-    // Obtener datos con parámetros de la URL
-    inventoryData = await getInventory(validPage, validLimit, search);
-
-    // Obtener caja activa
-    try {
-      activeCash = await getActiveCash("dcdfcc7a-b5fa-444f-b6c1-bcff84365f64");
-    } catch (error) {
-      activeCash = null;
-    }
+    [inventoryData, activeCash] = await Promise.all([
+      getInventory(page, 20, search),
+      getActiveCash("dcdfcc7a-b5fa-444f-b6c1-bcff84365f64").catch(() => null),
+    ]);
   } catch (error) {
     console.error("Error al cargar datos:", error);
   }
