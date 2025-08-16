@@ -6,6 +6,7 @@ import {
   Command,
   CreditCard,
   GalleryVerticalEnd,
+  History,
   Home,
   NotepadText,
   Package,
@@ -82,9 +83,14 @@ const data = {
       isActive: true,
     },
     {
-      title: "Reportes",
+      title: "Reportes de ventas",
       url: "/reports",
       icon: NotepadText,
+    },
+    {
+      title: "Vitacora",
+      url: "/logs",
+      icon: History,
     },
     {
       title: "Transacciones",

@@ -910,8 +910,8 @@ export default function ReportesPage() {
     <div className="flex flex-col flex-1 overflow-hidden bg-white">
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header
-          title="Registro de eventos"
-          subTitle="Consulte el historial de eventos y acciones realizadas en el sistema"
+          title="Reportes de ventas"
+          subTitle="Consulte el historial de ventas realizadas en el sistema"
         />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="flex flex-col gap-4">
@@ -921,7 +921,7 @@ export default function ReportesPage() {
                   <div>
                     <CardTitle>Filtros</CardTitle>
                     <CardDescription>
-                      Utilice los filtros para encontrar eventos específicos
+                      Utilice los filtros para encontrar ventas específicas
                     </CardDescription>
                   </div>
                   <Button
