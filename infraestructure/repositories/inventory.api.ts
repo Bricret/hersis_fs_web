@@ -8,8 +8,6 @@ import {
   RegisterInventoryRes,
 } from "@/core/domain/entity/inventory.entity";
 import {
-  GeneralInventorySchema,
-  MedicineInventorySchema,
   MedicineInventoryUpdateSchema,
   GeneralInventoryUpdateSchema,
 } from "../schema/inventory.schema";
