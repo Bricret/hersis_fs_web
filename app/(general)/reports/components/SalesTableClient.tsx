@@ -47,6 +47,13 @@ import {
 import { Input } from "@/presentation/components/ui/input";
 import { Label } from "@/presentation/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/presentation/components/ui/select";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -80,6 +87,7 @@ interface SalesTableClientProps {
   initialData: ReportSales;
   initialPage: number;
   initialSearch: string;
+  initialLimit: number;
 }
 
 // Componente para mostrar detalles de una venta
@@ -152,20 +160,26 @@ function SaleDetailsDialog({
               <CardContent className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Vendedor:</span>
-                  <span className="font-medium">{sale.user.name}</span>
+                  <span className="font-medium">
+                    {sale.user?.name || "Usuario no disponible"}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Sucursal:</span>
-                  <span className="font-medium">{sale.branch.name}</span>
+                  <span className="font-medium">
+                    {sale.branch?.name || "Sucursal no disponible"}
+                  </span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Estado:</span>
-                  <Badge
-                    variant={sale.user.is_active ? "default" : "secondary"}
-                  >
-                    {sale.user.is_active ? "Activo" : "Inactivo"}
-                  </Badge>
-                </div>
+                {sale.user && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Estado:</span>
+                    <Badge
+                      variant={sale.user.is_active ? "default" : "secondary"}
+                    >
+                      {sale.user.is_active ? "Activo" : "Inactivo"}
+                    </Badge>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -175,7 +189,7 @@ function SaleDetailsDialog({
             <CardHeader>
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Package className="h-4 w-4" />
-                Productos Vendidos ({sale.saleDetails.length} items)
+                Productos Vendidos ({(sale.saleDetails || []).length} items)
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -190,7 +204,7 @@ function SaleDetailsDialog({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sale.saleDetails.map((detail) => (
+                  {(sale.saleDetails || []).map((detail) => (
                     <TableRow key={detail.id}>
                       <TableCell className="font-medium">
                         {detail.productName}
@@ -225,28 +239,37 @@ function SaleDetailsDialog({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">ID Caja:</span>
-                <span className="font-medium">{sale.cash_register.id}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Apertura:</span>
-                <span className="font-medium">
-                  {formatDate(sale.cash_register.fecha_apertura)}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Estado:</span>
-                <Badge
-                  variant={
-                    sale.cash_register.estado === "abierta"
-                      ? "default"
-                      : "secondary"
-                  }
-                >
-                  {sale.cash_register.estado}
-                </Badge>
-              </div>
+              {sale.cash_register && (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">ID Caja:</span>
+                    <span className="font-medium">{sale.cash_register.id}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Apertura:</span>
+                    <span className="font-medium">
+                      {formatDate(sale.cash_register.fecha_apertura)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Estado:</span>
+                    <Badge
+                      variant={
+                        sale.cash_register.estado === "abierta"
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
+                      {sale.cash_register.estado}
+                    </Badge>
+                  </div>
+                </>
+              )}
+              {!sale.cash_register && (
+                <div className="text-sm text-muted-foreground">
+                  Información de caja no disponible
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -259,6 +282,7 @@ export function SalesTableClient({
   initialData,
   initialPage,
   initialSearch,
+  initialLimit,
 }: SalesTableClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -280,47 +304,92 @@ export function SalesTableClient({
   // Obtener datos únicos para filtros
   const uniqueBranches =
     sales.length > 0
-      ? Array.from(new Set(sales.map((sale) => sale.branch.id))).map((id) => {
-          const sale = sales.find((s) => s.branch.id === id);
-          return { id, name: sale?.branch.name || "" };
+      ? Array.from(
+          new Set(
+            sales
+              .filter((sale) => sale.branch?.id)
+              .map((sale) => sale.branch!.id)
+          )
+        ).map((id) => {
+          const sale = sales.find((s) => s.branch?.id === id);
+          return { id, name: sale?.branch?.name || "" };
         })
       : [];
 
   const uniqueUsers =
     sales.length > 0
-      ? Array.from(new Set(sales.map((sale) => sale.user.id))).map((id) => {
-          const sale = sales.find((s) => s.user.id === id);
-          return { id, name: sale?.user.name || "" };
+      ? Array.from(
+          new Set(
+            sales.filter((sale) => sale.user?.id).map((sale) => sale.user!.id)
+          )
+        ).map((id) => {
+          const sale = sales.find((s) => s.user?.id === id);
+          return { id, name: sale?.user?.name || "" };
         })
       : [];
 
-  // Filtrar ventas localmente (filtros adicionales)
-  const filteredSales = sales.filter((sale) => {
-    const matchesBranch =
-      filters.branches.length === 0 ||
-      filters.branches.includes(sale.branch.id);
-    const matchesUser =
-      filters.users.length === 0 || filters.users.includes(sale.user.id);
+  // Verificar si hay filtros activos
+  const hasActiveFilters =
+    filters.branches.length > 0 ||
+    filters.users.length > 0 ||
+    filters.dateFrom ||
+    filters.dateTo ||
+    filters.minAmount ||
+    filters.maxAmount;
 
-    const saleDate = new Date(sale.date);
-    const matchesDateFrom = !filters.dateFrom || saleDate >= filters.dateFrom;
-    const matchesDateTo = !filters.dateTo || saleDate <= filters.dateTo;
+  console.log("Active filters:", filters);
+  console.log("Has active filters:", hasActiveFilters);
 
-    const saleAmount = parseFloat(sale.total);
-    const matchesMinAmount =
-      !filters.minAmount || saleAmount >= filters.minAmount;
-    const matchesMaxAmount =
-      !filters.maxAmount || saleAmount <= filters.maxAmount;
+  // Si no hay filtros activos, mostrar todos los datos
+  const filteredSales = hasActiveFilters
+    ? sales.filter((sale) => {
+        const matchesBranch =
+          filters.branches.length === 0 ||
+          (sale.branch?.id && filters.branches.includes(sale.branch.id));
+        const matchesUser =
+          filters.users.length === 0 ||
+          (sale.user?.id && filters.users.includes(sale.user.id));
 
-    return (
-      matchesBranch &&
-      matchesUser &&
-      matchesDateFrom &&
-      matchesDateTo &&
-      matchesMinAmount &&
-      matchesMaxAmount
-    );
-  });
+        const saleDate = new Date(sale.date);
+        const matchesDateFrom =
+          !filters.dateFrom || saleDate >= filters.dateFrom;
+        const matchesDateTo = !filters.dateTo || saleDate <= filters.dateTo;
+
+        const saleAmount = parseFloat(sale.total);
+        const matchesMinAmount =
+          !filters.minAmount || saleAmount >= filters.minAmount;
+        const matchesMaxAmount =
+          !filters.maxAmount || saleAmount <= filters.maxAmount;
+
+        const passes =
+          matchesBranch &&
+          matchesUser &&
+          matchesDateFrom &&
+          matchesDateTo &&
+          matchesMinAmount &&
+          matchesMaxAmount;
+
+        if (!passes) {
+          console.log(`Sale ${sale.id} filtered out:`, {
+            matchesBranch,
+            matchesUser,
+            matchesDateFrom,
+            matchesDateTo,
+            matchesMinAmount,
+            matchesMaxAmount,
+            saleDate: saleDate.toISOString(),
+            dateFromFilter: filters.dateFrom?.toISOString(),
+            dateToFilter: filters.dateTo?.toISOString(),
+            saleAmount,
+            filters,
+          });
+        }
+
+        return passes;
+      })
+    : sales;
+
+  console.log("Filtered sales count:", filteredSales.length);
 
   // Función para navegar con nuevos parámetros
   const navigateWithParams = (
@@ -348,6 +417,11 @@ export function SalesTableClient({
   // Función para cambiar página
   const goToPage = (page: number) => {
     navigateWithParams({ page: page.toString() });
+  };
+
+  // Función para cambiar el límite de elementos por página
+  const handleLimitChange = (limit: string) => {
+    navigateWithParams({ limit, page: undefined });
   };
 
   // Función para exportar reportes
@@ -560,23 +634,44 @@ export function SalesTableClient({
               encontradas
             </CardDescription>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setFilters({
-                search: "",
-                branches: [],
-                users: [],
-              });
-              setSearchValue("");
-              navigateWithParams({ search: undefined, page: undefined });
-            }}
-            className="gap-2"
-          >
-            <Filter className="h-4 w-4" />
-            Limpiar filtros
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* Elementos por página */}
+            <div className="space-y-2">
+              <Select
+                value={initialLimit.toString()}
+                onValueChange={handleLimitChange}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5 ventas</SelectItem>
+                  <SelectItem value="10">10 ventas</SelectItem>
+                  <SelectItem value="20">20 ventas</SelectItem>
+                  <SelectItem value="30">30 ventas</SelectItem>
+                  <SelectItem value="50">50 ventas</SelectItem>
+                  <SelectItem value="100">100 ventas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setFilters({
+                  search: "",
+                  branches: [],
+                  users: [],
+                });
+                setSearchValue("");
+                navigateWithParams({ search: undefined, page: undefined });
+              }}
+              className="gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Limpiar filtros
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
@@ -613,23 +708,29 @@ export function SalesTableClient({
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <div className="font-medium">{sale.user.name}</div>
-                          <Badge
-                            variant={
-                              sale.user.is_active ? "default" : "secondary"
-                            }
-                            className="text-xs"
-                          >
-                            {sale.user.is_active ? "Activo" : "Inactivo"}
-                          </Badge>
+                          <div className="font-medium">
+                            {sale.user?.name || "Usuario no disponible"}
+                          </div>
+                          {sale.user && (
+                            <Badge
+                              variant={
+                                sale.user.is_active ? "default" : "secondary"
+                              }
+                              className="text-xs"
+                            >
+                              {sale.user.is_active ? "Activo" : "Inactivo"}
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
-                      <TableCell>{sale.branch.name}</TableCell>
+                      <TableCell>
+                        {sale.branch?.name || "Sucursal no disponible"}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Package className="h-4 w-4 text-muted-foreground" />
                           <span className="text-sm">
-                            {sale.saleDetails.length} items
+                            {(sale.saleDetails || []).length} items
                           </span>
                         </div>
                       </TableCell>

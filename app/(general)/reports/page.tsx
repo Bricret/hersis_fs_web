@@ -16,7 +16,6 @@ interface ReportsPageProps {
   }>;
 }
 
-// Componente para mostrar estadísticas de resumen
 function SalesStatsCards({ sales }: { sales: Sale[] }) {
   const totalSales = sales.length;
   const totalRevenue = sales.reduce(
@@ -27,7 +26,10 @@ function SalesStatsCards({ sales }: { sales: Sale[] }) {
   const totalProducts = sales.reduce(
     (acc, sale) =>
       acc +
-      sale.saleDetails.reduce((acc2, detail) => acc2 + detail.quantity, 0),
+      (sale.saleDetails || []).reduce(
+        (acc2, detail) => acc2 + detail.quantity,
+        0
+      ),
     0
   );
 
@@ -138,6 +140,7 @@ async function SalesData({
           initialData={reportData}
           initialPage={page}
           initialSearch={search}
+          initialLimit={limit}
         />
       </>
     );

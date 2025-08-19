@@ -7,9 +7,9 @@ export interface Datum {
   id: number;
   date: Date;
   total: string;
-  branch: Branch;
-  cash_register: CashRegister;
-  user: User;
+  branch: Branch | null;
+  cash_register: CashRegister | null;
+  user: User | null;
   saleDetails: SaleDetail[];
 }
 
