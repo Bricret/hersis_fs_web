@@ -52,7 +52,6 @@ export class NotificationApiRepository implements INotificationRepository {
     const token = this.getToken();
     const response = await this.http.patch<Notification>(
       `/notifications/${id}/read`,
-      {},
       { Authorization: `Bearer ${token}` }
     );
     return response;
@@ -62,7 +61,6 @@ export class NotificationApiRepository implements INotificationRepository {
     const token = this.getToken();
     const response = await this.http.patch<Notification>(
       `/notifications/${id}/dismiss`,
-      {},
       { Authorization: `Bearer ${token}` }
     );
     return response;
@@ -72,7 +70,6 @@ export class NotificationApiRepository implements INotificationRepository {
     const token = this.getToken();
     const response = await this.http.patch<Notification>(
       `/notifications/${id}/archive`,
-      {},
       { Authorization: `Bearer ${token}` }
     );
     return response;
@@ -80,10 +77,8 @@ export class NotificationApiRepository implements INotificationRepository {
 
   async deleteNotification(id: string): Promise<void> {
     const token = this.getToken();
-    await this.http.delete<void>(
-      `/notifications/${id}`,
-      {},
-      { Authorization: `Bearer ${token}` }
-    );
+    await this.http.delete<void>(`/notifications/${id}`, {
+      Authorization: `Bearer ${token}`,
+    });
   }
 }

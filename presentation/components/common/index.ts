@@ -1,11 +1,12 @@
+export { Header } from "./Header";
 export { default as Banner } from "./Banner";
 export { ErrorBoundary } from "./ErrorBoundary";
-export { Header } from "./Header";
 export { LoadingState } from "./LoadingState";
-export { default as NotificationPopover } from "./NotificationPopover";
-export { default as PlusMinusInput } from "./PlusMinusInput";
-export { RouteGuard } from "./RouteGuard";
 export { ProtectedRoute } from "./ProtectedRoute";
+export { RouteGuard } from "./RouteGuard";
 export { UserInfo } from "./UserInfo";
 export { UserProfileDialog } from "./UserProfileDialog";
+export { default as NotificationPopover } from "./NotificationPopover";
+export { default as PlusMinusInput } from "./PlusMinusInput";
+export { NotificationProvider } from "@/presentation/providers/NotificationProvider";
 export * from "./Forms";

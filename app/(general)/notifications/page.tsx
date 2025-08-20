@@ -4,24 +4,25 @@ import { NotificationStatus } from "@/core/domain/entity/notification.entity";
 import { NotificationsClientContent } from "./components";
 
 interface NotificationPageProps {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     status?: string;
     type?: string;
-  };
+  }>;
 }
 
 export default async function NotificationPage({
   searchParams,
 }: NotificationPageProps) {
-  const page = Number(searchParams.page) || 1;
-  const status = searchParams.status as NotificationStatus | undefined;
-  const type = searchParams.type;
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const status = params.status as NotificationStatus | undefined;
+  const type = params.type;
 
   try {
     const notificationsData = await getAllNotifications(
       page,
-      10, // limit
+      20, // limit
       status,
       type
     );

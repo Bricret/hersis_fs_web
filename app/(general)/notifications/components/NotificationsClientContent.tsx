@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/presentation/components/ui/badge";
 import { Button } from "@/presentation/components/ui/button";
@@ -33,6 +33,8 @@ import {
   ShoppingCart,
   AlertCircle,
   Info,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 import {
   Notification,
@@ -48,6 +50,7 @@ import {
   deleteNotification,
 } from "@/presentation/services/server/notification.server";
 import { toast } from "sonner";
+import { useNotificationContext } from "@/presentation/providers/NotificationProvider";
 
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
@@ -159,6 +162,12 @@ export function NotificationsClientContent({
 }: NotificationsClientContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const {
+    isWebSocketConnected,
+    requestPushPermission,
+    pushPermission,
+    isPushSupported,
+  } = useNotificationContext();
 
   const [notifications, setNotifications] = useState(initialData.notifications);
   const [selectedPriority, setSelectedPriority] = useState<
@@ -311,6 +320,16 @@ export function NotificationsClientContent({
     updateUrlParams({ page: page.toString() });
   };
 
+  // Función para solicitar permiso de notificaciones push
+  const handleRequestPushPermission = async () => {
+    try {
+      await requestPushPermission();
+      toast.success("Permiso de notificaciones push concedido");
+    } catch (error) {
+      toast.error("Error al solicitar permiso de notificaciones push");
+    }
+  };
+
   // Pagination info
   const totalPages = Math.ceil(initialData.total / initialData.limit);
   const hasNextPage = currentPage < totalPages;
@@ -318,81 +337,114 @@ export function NotificationsClientContent({
 
   return (
     <div className="flex-1 p-6 space-y-6 overflow-auto">
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-600">Total</p>
+      {/* Main Dashboard Layout */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* WebSocket Status Card - Left Side */}
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm flex-1">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              {isWebSocketConnected ? (
+                <Wifi className="w-5 h-5 text-green-500" />
+              ) : (
+                <WifiOff className="w-5 h-5 text-red-500" />
+              )}
+              Estado de Conexión
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`flex items-center gap-2 ${
+                    isWebSocketConnected ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {isWebSocketConnected ? (
+                    <>
+                      <Wifi className="w-4 h-4" />
+                      <span className="font-medium">Conectado</span>
+                    </>
+                  ) : (
+                    <>
+                      <WifiOff className="w-4 h-4" />
+                      <span className="font-medium">Desconectado</span>
+                    </>
+                  )}
+                </div>
+                <span className="text-sm text-gray-600">
+                  {isWebSocketConnected
+                    ? "Recibiendo notificaciones en tiempo real"
+                    : "No se pueden recibir notificaciones en tiempo real"}
+                </span>
+              </div>
+
+              {isPushSupported && (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-600">
+                    Notificaciones Push:{" "}
+                    {pushPermission === "granted"
+                      ? "Activadas"
+                      : "Desactivadas"}
+                  </span>
+                  {pushPermission !== "granted" && (
+                    <Button
+                      onClick={handleRequestPushPermission}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <Settings className="w-4 h-4" />
+                      Activar Push
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Statistics Cards - Right Side */}
+        <div className="grid grid-cols-3 gap-4 flex-1">
+          <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 shadow-md hover:shadow-lg transition-shadow">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <p className="text-xs font-medium text-blue-600 mb-1">Total</p>
                 <p className="text-2xl font-bold text-blue-800">
                   {notificationCounts.total}
                 </p>
+                <Bell className="h-6 w-6 text-blue-500 mx-auto mt-2" />
               </div>
-              <Bell className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="bg-gradient-to-r from-red-50 to-red-100 border-red-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-red-600">Sin Leer</p>
+          <Card className="bg-gradient-to-r from-red-50 to-red-100 border-red-200 shadow-md hover:shadow-lg transition-shadow">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <p className="text-xs font-medium text-red-600 mb-1">
+                  Sin Leer
+                </p>
                 <p className="text-2xl font-bold text-red-800">
                   {notificationCounts.unread}
                 </p>
+                <Eye className="h-6 w-6 text-red-500 mx-auto mt-2" />
               </div>
-              <Eye className="h-8 w-8 text-red-500" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-600">Leídas</p>
+          <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200 shadow-md hover:shadow-lg transition-shadow">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <p className="text-sm font-medium text-green-600 mb-1">
+                  Leídas
+                </p>
                 <p className="text-2xl font-bold text-green-800">
                   {notificationCounts.read}
                 </p>
+                <EyeOff className="h-6 w-6 text-green-500 mx-auto mt-2" />
               </div>
-              <EyeOff className="h-8 w-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-yellow-600">
-                  Descartadas
-                </p>
-                <p className="text-2xl font-bold text-yellow-800">
-                  {notificationCounts.dismissed}
-                </p>
-              </div>
-              <CheckCircle className="h-8 w-8 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-purple-600">
-                  Archivadas
-                </p>
-                <p className="text-2xl font-bold text-purple-800">
-                  {notificationCounts.archived}
-                </p>
-              </div>
-              <Archive className="h-8 w-8 text-purple-500" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Filters and Actions */}

@@ -131,7 +131,6 @@ async function SalesData({
 
   try {
     const reportData = await getReportSales(page, limit, search);
-    console.log("reportData", reportData);
 
     return (
       <>
