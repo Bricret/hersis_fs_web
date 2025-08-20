@@ -43,12 +43,6 @@ export async function markNotificationAsDismissed(
   return await notificationService.markAsDismissed(id);
 }
 
-export async function markNotificationAsArchived(
-  id: string
-): Promise<Notification> {
-  return await notificationService.markAsArchived(id);
-}
-
 export async function deleteNotification(id: string): Promise<void> {
   return await notificationService.deleteNotification(id);
 }

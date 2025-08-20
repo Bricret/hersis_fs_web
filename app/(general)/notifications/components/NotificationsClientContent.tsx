@@ -35,6 +35,7 @@ import {
   Info,
   Wifi,
   WifiOff,
+  Trash2,
 } from "lucide-react";
 import {
   Notification,
@@ -46,7 +47,6 @@ import {
 import {
   markNotificationAsRead,
   markNotificationAsDismissed,
-  markNotificationAsArchived,
   deleteNotification,
   refreshNotifications,
 } from "@/presentation/services/server/notification.server";
@@ -260,18 +260,14 @@ export function NotificationsClientContent({
     }
   };
 
-  const handleArchive = async (id: string) => {
+  const handleDelete = async (id: string) => {
     try {
       setIsLoading(true);
-      await markNotificationAsArchived(id);
-      setNotifications((prev) =>
-        prev.map((n) =>
-          n.id === id ? { ...n, status: NotificationStatus.ARCHIVED } : n
-        )
-      );
-      toast.success("Notificación archivada");
+      await deleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      toast.success("Notificación Eliminada");
     } catch (error) {
-      toast.error("Error al archivar notificación");
+      toast.error("Error al eliminar notificación");
     } finally {
       setIsLoading(false);
     }
@@ -516,11 +512,6 @@ export function NotificationsClientContent({
                 Actualizar
               </Button>
 
-              <Button variant="outline" className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                Configurar Tipos
-              </Button>
-
               {notificationCounts.unread > 0 && (
                 <Button
                   onClick={handleMarkAllAsRead}
@@ -636,21 +627,12 @@ export function NotificationsClientContent({
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => handleDismiss(notification.id)}
-                      className="h-8 w-8 p-0 text-yellow-600 hover:text-yellow-700"
-                      disabled={isLoading}
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                    </Button>
-
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleArchive(notification.id)}
+                      color="destructive"
+                      onClick={() => handleDelete(notification.id)}
                       className="h-8 w-8 p-0 text-gray-600 hover:text-gray-700"
                       disabled={isLoading}
                     >
-                      <Archive className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>

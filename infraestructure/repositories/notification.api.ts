@@ -75,10 +75,7 @@ export class NotificationApiRepository implements INotificationRepository {
   }
 
   async deleteNotification(id: string): Promise<void> {
-    const token = this.getToken();
-    await this.http.delete<void>(`/notifications/${id}`, {
-      Authorization: `Bearer ${token}`,
-    });
+    await this.http.delete<void>(`/notifications/${id}`, {});
   }
 
   // Nuevos métodos para verificar stock bajo y productos próximos a vencer
