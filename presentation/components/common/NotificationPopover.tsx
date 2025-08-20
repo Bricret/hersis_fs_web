@@ -224,7 +224,7 @@ export default function NotificationPopover() {
                     </div>
 
                     <button
-                      className="text-foreground/80 text-left after:absolute after:inset-0 w-full text-left"
+                      className="text-foreground/80 text-left after:absolute after:inset-0 w-full"
                       onClick={() => handleNotificationClick(notification)}
                     >
                       <div className="font-medium text-foreground hover:underline mb-1">

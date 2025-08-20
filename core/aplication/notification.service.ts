@@ -96,4 +96,33 @@ export class NotificationService {
       throw new Error("Error desconocido al eliminar la notificación");
     }
   }
+
+  // Nuevos métodos para verificar stock bajo y productos próximos a vencer
+  async checkLowStock(): Promise<void> {
+    try {
+      await this.repository.checkLowStock();
+    } catch (error) {
+      console.error("Error en NotificationService.checkLowStock:", error);
+      if (error instanceof Error) {
+        throw new Error(`Error al verificar stock bajo: ${error.message}`);
+      }
+      throw new Error("Error desconocido al verificar stock bajo");
+    }
+  }
+
+  async checkExpiring(): Promise<void> {
+    try {
+      await this.repository.checkExpiring();
+    } catch (error) {
+      console.error("Error en NotificationService.checkExpiring:", error);
+      if (error instanceof Error) {
+        throw new Error(
+          `Error al verificar productos próximos a vencer: ${error.message}`
+        );
+      }
+      throw new Error(
+        "Error desconocido al verificar productos próximos a vencer"
+      );
+    }
+  }
 }

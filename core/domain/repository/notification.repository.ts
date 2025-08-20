@@ -21,4 +21,8 @@ export interface INotificationRepository {
   markAsArchived(id: string): Promise<Notification>;
 
   deleteNotification(id: string): Promise<void>;
+
+  checkLowStock(): Promise<void>;
+
+  checkExpiring(): Promise<void>;
 }

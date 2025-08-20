@@ -48,6 +48,7 @@ import {
   markNotificationAsDismissed,
   markNotificationAsArchived,
   deleteNotification,
+  refreshNotifications,
 } from "@/presentation/services/server/notification.server";
 import { toast } from "sonner";
 import { useNotificationContext } from "@/presentation/providers/NotificationProvider";
@@ -303,13 +304,19 @@ export function NotificationsClientContent({
     }
   };
 
-  const handleRefresh = () => {
-    router.refresh();
-    toast.success("Notificaciones actualizadas");
-  };
-
-  const handleStatusChange = (status: string) => {
-    updateUrlParams({ status, page: "1" });
+  const handleRefresh = async () => {
+    try {
+      setIsLoading(true);
+      await refreshNotifications();
+      toast.success("Notificaciones actualizadas");
+      // Refrescar la página para mostrar las nuevas notificaciones
+      router.refresh();
+    } catch (error) {
+      toast.error("Error al actualizar notificaciones");
+      console.error("Error al refrescar notificaciones:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleTypeChange = (type: string) => {
@@ -493,33 +500,6 @@ export function NotificationsClientContent({
                         {getPriorityLabel(priority)}
                       </SelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Estado</label>
-                <Select
-                  value={initialStatus}
-                  onValueChange={handleStatusChange}
-                >
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Seleccionar estado" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value={NotificationStatus.UNREAD}>
-                      Sin leer
-                    </SelectItem>
-                    <SelectItem value={NotificationStatus.READ}>
-                      Leídas
-                    </SelectItem>
-                    <SelectItem value={NotificationStatus.DISMISSED}>
-                      Descartadas
-                    </SelectItem>
-                    <SelectItem value={NotificationStatus.ARCHIVED}>
-                      Archivadas
-                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

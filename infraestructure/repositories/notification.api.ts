@@ -49,10 +49,9 @@ export class NotificationApiRepository implements INotificationRepository {
   }
 
   async markAsRead(id: string): Promise<Notification> {
-    const token = this.getToken();
     const response = await this.http.patch<Notification>(
       `/notifications/${id}/read`,
-      { Authorization: `Bearer ${token}` }
+      {}
     );
     return response;
   }
@@ -80,5 +79,14 @@ export class NotificationApiRepository implements INotificationRepository {
     await this.http.delete<void>(`/notifications/${id}`, {
       Authorization: `Bearer ${token}`,
     });
+  }
+
+  // Nuevos métodos para verificar stock bajo y productos próximos a vencer
+  async checkLowStock(): Promise<void> {
+    await this.http.post<void>(`/notifications/check-low-stock`, {});
+  }
+
+  async checkExpiring(): Promise<void> {
+    await this.http.post<void>(`/notifications/check-expiring`, {});
   }
 }

@@ -1,6 +1,7 @@
+"use server";
+
 import { ReportSalesService } from "@/core/aplication/report-sales.service";
 import { ReportSalesApiRepository } from "@/infraestructure/repositories/report-sales.api";
-import { HttpAdapter } from "@/infraestructure/adapters/http/http.adapter";
 import { ReportSales } from "@/core/domain/entity/report-sales.entity";
 import { APIFetcher } from "@/infraestructure/adapters/API.adapter";
 
