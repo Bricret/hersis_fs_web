@@ -65,6 +65,12 @@ export default function ProductCatalog({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Referencias para manejo de escáner de código de barras
+  const scannerBuffer = useRef<string>("");
+  const scannerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastInputTimeRef = useRef<number>(0);
+  const isFromScannerRef = useRef<boolean>(false);
+
   // Función para buscar productos
   const searchProducts = useCallback(
     async (searchTerm: string, page: number = 1) => {
@@ -100,44 +106,168 @@ export default function ProductCatalog({
     []
   );
 
+  // Función para procesar código de barras escaneado
+  const processBarcodeFromScanner = useCallback(
+    (barcode: string) => {
+      // Buscar producto por código de barras en todos los productos, no solo los filtrados
+      let product = products.find((p) => p.barCode === barcode);
+
+      // Si no se encuentra en los productos actuales, buscar en la API
+      if (!product && barcode.length >= 6) {
+        searchProducts(barcode, 1).then(() => {
+          // Buscar nuevamente después de la búsqueda
+          setTimeout(() => {
+            const foundProduct = products.find((p) => p.barCode === barcode);
+            if (foundProduct) {
+              onProductSelect(foundProduct);
+              setSearchValue("");
+              searchInputRef.current?.focus();
+              toast.success("Producto escaneado agregado al carrito", {
+                description: foundProduct.name,
+                duration: 2000,
+              });
+            } else {
+              toast.error("Producto no encontrado", {
+                description: `Código: ${barcode}`,
+                duration: 3000,
+              });
+              setSearchValue("");
+            }
+          }, 100);
+        });
+        return;
+      }
+
+      if (product) {
+        onProductSelect(product);
+        setSearchValue("");
+        searchInputRef.current?.focus();
+        toast.success("Producto escaneado agregado al carrito", {
+          description: product.name,
+          duration: 2000,
+        });
+      } else {
+        toast.error("Producto no encontrado", {
+          description: `Código: ${barcode}`,
+          duration: 3000,
+        });
+        setSearchValue("");
+      }
+    },
+    [products, onProductSelect, searchProducts]
+  );
+
+  // Detectar entrada desde escáner de código de barras
+  const detectScannerInput = useCallback(
+    (inputValue: string, inputSpeed: number) => {
+      // Criterios para detectar un escáner:
+      // 1. Entrada muy rápida (menos de 50ms entre caracteres)
+      // 2. Solo números o números con letras (códigos de barras comunes)
+      // 3. Longitud mínima de 6 caracteres
+      // 4. Entrada completa en menos de 100ms
+
+      const isFastInput = inputSpeed < 50;
+      const isBarcodeLike = /^[0-9A-Za-z\-\_\.]+$/.test(inputValue);
+      const isMinLength = inputValue.length >= 6;
+
+      return isFastInput && isBarcodeLike && isMinLength;
+    },
+    []
+  );
+
+  // Manejar eventos de tecla para detectar escáner
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const currentTime = Date.now();
+      const timeDiff = currentTime - lastInputTimeRef.current;
+
+      // Si es Enter y tenemos un buffer del escáner, procesarlo
+      if (e.key === "Enter" && scannerBuffer.current) {
+        e.preventDefault();
+        const barcode = scannerBuffer.current;
+        scannerBuffer.current = "";
+
+        if (barcode.length >= 6) {
+          isFromScannerRef.current = true;
+          processBarcodeFromScanner(barcode);
+        }
+        return;
+      }
+
+      // Detectar entrada rápida típica de escáner
+      if (timeDiff < 50 && e.key.length === 1) {
+        isFromScannerRef.current = true;
+      }
+
+      lastInputTimeRef.current = currentTime;
+    },
+    [processBarcodeFromScanner]
+  );
+
   // Manejar cambios en el input de búsqueda
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearchValue(value);
+    const currentTime = Date.now();
+    const timeDiff = currentTime - lastInputTimeRef.current;
 
-    // Limpiar timeout anterior
+    // Limpiar timeouts anteriores
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
+    if (scannerTimeoutRef.current) {
+      clearTimeout(scannerTimeoutRef.current);
+    }
 
-    // Detectar código de barras (solo números, mínimo 8 dígitos)
-    if (/^\d{8,}$/.test(value)) {
+    // Detectar si la entrada viene de un escáner
+    if (isFromScannerRef.current || detectScannerInput(value, timeDiff)) {
+      // Agregar al buffer del escáner
+      scannerBuffer.current = value;
+
+      // Resetear el flag después de un tiempo
+      scannerTimeoutRef.current = setTimeout(() => {
+        isFromScannerRef.current = false;
+
+        // Si el buffer tiene contenido, procesarlo como código de barras
+        if (scannerBuffer.current && scannerBuffer.current.length >= 6) {
+          processBarcodeFromScanner(scannerBuffer.current);
+          scannerBuffer.current = "";
+        }
+      }, 100);
+
+      setSearchValue(value);
+      return;
+    }
+
+    // Manejo normal para entrada manual
+    setSearchValue(value);
+
+    // Detectar código de barras ingresado manualmente
+    if (/^\d{6,}$/.test(value) && value.length >= 8) {
       const product = products.find((p) => p.barCode === value);
       if (product) {
         onProductSelect(product);
         setSearchValue("");
         searchInputRef.current?.focus();
         toast.success("Producto agregado al carrito");
-      } else {
-        toast.error("Producto no encontrado");
-        setSearchValue("");
+        return;
       }
-      return;
     }
 
-    // Búsqueda con debounce
+    // Búsqueda con debounce para texto normal
     searchTimeoutRef.current = setTimeout(() => {
-      searchProducts(value, 1);
+      if (value.length >= 2 || value.length === 0) {
+        searchProducts(value, 1);
 
-      // Actualizar URL
-      const urlParams = new URLSearchParams();
-      if (value.trim()) {
-        urlParams.set("search", value.trim());
+        // Actualizar URL
+        const urlParams = new URLSearchParams();
+        if (value.trim()) {
+          urlParams.set("search", value.trim());
+        }
+        const newUrl = `${window.location.pathname}${
+          urlParams.toString() ? `?${urlParams.toString()}` : ""
+        }`;
+        window.history.replaceState({}, "", newUrl);
       }
-      const newUrl = `${window.location.pathname}${
-        urlParams.toString() ? `?${urlParams.toString()}` : ""
-      }`;
-      window.history.replaceState({}, "", newUrl);
     }, 300);
   };
 
@@ -155,6 +285,76 @@ export default function ProductCatalog({
     scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Listener global para códigos de barras escaneados
+  useEffect(() => {
+    let globalScannerBuffer = "";
+    let globalScannerTimeout: NodeJS.Timeout | null = null;
+    let lastGlobalInputTime = 0;
+
+    const handleGlobalKeyPress = (e: KeyboardEvent) => {
+      const currentTime = Date.now();
+      const timeDiff = currentTime - lastGlobalInputTime;
+
+      // Solo procesar si no estamos en un input o textarea
+      const target = e.target as HTMLElement;
+      if (
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
+      ) {
+        return;
+      }
+
+      // Si es Enter, procesar el buffer global
+      if (e.key === "Enter" && globalScannerBuffer.length >= 6) {
+        e.preventDefault();
+        processBarcodeFromScanner(globalScannerBuffer);
+        globalScannerBuffer = "";
+        searchInputRef.current?.focus();
+        return;
+      }
+
+      // Acumular caracteres si son de tipo código de barras
+      if (e.key.length === 1 && /[0-9A-Za-z\-\_\.]/.test(e.key)) {
+        // Si la entrada es muy rápida, probablemente es un escáner
+        if (timeDiff < 50 || globalScannerBuffer.length === 0) {
+          globalScannerBuffer += e.key;
+
+          // Limpiar timeout anterior
+          if (globalScannerTimeout) {
+            clearTimeout(globalScannerTimeout);
+          }
+
+          // Establecer timeout para procesar automáticamente
+          globalScannerTimeout = setTimeout(() => {
+            if (globalScannerBuffer.length >= 6) {
+              processBarcodeFromScanner(globalScannerBuffer);
+              searchInputRef.current?.focus();
+            }
+            globalScannerBuffer = "";
+          }, 150);
+        } else {
+          // Si la entrada es lenta, resetear buffer (entrada manual)
+          globalScannerBuffer = "";
+        }
+      } else if (e.key !== "Enter") {
+        // Resetear buffer para otras teclas
+        globalScannerBuffer = "";
+      }
+
+      lastGlobalInputTime = currentTime;
+    };
+
+    // Agregar listener global
+    document.addEventListener("keydown", handleGlobalKeyPress);
+
+    return () => {
+      document.removeEventListener("keydown", handleGlobalKeyPress);
+      if (globalScannerTimeout) {
+        clearTimeout(globalScannerTimeout);
+      }
+    };
+  }, [processBarcodeFromScanner]);
+
   // Focus automático en el input
   useEffect(() => {
     const focusInput = () => searchInputRef.current?.focus();
@@ -168,6 +368,9 @@ export default function ProductCatalog({
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
+      }
+      if (scannerTimeoutRef.current) {
+        clearTimeout(scannerTimeoutRef.current);
       }
     };
   }, []);
@@ -204,6 +407,7 @@ export default function ProductCatalog({
               placeholder="Buscar productos o escanear código de barras..."
               value={searchValue}
               onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
               className="pl-9"
               autoFocus
             />
