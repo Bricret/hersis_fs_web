@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import {
   Search,
   Pill,
@@ -47,7 +46,6 @@ export default function ProductCatalog({
   totalItems: initialTotalItems,
   initialSearch = "",
 }: ProductCatalogProps) {
-  const router = useRouter();
   const isMobile = useIsMobile();
 
   // Estados locales simples
@@ -64,6 +62,7 @@ export default function ProductCatalog({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Referencias para manejo de escáner de código de barras
   const scannerBuffer = useRef<string>("");
@@ -74,6 +73,15 @@ export default function ProductCatalog({
   // Función para buscar productos
   const searchProducts = useCallback(
     async (searchTerm: string, page: number = 1) => {
+      // Cancelar solicitud anterior si existe
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      // Crear nuevo AbortController para esta solicitud
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       setLoading(true);
       try {
         const params = new URLSearchParams();
@@ -84,13 +92,15 @@ export default function ProductCatalog({
         }
 
         const response = await fetch(
-          `/api/inventory/search?${params.toString()}`
+          `/api/inventory/search?${params.toString()}`,
+          { signal: controller.signal },
         );
+
         if (!response.ok) throw new Error("Error en la búsqueda");
 
         const result = await response.json();
         const activeProducts = result.data.filter(
-          (product: Inventory) => product.is_active
+          (product: Inventory) => product.is_active,
         );
 
         setProducts(activeProducts);
@@ -98,23 +108,43 @@ export default function ProductCatalog({
         setTotalPages(result.meta.totalPages);
         setTotalItems(result.meta.total);
       } catch (error) {
-        toast.error("Error al buscar productos");
+        // No mostrar error si la solicitud fue cancelada
+        if (error instanceof Error && error.name !== "AbortError") {
+          toast.error("Error al buscar productos");
+        }
       } finally {
-        setLoading(false);
+        // Solo desactivar el loading si esta petición sigue siendo la activa
+        if (abortControllerRef.current === controller) {
+          setLoading(false);
+        }
       }
     },
-    []
+    [],
   );
 
   // Función para procesar código de barras escaneado
   const processBarcodeFromScanner = useCallback(
-    (barcode: string) => {
-      // Buscar producto por código de barras en todos los productos, no solo los filtrados
+    async (barcode: string) => {
+      // Buscar producto por código de barras en los productos actuales
       let product = products.find((p) => p.barCode === barcode);
 
-      // Si no se encuentra en los productos actuales, buscar en la API
-      if (!product && barcode.length >= 6) {
-        searchProducts(barcode, 1).then(() => {
+      // Si se encuentra en los productos actuales, agregarlo inmediatamente
+      if (product) {
+        onProductSelect(product);
+        setSearchValue("");
+        searchInputRef.current?.focus();
+        toast.success("Producto escaneado agregado al carrito", {
+          description: product.name,
+          duration: 2000,
+        });
+        return;
+      }
+
+      // Si no se encuentra, buscar en la API
+      if (barcode.length >= 6) {
+        try {
+          await searchProducts(barcode, 1);
+
           // Buscar nuevamente después de la búsqueda
           setTimeout(() => {
             const foundProduct = products.find((p) => p.barCode === barcode);
@@ -134,45 +164,41 @@ export default function ProductCatalog({
               setSearchValue("");
             }
           }, 100);
-        });
-        return;
-      }
-
-      if (product) {
-        onProductSelect(product);
-        setSearchValue("");
-        searchInputRef.current?.focus();
-        toast.success("Producto escaneado agregado al carrito", {
-          description: product.name,
-          duration: 2000,
-        });
+        } catch (error) {
+          toast.error("Error al buscar producto", {
+            description: `Código: ${barcode}`,
+            duration: 3000,
+          });
+          setSearchValue("");
+        }
       } else {
-        toast.error("Producto no encontrado", {
+        toast.error("Código de barras inválido", {
           description: `Código: ${barcode}`,
           duration: 3000,
         });
         setSearchValue("");
       }
     },
-    [products, onProductSelect, searchProducts]
+    [products, onProductSelect, searchProducts],
   );
 
   // Detectar entrada desde escáner de código de barras
   const detectScannerInput = useCallback(
     (inputValue: string, inputSpeed: number) => {
-      // Criterios para detectar un escáner:
-      // 1. Entrada muy rápida (menos de 50ms entre caracteres)
-      // 2. Solo números o números con letras (códigos de barras comunes)
-      // 3. Longitud mínima de 6 caracteres
-      // 4. Entrada completa en menos de 100ms
+      // Criterios MUY estrictos para detectar un escáner:
+      // 1. Entrada extremadamente rápida (menos de 20ms entre caracteres)
+      // 2. SOLO números (códigos de barras son típicamente numéricos)
+      // 3. Longitud mínima de 8 caracteres (códigos de barras reales)
+      // 4. Longitud completa aparece de una vez (entrada instantánea)
 
-      const isFastInput = inputSpeed < 50;
-      const isBarcodeLike = /^[0-9A-Za-z\-\_\.]+$/.test(inputValue);
-      const isMinLength = inputValue.length >= 6;
+      const isVeryFastInput = inputSpeed < 20;
+      const isOnlyNumbers = /^\d+$/.test(inputValue);
+      const isMinLength = inputValue.length >= 8;
 
-      return isFastInput && isBarcodeLike && isMinLength;
+      // Solo detectar como escáner si cumple TODOS los criterios estrictos
+      return isVeryFastInput && isOnlyNumbers && isMinLength;
     },
-    []
+    [],
   );
 
   // Manejar eventos de tecla para detectar escáner
@@ -187,21 +213,61 @@ export default function ProductCatalog({
         const barcode = scannerBuffer.current;
         scannerBuffer.current = "";
 
-        if (barcode.length >= 6) {
-          isFromScannerRef.current = true;
+        if (barcode.length >= 8 && /^\d+$/.test(barcode)) {
           processBarcodeFromScanner(barcode);
         }
         return;
       }
 
-      // Detectar entrada rápida típica de escáner
-      if (timeDiff < 50 && e.key.length === 1) {
+      // Solo detectar entrada de escáner si es EXTREMADAMENTE rápida y es un número
+      if (timeDiff < 15 && e.key.length === 1 && /^\d$/.test(e.key)) {
         isFromScannerRef.current = true;
+        // Resetear el flag después de poco tiempo para evitar falsos positivos
+        setTimeout(() => {
+          isFromScannerRef.current = false;
+        }, 50);
       }
 
       lastInputTimeRef.current = currentTime;
     },
-    [processBarcodeFromScanner]
+    [processBarcodeFromScanner],
+  );
+
+  // Función para procesar búsqueda manual (texto)
+  const handleManualSearch = useCallback(
+    (value: string) => {
+      // Limpiar timeout anterior
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+
+      // Búsqueda con debounce para texto normal
+      searchTimeoutRef.current = setTimeout(() => {
+        if (value.length >= 2 || value.length === 0) {
+          searchProducts(value, 1);
+        }
+      }, 300);
+    },
+    [searchProducts],
+  );
+
+  // Función para procesar códigos de barras manuales
+  const handleManualBarcode = useCallback(
+    (value: string) => {
+      // Detectar código de barras ingresado manualmente (solo números, 8+ caracteres)
+      if (/^\d{8,}$/.test(value)) {
+        const product = products.find((p) => p.barCode === value);
+        if (product) {
+          onProductSelect(product);
+          setSearchValue("");
+          searchInputRef.current?.focus();
+          toast.success("Producto agregado al carrito");
+          return true;
+        }
+      }
+      return false;
+    },
+    [products, onProductSelect],
   );
 
   // Manejar cambios en el input de búsqueda
@@ -210,65 +276,43 @@ export default function ProductCatalog({
     const currentTime = Date.now();
     const timeDiff = currentTime - lastInputTimeRef.current;
 
-    // Limpiar timeouts anteriores
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
+    // Actualizar el valor inmediatamente
+    setSearchValue(value);
+
+    // Limpiar timeouts de escáner anteriores
     if (scannerTimeoutRef.current) {
       clearTimeout(scannerTimeoutRef.current);
     }
 
-    // Detectar si la entrada viene de un escáner
-    if (isFromScannerRef.current || detectScannerInput(value, timeDiff)) {
-      // Agregar al buffer del escáner
+    // Solo detectar escáner si cumple criterios MUY estrictos
+    const isPotentialScanner = detectScannerInput(value, timeDiff);
+
+    if (isPotentialScanner && isFromScannerRef.current) {
+      // Agregar al buffer del escáner solo si realmente parece ser un escáner
       scannerBuffer.current = value;
 
       // Resetear el flag después de un tiempo
       scannerTimeoutRef.current = setTimeout(() => {
         isFromScannerRef.current = false;
 
-        // Si el buffer tiene contenido, procesarlo como código de barras
-        if (scannerBuffer.current && scannerBuffer.current.length >= 6) {
+        // Si el buffer tiene contenido y es solo números, procesarlo como código de barras
+        if (scannerBuffer.current && /^\d{8,}$/.test(scannerBuffer.current)) {
           processBarcodeFromScanner(scannerBuffer.current);
           scannerBuffer.current = "";
         }
       }, 100);
-
-      setSearchValue(value);
       return;
     }
 
-    // Manejo normal para entrada manual
-    setSearchValue(value);
+    // Resetear flag de escáner si no cumple criterios
+    isFromScannerRef.current = false;
 
-    // Detectar código de barras ingresado manualmente
-    if (/^\d{6,}$/.test(value) && value.length >= 8) {
-      const product = products.find((p) => p.barCode === value);
-      if (product) {
-        onProductSelect(product);
-        setSearchValue("");
-        searchInputRef.current?.focus();
-        toast.success("Producto agregado al carrito");
-        return;
-      }
+    // Manejo para entrada manual normal
+    // Primero verificar si es un código de barras manual (solo números largos)
+    if (!handleManualBarcode(value)) {
+      // Si no es código de barras, procesar como búsqueda de texto
+      handleManualSearch(value);
     }
-
-    // Búsqueda con debounce para texto normal
-    searchTimeoutRef.current = setTimeout(() => {
-      if (value.length >= 2 || value.length === 0) {
-        searchProducts(value, 1);
-
-        // Actualizar URL
-        const urlParams = new URLSearchParams();
-        if (value.trim()) {
-          urlParams.set("search", value.trim());
-        }
-        const newUrl = `${window.location.pathname}${
-          urlParams.toString() ? `?${urlParams.toString()}` : ""
-        }`;
-        window.history.replaceState({}, "", newUrl);
-      }
-    }, 300);
   };
 
   // Cambiar página
@@ -366,11 +410,16 @@ export default function ProductCatalog({
   // Cleanup
   useEffect(() => {
     return () => {
+      // Limpiar timeouts
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
       if (scannerTimeoutRef.current) {
         clearTimeout(scannerTimeoutRef.current);
+      }
+      // Cancelar solicitudes pendientes
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
     };
   }, []);

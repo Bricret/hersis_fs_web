@@ -53,7 +53,7 @@ export default function PosSection({
 }) {
   const [mode, setMode] = useState<"cashier" | "pharmacist">("cashier");
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
-    null
+    null,
   );
   const [isSelectionDialogOpen, setIsSelectionDialogOpen] = useState(false);
   const { addToCart } = useCart();
